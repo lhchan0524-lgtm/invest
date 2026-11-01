@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>모의투자 주문서</title>
+<meta name="theme-color" content="#FFFFFF">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<style>
+/* 모의투자 대회 — 디자인 시스템 (휴대폰)
+   면으로 나누고 선은 최소로 · 엑셀 초록이 브랜드 · 빨강/파랑은 등락에만 ·
+   가장 중요한 숫자(총자산) 하나에만 '선택된 셀'. */
+:root{color-scheme:light;}
+:root{
+  --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --bg:#F2F4F6; --surface:#FFFFFF; --surface-2:#F9FAFB; --fill:#F2F4F6; --fill-2:#E8EBED;
+  --line:#EEF0F2; --line-2:#DDE1E5;
+  --t1:#191F28; --t2:#4E5968; --t3:#8B95A1; --t4:#B0B8C1;
+  --brand:#107C41; --brand-hover:#0C6A37; --brand-soft:#E7F5EC; --brand-ink:#0B5E31;
+  --up:#F04452; --down:#3182F6;
+  --warn:#B25E00; --warn-soft:#FFF2D9;
+  --tap:3rem;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;background:var(--bg);color:var(--t1);font-family:var(--font);
+  font-size:16px;line-height:1.5;letter-spacing:-.01em;
+  -webkit-font-smoothing:antialiased;word-break:keep-all;-webkit-text-size-adjust:100%;
+}
+body.big-type{font-size:18px;}
+.num,.hq,.hv,.oamt,.sum dd,.v{font-variant-numeric:tabular-nums;}
+[hidden]{display:none!important;}
+button{font-family:inherit;font-size:inherit;cursor:pointer;color:inherit;}
+input,select,textarea{
+  font-family:inherit;font-size:16px;color:var(--t1);background:var(--fill);
+  border:1.5px solid transparent;border-radius:12px;padding:.7rem .85rem;width:100%;min-height:var(--tap);
+  transition:border-color .15s,background .15s,box-shadow .15s;
+}
+input:focus,select:focus,textarea:focus{outline:none;background:var(--surface);border-color:var(--brand);
+  box-shadow:0 0 0 4px var(--brand-soft);}
+select{appearance:none;-webkit-appearance:none;padding-right:2.2rem;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%238B95A1' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right .9rem center;}
+input[type=number]{font-variant-numeric:tabular-nums;}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;}
+
+.wrap{max-width:30rem;margin:0 auto;padding:.75rem .75rem calc(7.5rem + env(safe-area-inset-bottom));}
+
+/* ── 위쪽 고정: 우리 팀 · 남는 현금 ── */
+header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
+  -webkit-backdrop-filter:saturate(180%) blur(16px);backdrop-filter:saturate(180%) blur(16px);
+  border-bottom:1px solid var(--line);}
+.top-in{max-width:30rem;margin:0 auto;padding:.7rem 1.1rem .15rem;display:flex;align-items:center;gap:.5rem;}
+.brand{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;flex:none;
+  background:var(--brand);color:#fff;font-weight:800;font-size:.95rem;line-height:1;}
+.team{font-weight:700;font-size:1.02rem;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;}
+.grow{flex:1 1 auto;}
+.pill{display:inline-flex;align-items:center;height:26px;padding:0 .6rem;border-radius:999px;
+  font-size:.76rem;font-weight:700;white-space:nowrap;background:var(--fill);color:var(--t2);}
+.pill.phase{background:var(--brand-soft);color:var(--brand-ink);}
+.pill.phase.res{background:var(--t1);color:#fff;}
+.cashstrip{max-width:30rem;margin:0 auto;padding:.1rem 1.1rem .7rem;display:flex;align-items:baseline;gap:.5rem;}
+.cashstrip .lb{font-size:.82rem;color:var(--t3);font-weight:500;}
+.cashstrip .v{margin-left:auto;font-size:1.4rem;font-weight:800;letter-spacing:-.03em;}
+
+/* ── 카드 ── */
+.card{background:var(--surface);border-radius:22px;padding:1.3rem 1.2rem;margin-bottom:.75rem;}
+.card > h2{margin:0 0 .2rem;font-size:1.12rem;font-weight:700;letter-spacing:-.03em;}
+.card > .sub{margin:0 0 1rem;font-size:.86rem;color:var(--t3);line-height:1.5;}
+.card.locked{opacity:.45;}
+#teamCard.chosen{padding:.75rem 1rem;}
+#teamCard.chosen > h2,#teamCard.chosen > .sub{display:none;}
+#teamCard.chosen .note{margin-top:.45rem!important;}
+.row{display:flex;gap:.5rem;align-items:center;}
+.field{display:flex;flex-direction:column;gap:.35rem;}
+.field label{font-size:.8rem;font-weight:600;color:var(--t3);}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;border:0;
+  height:var(--tap);padding:0 1.1rem;border-radius:14px;background:var(--fill);color:var(--t1);
+  font-weight:700;font-size:1rem;transition:background .15s,transform .05s;}
+.btn:active{transform:scale(.98);}
+.btn.primary{background:var(--brand);color:#fff;}
+.btn.primary:hover{background:var(--brand-hover);}
+.btn.ghost{background:transparent;color:var(--t2);box-shadow:inset 0 0 0 1.5px var(--line-2);}
+.btn.sm{height:2.6rem;font-size:.92rem;}
+.btn.block{width:100%;}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.linkbtn{border:0;background:none;color:var(--t3);font-size:.84rem;font-weight:600;padding:.6rem;
+  text-decoration:underline;text-underline-offset:3px;}
+
+/* ── 뉴스 ── */
+.newsline{margin:0 0 1rem;background:var(--surface-2);border-radius:14px;padding:.9rem 1rem;
+  font-size:.92rem;line-height:1.6;color:var(--t1);font-weight:500;box-shadow:inset 0 0 0 1px var(--line);}
+.newsline::before{content:"뉴스";display:block;font-size:.74rem;font-weight:800;color:var(--brand);
+  margin-bottom:.25rem;}
+
+/* ── 줄 목록 (시세 · 보유) ── */
+.rowlist{display:block;}
+.hold-row{display:grid;grid-template-columns:1fr auto auto;gap:.75rem;align-items:center;padding:.62rem 0;
+  border-bottom:1px solid var(--line);}
+.hold-row:last-child{border-bottom:none;}
+.hold-row .hn{font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:.45rem;min-width:0;}
+.hold-row .hn small{font-size:.7rem;font-weight:600;padding:.12rem .42rem;border-radius:6px;
+  background:var(--fill);color:var(--t2);white-space:nowrap;}
+.hold-row .hq{font-size:1rem;font-weight:700;}
+.hold-row .hv{font-size:.86rem;font-weight:600;min-width:4.6rem;text-align:right;color:var(--t3);}
+.pos{color:var(--up)!important;} .neg{color:var(--down)!important;}
+
+/* ── 지금 가진 것 — 총자산에 '선택된 셀' ── */
+.tot{display:flex;align-items:flex-end;justify-content:space-between;gap:.6rem;margin:.2rem 0 1rem;}
+.tot-lb{font-size:.82rem;color:var(--t3);font-weight:500;}
+.tot-v{font-size:1.85rem;font-weight:800;letter-spacing:-.04em;line-height:1.1;
+  font-variant-numeric:tabular-nums;}
+.cell-sel{position:relative;box-shadow:inset 0 0 0 2px var(--brand);border-radius:8px;padding:.15rem .5rem;}
+.cell-sel::after{content:"";position:absolute;right:-4px;bottom:-4px;width:9px;height:9px;
+  background:var(--brand);border:2px solid var(--surface);border-radius:2px;}
+.tot-cash{text-align:right;font-size:.82rem;color:var(--t3);}
+.tot-cash b{display:block;color:var(--t1);font-size:1rem;font-weight:700;font-variant-numeric:tabular-nums;}
+
+/* ── 사고팔기 한 줄 목록 — 지금 가진 것 · 거래 후 · 주문이 한 줄에 ── */
+.grp{font-size:.76rem;font-weight:700;color:var(--t3);margin:1.1rem 0 .1rem;letter-spacing:0;}
+.grp:first-child{margin-top:.2rem;}
+.trow{display:grid;grid-template-columns:minmax(0,1fr) 6.3rem 5.4rem;column-gap:.45rem;align-items:center;
+  padding:.55rem 0;border-bottom:1px solid var(--line);}
+.trow:last-child{border-bottom:none;}
+.tinfo{min-width:0;}
+.tn{display:block;font-weight:700;font-size:.98rem;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;line-height:1.3;}
+.th{display:block;font-size:.84rem;font-weight:600;color:var(--t2);white-space:nowrap;line-height:1.35;
+  font-variant-numeric:tabular-nums;}
+.th .zero{color:var(--t4);font-weight:500;}
+.th .arr{color:var(--t4);margin:0 .2rem;font-weight:500;}
+.th b{font-weight:800;color:var(--t1);}
+.th b.pos{color:var(--up);} .th b.neg{color:var(--down);}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--fill);border-radius:11px;padding:3px;height:2.6rem;}
+.seg button{border:0;background:transparent;border-radius:8px;font-weight:700;font-size:.88rem;color:var(--t2);padding:0;}
+.seg button.sell.act{background:var(--down);color:#fff;}
+.seg button.buy.act{background:var(--up);color:#fff;}
+.seg button:disabled{color:var(--t4);cursor:not-allowed;}
+.qbox{position:relative;}
+.qbox input{height:2.6rem;min-height:0;padding:.3rem 1.7rem .3rem .5rem;text-align:right;font-weight:700;font-size:1rem;
+  border-radius:11px;}
+.qbox input::placeholder{font-weight:500;font-size:.86rem;}
+.qbox input.bad{border-color:var(--warn);background:var(--warn-soft);}
+.qbox .u{position:absolute;right:.6rem;top:50%;transform:translateY(-50%);font-size:.8rem;color:var(--t3);
+  pointer-events:none;font-weight:600;}
+.tamt{grid-column:1/-1;text-align:right;font-size:.78rem;color:var(--t3);font-weight:600;
+  margin-top:.3rem;font-variant-numeric:tabular-nums;}
+.tamt:empty{display:none;}
+.tdesc{display:block;font-size:.74rem;font-weight:500;color:var(--t3);line-height:1.3;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;}
+.tw{margin-left:.35rem;font-size:.74rem;font-weight:600;color:var(--t3);font-variant-numeric:tabular-nums;}
+.tw.over{color:#fff;background:var(--warn);padding:.05rem .38rem;border-radius:6px;font-weight:700;}
+.trow.capover .th b{color:var(--warn)!important;}
+.tamt.bad{color:var(--warn);}
+.locked .trow{grid-template-columns:1fr;}
+.locked .seg,.locked .qbox{display:none;}
+
+#warnNote{text-align:center;}
+
+/* ── 경고 ── */
+.alert{display:flex;gap:.5rem;padding:.8rem .95rem;margin-bottom:.5rem;font-size:.9rem;line-height:1.5;
+  border-radius:14px;font-weight:600;}
+.alert::before{flex:none;font-weight:800;}
+.alert.warn{background:var(--warn-soft);color:#7A4300;}
+.alert.warn::before{content:"!";display:inline-grid;place-items:center;width:1.25rem;height:1.25rem;
+  border-radius:50%;background:var(--warn);color:#fff;font-size:.78rem;margin-top:.1rem;}
+.alert.good{background:var(--brand-soft);color:var(--brand-ink);}
+.alert.good::before{content:"✓";}
+
+/* ── 요약 ── */
+.sum{display:grid;grid-template-columns:1fr auto;gap:.5rem 1rem;font-size:.94rem;margin:1rem 0 0;
+  padding-top:1rem;border-top:1px solid var(--line);}
+.sum dt{color:var(--t3);}
+.sum dd{margin:0;text-align:right;font-weight:600;}
+ #sumBox dt:nth-last-of-type(1),#sumBox dt:nth-last-of-type(2){color:var(--t1);font-weight:700;}
+#sumBox dd:nth-last-of-type(1),#sumBox dd:nth-last-of-type(2){font-weight:800;}
+#rulesBox .sum{border-top:0;padding-top:0;}
+
+/* ── 기록 ── */
+.hist{padding:.75rem 0;border-bottom:1px solid var(--line);}
+.hist:first-child{padding-top:0;}
+.hist:last-child{border-bottom:none;padding-bottom:0;}
+.hist b{font-weight:800;font-size:.9rem;margin-right:.5rem;color:var(--brand);}
+.hist .num{font-size:.9rem;color:var(--t1);font-weight:600;}
+.hist p{margin:.3rem 0 0;font-size:.86rem;color:var(--t3);line-height:1.5;}
+
+.note{font-size:.84rem;color:var(--t3);line-height:1.5;}
+.note.warn{color:var(--warn);font-weight:600;}
+.note.ok{color:var(--brand);font-weight:600;}
+
+/* ── 아래쪽 고정: 제출 ── */
+.actionbar{position:fixed;left:0;right:0;bottom:0;z-index:30;
+  background:linear-gradient(to top,var(--bg) 70%,rgba(242,244,246,0));
+  padding:1.2rem .75rem calc(.75rem + env(safe-area-inset-bottom));}
+.actionbar-in{max-width:30rem;margin:0 auto;display:flex;flex-direction:column;gap:.5rem;}
+.actionbar .note{text-align:center;min-height:1.2rem;}
+.actionbar .btn{width:100%;height:3.5rem;border-radius:16px;font-size:1.06rem;
+  box-shadow:0 6px 20px rgba(16,124,65,.25);}
+.actionbar .btn:disabled{box-shadow:none;background:var(--fill-2);color:var(--t3);opacity:1;}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <span class="brand">=</span>
+    <span class="team" id="pTeam">팀 미선택</span>
+    <span class="grow"></span>
+    <span class="pill" id="pRound">라운드 0</span>
+    <span class="pill phase" id="pPhase">대기</span>
+  </div>
+  <div class="cashstrip">
+    <span class="lb">거래 후 남는 현금</span>
+    <span class="v" id="hCash">—</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="card" id="teamCard">
+    <h2>우리 팀</h2>
+    <p class="sub">한 번만 고르면 이 기기에 저장됩니다.</p>
+    <div class="field"><select id="selTeam" aria-label="팀"></select></div>
+    <p class="note" id="linkNote" style="margin:.7rem 0 0"></p>
+  </section>
+
+  <section class="card">
+    <h2 id="roundTitle">이번 라운드</h2>
+    <p class="sub" id="roundSub">선생님 화면이 열리기를 기다리는 중입니다.</p>
+    <div id="newsBox"></div>
+  </section>
+
+  <section class="card" id="orderCard">
+    <h2>사고팔기</h2>
+    <p class="sub" id="posSub">라운드가 시작되면 채워집니다.</p>
+    <div class="tot">
+      <div>
+        <div class="tot-lb">총자산</div>
+        <div class="tot-v cell-sel" id="posTot">—</div>
+      </div>
+      <div class="tot-cash">거래 후 현금<b id="posCash">—</b></div>
+    </div>
+    <div id="interestBox"></div>
+    <div id="tradeList"></div>
+    <div id="alerts" style="margin-top:1rem"></div>
+    <dl class="sum" id="sumBox"></dl>
+  </section>
+
+  <section class="card" id="reasonCard">
+    <h2>매매 사유</h2>
+    <p class="sub">채점 30점이 걸린 칸입니다. 왜 그렇게 판단했는지 한두 문장으로.</p>
+    <textarea id="reason" rows="3" placeholder="예) 금리가 올라 채권값이 떨어질 것 같아 국채를 팔고 예금으로 옮겼다"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>우리 팀 기록</h2>
+    <p class="sub">제출한 라운드가 여기에 쌓입니다.</p>
+    <div id="histBox"></div>
+  </section>
+
+  <section class="card">
+    <h2>규칙</h2>
+    <div id="rulesBox"></div>
+  </section>
+
+  <div style="text-align:center"><button class="linkbtn" id="btnTheme">글자 크게</button></div>
+</div>
+
+<div class="actionbar">
+  <div class="actionbar-in">
+    <span class="note warn" id="warnNote"></span>
+    <span class="note" id="copyNote"></span>
+    <button class="btn primary" id="btnCommit">제출</button>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="engine.js"></script>
+<script src="db.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const LS = 'mockinvest.student.v2';
+  const clone = (o) => JSON.parse(JSON.stringify(o));
+  const el = (id) => document.getElementById(id);
+  const won = (n) => Math.round(n).toLocaleString('ko-KR');
+  const swon = (n) => (n > 0 ? '+' : '') + Math.round(n).toLocaleString('ko-KR');
+  const cls = (n) => n > 0 ? 'pos' : n < 0 ? 'neg' : '';
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  /* 이 기기에 남는 것은 팀 번호와 작성 중인 주문뿐 — 나머지는 전부 선생님 화면에서 온다 */
+  const DEF = { teamIdx: -1, lines: [], reason: '', forRound: -1 };
+  let S = load();
+  function load() {
+    try {
+      const p = JSON.parse(localStorage.getItem(LS) || 'null');
+      if (p) return Object.assign(clone(DEF), p);
+    } catch (e) {}
+    return clone(DEF);
+  }
+  function save() { try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {} }
+
+  /* 선생님 화면에서 실시간으로 오는 것 */
+  let LIVE = { round: 0, phase: 'order', pub: null, orders: {}, link: { state: 'idle', msg: '' } };
+
+  const seed = window.MI_CONFIG || {};
+  function view() {
+    const p = LIVE.pub || {};
+    return {
+      assets: p.assets || seed.assets || [],
+      teams:  p.teams  || seed.teams  || [],
+      rules:  p.rules  || seed.rules  || { initialCash: 10000000, stockCap: 0.4, minAssets: 3 },
+      news:   p.news   || [],
+      dates:  p.dates  || [],
+      prices: p.prices || []
+    };
+  }
+
+  /* 공개된 시세를 이번 라운드 길이에 맞춘다 — 앞으로의 시세는 애초에 오지 않는다 */
+  function pricesFor(round) {
+    const px = view().prices.slice();
+    if (!px.length) return null;
+    while (px.length < round + 1) px.push(px[px.length - 1]);
+    return px;
+  }
+
+  const teamName = () => view().teams[S.teamIdx] || '';
+
+  /* 내 팀의 지난 주문만 뽑아 엔진에 넣는다 */
+  function myOrders() {
+    const out = {}, tk = 't' + S.teamIdx, nm = teamName();
+    if (!nm) return out;
+    Object.keys(LIVE.orders || {}).forEach((rk) => {
+      const r = parseInt(String(rk).slice(1), 10);
+      const rec = (LIVE.orders[rk] || {})[tk];
+      if (isNaN(r) || !rec) return;
+      out[MIENGINE.okey(nm, r)] = {
+        items: (rec.items || []).map((o) => ({
+          asset: String(o.asset || ''), side: o.side === '매도' ? '매도' : '매수',
+          qty: Math.max(0, +o.qty || 0)
+        })),
+        reason: rec.reason || '', count: 1, at: rec.at || 0
+      };
+    });
+    return out;
+  }
+
+  /* 이번 라운드에 들어설 때의 보유·현금 */
+  function entering() {
+    const v = view(), px = pricesFor(LIVE.round), NA = v.assets.length;
+    const zero = { hold: new Array(NA).fill(0), cash: v.rules.initialCash };
+    if (!px || LIVE.round === 0 || !teamName()) return zero;
+    const eng = MIENGINE.runEngine(
+      { assets: v.assets, rules: v.rules, teams: [teamName()], prices: px }, myOrders());
+    const row = eng[LIVE.round - 1] && eng[LIVE.round - 1][0];
+    return row ? { hold: row.hold.slice(), cash: row.cash } : zero;
+  }
+
+  /* 작성 중인 주문을 반영한 결과 — 교사 엔진과 같은 순서 */
+  function compute() {
+    const v = view(), NA = v.assets.length, px = pricesFor(LIVE.round);
+    const base = entering();
+    const xp = px ? px[Math.max(0, LIVE.round - 1)] : null;
+    const net = new Array(NA).fill(0);
+    S.lines.forEach((l) => {
+      if (l.a >= 0 && l.q > 0) net[l.a] += (l.side === '매도' ? -l.q : l.q);
+    });
+    const nh = base.hold.map((h, i) => Math.max(0, h + net[i]));
+    const excess = nh.reduce((c, h, i) => c + (h > base.hold[i] + net[i] ? 1 : 0), 0);
+    if (!xp) return { ready: false, base: base, net: net, nh: nh, excess: excess };
+
+    const r = LIVE.round;
+    const interest = r === 0 ? 0
+      : base.hold.reduce((a, h, i) => a + h * xp[i] * (v.assets[i].rate || 0), 0);
+    const buy = nh.reduce((a, h, i) => a + (h - base.hold[i]) * xp[i], 0);
+    const fee = r === 0 ? 0
+      : nh.reduce((a, h, i) => a + Math.max(0, base.hold[i] - h) * xp[i] * (v.assets[i].fee || 0), 0);
+    const cash = base.cash + interest - buy - fee;
+    const val = nh.reduce((a, h, i) => a + h * xp[i], 0);
+    const tot = val + cash;
+    const stk = nh.map((h, i) => v.assets[i].kind === '주식' ? h * xp[i] : 0);
+    const mx = tot ? Math.max.apply(null, stk) / tot : 0;
+    const w = stk.map((x) => tot ? x / tot : 0);
+    const cap = v.rules.stockCap;
+    const overs = w.map((x, i) => x > cap ? i : -1).filter((i) => i >= 0);
+    /* 넘친 종목을 한도 안으로 — 거래 후 수량을 몇 주 줄이면 되는가 (팔 때 수수료까지 넣어 계산) */
+    const cut = w.map((x, i) => {
+      if (!(x > cap) || !xp[i]) return 0;
+      const f = r === 0 ? 0 : (v.assets[i].fee || 0);
+      return Math.ceil((nh[i] * xp[i] - cap * tot) / (xp[i] * (1 - cap * f)) - 1e-9);
+    });
+    const nAssets = nh.filter((q) => q > 0).length;
+    let bought = 0, sold = 0;
+    nh.forEach((h, i) => {
+      const d = h - base.hold[i];
+      if (d > 0) bought += d * xp[i]; else if (d < 0) sold += -d * xp[i];
+    });
+    return { ready: true, base: base, xp: xp, net: net, nh: nh, excess: excess,
+             interest: interest, buy: buy, fee: fee, cash: cash, tot: tot,
+             mx: mx, w: w, overs: overs, cut: cut, nAssets: nAssets, bought: bought, sold: sold };
+  }
+
+  const mySubmitted = () => (LIVE.orders['r' + LIVE.round] || {})['t' + S.teamIdx] || null;
+  const canOrder = () => LIVE.phase === 'order' && !!pricesFor(LIVE.round) && S.teamIdx >= 0;
+
+  /* ═══════════════ 렌더 ═══════════════ */
+  function renderAll() {
+    buildTeamSel();
+    el('pTeam').textContent = teamName() || '팀 미선택';
+    el('teamCard').classList.toggle('chosen', S.teamIdx >= 0);
+    el('pRound').textContent = '라운드 ' + LIVE.round;
+    el('pPhase').textContent = LIVE.phase === 'order' ? '주문 접수' : '결과 공개';
+    el('pPhase').classList.toggle('res', LIVE.phase !== 'order');
+    renderLink();
+    renderRound();
+    renderTotals();
+    renderTrade();
+    renderSum();
+    renderHist();
+    renderRules();
+    renderAction();
+  }
+
+  function renderLink() {
+    const n = el('linkNote'), st = LIVE.link.state;
+    const m = {
+      idle:       ['', '선생님 화면을 찾는 중…'],
+      connecting: ['', '연결 중…'],
+      online:     ['ok', '선생님 화면과 연결됐습니다.'],
+      offline:    ['warn', '인터넷이 끊겼습니다. 다시 붙는 중입니다.'],
+      local:      ['warn', '연습 모드입니다 — 제출이 선생님 화면으로 가지 않습니다.'],
+      error:      ['warn', LIVE.link.msg || '연결 오류']
+    }[st] || ['', ''];
+    n.className = 'note ' + m[0];
+    n.textContent = m[1];
+  }
+
+  function renderRound() {
+    const v = view(), px = pricesFor(LIVE.round);
+    const dl = v.dates[Math.max(0, LIVE.round - 1)] || '';
+    el('roundTitle').textContent = '라운드 ' + LIVE.round + (dl ? ' · ' + dl : '');
+    el('roundSub').textContent = !px
+      ? '선생님 화면이 열리기를 기다리는 중입니다.'
+      : LIVE.phase === 'order'
+        ? '가격은 공지 화면에서 확인하세요.'
+        : '결과가 공개됐습니다. 다음 라운드를 기다리세요.';
+    el('newsBox').innerHTML = v.news[LIVE.round]
+      ? '<p class="newsline">' + esc(v.news[LIVE.round]) + '</p>' : '';
+  }
+
+  /* 자산 하나에 주문은 한 줄 — 같은 자산을 사고 동시에 팔 일은 없다 */
+  const lineOf = (i) => S.lines.find((l) => l.a === i) || null;
+  function setLine(i, side, q) {
+    let l = lineOf(i);
+    if (!l) { l = { a: i, side: side || '매수', q: 0 }; S.lines.push(l); }
+    if (side) l.side = side;
+    if (q != null) l.q = Math.max(0, Math.floor(q) || 0);
+  }
+
+  function renderTotals() {
+    const C = compute();
+    if (!C.ready) {
+      el('posSub').textContent = '라운드가 시작되면 채워집니다.';
+      el('posTot').textContent = '—'; el('posCash').textContent = '—';
+      el('interestBox').innerHTML = ''; el('hCash').textContent = '—';
+      return;
+    }
+    el('posSub').textContent = LIVE.phase === 'order'
+      ? '자산마다 지금 수량 → 거래 후 수량이 보입니다. 팔기·사기를 누르고 수량만 적으세요.'
+      : '이번 라운드 결과입니다.';
+    el('posTot').textContent = won(C.tot) + '원';
+    el('posCash').textContent = won(C.cash) + '원';
+    el('hCash').textContent = won(C.cash) + '원';
+    el('interestBox').innerHTML = (LIVE.round > 0 && C.interest > 0)
+      ? '<p class="note ok" style="margin:0 0 .4rem">이자 · 배당 ' + won(C.interest) + '원이 현금으로 들어왔습니다.</p>'
+      : '';
+  }
+
+  const unit = (a) => a.kind === '주식' ? '주' : '좌';
+  const pctTxt = (x) => (x * 100 < 10 ? (x * 100).toFixed(1) : Math.round(x * 100)) + '%';
+
+  /* 한 줄의 '지금 → 거래 후'와 금액 — 수량을 칠 때는 이것만 다시 그린다(키보드가 닫히지 않게) */
+  function rowState(i, C) {
+    const v = view(), a = v.assets[i], l = lineOf(i);
+    const have = C.base.hold[i], q = l ? l.q : 0, side = l ? l.side : '';
+    const after = side === '매도' ? have - q : have + q;
+    const over = side === '매도' && q > have;
+    let top;
+    if (!q) top = have ? '<b>' + won(have) + '</b>' + unit(a) : '<span class="zero">없음</span>';
+    else top = (have ? won(have) : '0') + '<span class="arr">→</span>' +
+      '<b class="' + (over ? '' : side === '매도' ? 'neg' : 'pos') + '">' + won(Math.max(0, after)) + '</b>' + unit(a);
+    let amt = '', bad = false;
+    if (over) { amt = '가진 ' + won(have) + unit(a) + '보다 많이 팔 수 없어요'; bad = true; }
+    else if (q && C.xp) amt = (side === '매도' ? '팔면 +' : '사면 −') + won(q * C.xp[i]) + '원';
+    const isStock = a.kind === '주식', wv = isStock ? C.w[i] : 0, overCap = isStock && C.overs.indexOf(i) >= 0;
+    const wtxt = (isStock && C.nh[i] > 0) ? pctTxt(wv) : '';
+    if (overCap && !over) {
+      amt = (v.rules.stockCap * 100).toFixed(0) + '% 넘음 — ' + won(C.cut[i]) + unit(a) + ' 줄이면 됩니다';
+      bad = true;
+    }
+    return { top: top, amt: amt, bad: bad, q: q, side: side, have: have, wtxt: wtxt, overCap: overCap, sellOver: over };
+  }
+
+  function renderTrade() {
+    const v = view(), C = compute(), ok = canOrder();
+    el('orderCard').classList.toggle('locked', !ok);
+    el('reasonCard').classList.toggle('locked', !ok);
+    S.lines = S.lines.filter((l) => l.a >= 0 && l.a < v.assets.length);
+    if (!C.ready) { el('tradeList').innerHTML = ''; return; }
+    let html = '', kind = '';
+    v.assets.forEach((a, i) => {
+      if (a.kind !== kind) { kind = a.kind; html += '<div class="grp">' + esc(kind) + '</div>'; }
+      const r = rowState(i, C);
+      const canSell = r.have > 0;
+      html += '<div class="trow' + (r.q ? ' on' : '') + (r.overCap ? ' capover' : '') + '" data-i="' + i + '">' +
+        '<div class="tinfo"><span class="tn">' + esc(a.name) +
+          '<span class="tw' + (r.overCap ? ' over' : '') + '">' + r.wtxt + '</span></span>' +
+          '<span class="tdesc">' + esc([a.desc, a.rate ? (a.kind === '주식' ? '배당 ' : '이자 ') +
+            (a.rate * 100).toFixed(2) + '%' : ''].filter(Boolean).join(' · ')) + '</span>' +
+          '<span class="th">' + r.top + '</span></div>' +
+        '<div class="seg" role="group" aria-label="' + esc(a.name) + ' 팔기 또는 사기">' +
+          '<button class="sell' + (r.side === '매도' ? ' act' : '') + '" data-i="' + i + '" data-s="매도"' +
+            (canSell ? '' : ' disabled') + '>팔기</button>' +
+          '<button class="buy' + (r.side === '매수' ? ' act' : '') + '" data-i="' + i + '" data-s="매수">사기</button>' +
+        '</div>' +
+        '<div class="qbox"><input class="tq' + (r.sellOver ? ' bad' : '') + '" type="text" inputmode="numeric" ' +
+          'pattern="[0-9]*" autocomplete="off" data-i="' + i + '" value="' + (r.q || '') + '" placeholder="' +
+          (r.side === '매도' ? '최대 ' + won(r.have) : '수량') + '" aria-label="' + esc(a.name) + ' 수량">' +
+          '<span class="u">' + unit(a) + '</span></div>' +
+        '<span class="tamt' + (r.bad ? ' bad' : '') + '">' + esc(r.amt) + '</span>' +
+      '</div>';
+    });
+    el('tradeList').innerHTML = html;
+
+    el('tradeList').querySelectorAll('.seg button').forEach((b) => {
+      b.disabled = b.disabled || !ok;
+      b.onclick = function () {
+        const i = +this.dataset.i, l = lineOf(i);
+        if (l && l.side === this.dataset.s) {               /* 같은 쪽을 한 번 더 누르면 취소 */
+          S.lines.splice(S.lines.indexOf(l), 1);
+        } else setLine(i, this.dataset.s, null);
+        touch();
+        if (lineOf(i)) { const inp = el('tradeList').querySelector('.tq[data-i="' + i + '"]'); if (inp) inp.focus(); }
+      };
+    });
+    el('tradeList').querySelectorAll('.tq').forEach((inp) => {
+      inp.disabled = !ok;
+      inp.oninput = function () {
+        const i = +this.dataset.i, digits = this.value.replace(/[^0-9]/g, '');
+        if (digits !== this.value) this.value = digits;
+        const l = lineOf(i);
+        setLine(i, l ? l.side : '매수', parseInt(digits || '0', 10));
+        if (!digits && l && !l.q) { /* 비우면 그 줄은 그대로 둔다 — 팔기/사기 선택은 유지 */ }
+        save(); updateRow(); renderTotals(); renderSum(); renderAction();
+      };
+    });
+    el('reason').disabled = !ok;
+  }
+
+  function updateRow() {
+    const C = compute(); if (!C.ready) return;
+    el('tradeList').querySelectorAll('.trow').forEach((row) => {
+      const i = +row.dataset.i, r = rowState(i, C);
+      row.classList.toggle('on', !!r.q);
+      row.classList.toggle('capover', r.overCap);
+      row.querySelector('.th').innerHTML = r.top;
+      const tw = row.querySelector('.tw'); tw.textContent = r.wtxt; tw.classList.toggle('over', r.overCap);
+      const t = row.querySelector('.tamt'); t.textContent = r.amt; t.classList.toggle('bad', r.bad);
+      row.querySelector('.tq').classList.toggle('bad', r.sellOver);
+      row.querySelector('.buy').classList.toggle('act', r.side === '매수');
+      row.querySelector('.sell').classList.toggle('act', r.side === '매도');
+    });
+  }
+
+
+  function renderSum() {
+    const v = view(), C = compute(), al = [];
+    if (!C.ready) { el('alerts').innerHTML = ''; el('sumBox').innerHTML = ''; el('warnNote').textContent = ''; return; }
+    if (C.cash < 0) al.push(['warn', '현금이 ' + won(-C.cash) + '원 모자랍니다. 매수를 줄이거나 먼저 파세요.']);
+    if (C.excess > 0) al.push(['warn', '가진 것보다 많이 팔려고 합니다. 주황색 칸의 수량을 줄이세요.']);
+    if (C.overs.length) al.push(['warn', C.overs.map((i) => v.assets[i].name + ' ' + pctTxt(C.w[i])).join(' · ') +
+      ' — 주식 한 종목은 ' + (v.rules.stockCap * 100).toFixed(0) + '%까지입니다. 주황색 줄을 보세요.']);
+    if (C.nAssets < v.rules.minAssets) al.push(['warn', '자산 ' + C.nAssets + '종입니다. 최소 ' +
+      v.rules.minAssets + '종에 나눠 담아야 합니다.']);
+    const nw = al.length;
+    el('warnNote').textContent = (nw && LIVE.phase === 'order') ? '확인할 것 ' + nw + '개 — 주황색 표시를 보세요' : '';
+    if (!al.length) al.push(['good', '규칙에 걸리는 것이 없습니다.']);
+    el('alerts').innerHTML = al.map((a) =>
+      '<div class="alert ' + a[0] + '">' + esc(a[1]) + '</div>').join('');
+    const rows = [['살 금액', '−' + won(C.bought) + '원'], ['팔 금액', '+' + won(C.sold) + '원']];
+    if (LIVE.round > 0) rows.push(['이자 · 배당', '+' + won(C.interest) + '원']);
+    if (C.fee > 0) rows.push(['매도 수수료', '−' + won(C.fee) + '원']);
+    rows.push(['거래 후 현금', won(C.cash) + '원'], ['총자산', won(C.tot) + '원']);
+    el('sumBox').innerHTML = rows.map((r) =>
+      '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd>').join('');
+  }
+
+  function renderHist() {
+    const o = myOrders(), keys = Object.keys(o);
+    if (!keys.length) {
+      el('histBox').innerHTML = '<p class="note">아직 제출한 라운드가 없습니다.</p>'; return;
+    }
+    const rounds = keys.map((k) => parseInt(k.split(' ').pop(), 10)).sort((a, b) => a - b);
+    el('histBox').innerHTML = rounds.map((r) => {
+      const rec = o[MIENGINE.okey(teamName(), r)];
+      const items = rec.items.length
+        ? rec.items.map((i) => esc(i.asset) + ' ' + esc(i.side) + ' ' + won(i.qty)).join(' · ')
+        : '거래 없음';
+      return '<div class="hist"><b>R' + r + '</b><span class="num">' + items + '</span>' +
+        (rec.reason ? '<p>' + esc(rec.reason) + '</p>' : '') + '</div>';
+    }).join('');
+  }
+
+  function renderRules() {
+    const v = view();
+    el('rulesBox').innerHTML =
+      '<dl class="sum" style="margin-top:0">' +
+      '<dt>시작 자금</dt><dd>' + won(v.rules.initialCash) + '원</dd>' +
+      '<dt>주식 한 종목 최대</dt><dd>' + (v.rules.stockCap * 100).toFixed(0) + '% <span style="color:var(--t3);font-weight:500">(주문 때 가격)</span></dd>' +
+      '<dt>최소 자산 수</dt><dd>' + v.rules.minAssets + '종</dd>' +
+      '</dl>' +
+      '<div class="rowlist" style="margin-top:.6rem">' + v.assets.map((a) =>
+        '<div class="hold-row"><span class="hn">' + esc(a.name) +
+        '<small>' + esc(a.desc || a.kind) + '</small></span><span class="hq"></span>' +
+        '<span class="hv">' + (a.rate ? '이자 ' + (a.rate * 100).toFixed(2) + '%' : '이자 없음') +
+        '</span></div>').join('') + '</div>';
+  }
+
+  function renderAction() {
+    const btn = el('btnCommit'), note = el('copyNote'), sub = mySubmitted();
+    if (S.teamIdx < 0) { btn.disabled = true; btn.textContent = '팀을 고르세요'; return; }
+    if (!canOrder()) {
+      btn.disabled = true;
+      btn.textContent = LIVE.phase === 'result' ? '결과 공개 중' : '대기 중';
+      if (sub && !note.textContent) {
+        note.className = 'note ok'; note.textContent = 'R' + LIVE.round + ' 제출 완료.';
+      }
+      return;
+    }
+    btn.disabled = false;
+    btn.textContent = sub ? '다시 제출' : '제출';
+    if (sub && !note.textContent) {
+      note.className = 'note ok';
+      note.textContent = 'R' + LIVE.round + ' 제출됨 · ' +
+        new Date(sub.at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) +
+        ' — 다시 누르면 덮어씁니다.';
+    }
+  }
+
+  function buildTeamSel() {
+    const v = view(), sel = el('selTeam');
+    const want = v.teams.join('|');
+    if (sel.dataset.built !== want) {
+      sel.dataset.built = want;
+      sel.innerHTML = '<option value="-1">— 팀을 고르세요 —</option>' +
+        v.teams.map((t, i) => '<option value="' + i + '">' + esc(t) + '</option>').join('');
+    }
+    if (sel.value !== String(S.teamIdx)) sel.value = String(S.teamIdx);
+  }
+
+  function touch() { save(); renderAll(); }
+
+  /* ═══════════════ 배선 ═══════════════ */
+  el('selTeam').onchange = function () {
+    S.teamIdx = parseInt(this.value, 10);
+    S.lines = []; S.reason = ''; el('reason').value = ''; el('copyNote').textContent = '';
+    touch();
+  };
+  el('reason').oninput = function () { S.reason = this.value; save(); };
+  el('btnTheme').onclick = function () {
+    const big = !document.body.classList.contains('big-type');
+    document.body.classList.toggle('big-type', big);
+    this.textContent = big ? '글자 작게' : '글자 크게';
+    try { localStorage.setItem('mockinvest.student.bigtype', big ? '1' : ''); } catch (e) {}
+  };
+
+  el('btnCommit').onclick = function () {
+    const v = view(), C = compute(), note = el('copyNote'), btn = this;
+    if (C.ready && C.cash < 0) {
+      note.className = 'note warn'; note.textContent = '현금이 모자랍니다. 고치고 다시 누르세요.'; return;
+    }
+    if (C.excess > 0) {
+      note.className = 'note warn'; note.textContent = '가진 것보다 많이 팔 수 없습니다.'; return;
+    }
+    const items = S.lines.filter((l) => l.a >= 0 && l.a < v.assets.length && l.q > 0)
+      .map((l) => ({ asset: v.assets[l.a].name, side: l.side, qty: l.q }));
+    btn.disabled = true; btn.textContent = '보내는 중…';
+    note.className = 'note'; note.textContent = '';
+    MIDB.submitOrder(LIVE.round, S.teamIdx, { items: items, reason: S.reason || '' })
+      .then(function () {
+        note.className = 'note ok';
+        note.textContent = 'R' + LIVE.round + ' 제출 완료. 선생님 화면에 떴습니다.';
+        renderAll();
+      })
+      .catch(function () {
+        btn.disabled = false; btn.textContent = '다시 제출';
+        note.className = 'note warn';
+        note.textContent = '보내지 못했습니다. 인터넷을 확인하고 다시 누르세요.';
+      });
+  };
+
+  /* ═══════════════ 실시간 연결 ═══════════════ */
+  MIDB.onStatus(function (st) { LIVE.link = st; renderLink(); });
+  MIDB.onPublic(function (p) { LIVE.pub = p; renderAll(); });
+  MIDB.onOrders(function (o) { LIVE.orders = o || {}; renderAll(); });
+  MIDB.onState(function (st) {
+    if (!st) return;
+    LIVE.round = st.round | 0;
+    LIVE.phase = st.phase === 'result' ? 'result' : 'order';
+    if (S.forRound !== LIVE.round) {         /* 라운드가 바뀌면 작성판을 비운다 */
+      S.lines = []; S.reason = ''; S.forRound = LIVE.round;
+      el('reason').value = ''; el('copyNote').textContent = '';
+      save();
+    }
+    renderAll();
+  });
+
+  /* 시작 */
+  try {
+    if (localStorage.getItem('mockinvest.student.bigtype')) {
+      document.body.classList.add('big-type');
+      el('btnTheme').textContent = '글자 작게';
+    }
+  } catch (e) {}
+  el('reason').value = S.reason || '';
+  renderAll();
+
+  window.__STU__ = { compute: compute, state: () => S, live: () => LIVE, view: view, render: renderAll };
+})();
+</script>
+</body>
+</html>
