@@ -8,11 +8,17 @@
 
   /* ═══════════════════ 계산 엔진 ═══════════════════ */
   /* 라운드 r의 주문은 P(r-1)로 체결되고(r=0은 P(0)), P(r)로 평가된다.
-     이자·배당은 라운드 시작 시점의 보유량 × 체결가 × 이율로 현금 지급. */
+     이자·배당은 라운드 시작 시점의 보유량 × 체결가 × 이율로 현금 지급.
+     묶이는 자산(lock > 0, 예: 정기예금)은 산 묶음(lot)마다 이자를 쌓아 두었다가
+     lock 라운드를 채우면 한꺼번에 주고, 그 뒤로는 라운드마다 준다.
+     다 채우기 전에 팔면 쌓인 이자 중 early(예: 0.5 = 절반)만 받는다. 파는 순서는 오래된 묶음부터. */
+  const cloneLots = (L) => L.map((a) => a.map((x) => ({ q: x.q, age: x.age, accr: x.accr })));
   function runEngine(cfg, orders) {
     const A = cfg.assets, NA = A.length, NR = cfg.prices.length - 1;
     const R = cfg.rules, teams = cfg.teams;
-    const st = teams.map(() => ({ hold: new Array(NA).fill(0), cash: R.initialCash }));
+    const st = teams.map(() => ({ hold: new Array(NA).fill(0), cash: R.initialCash,
+                                  lots: A.map(() => []) }));
+    const lockOf = (i) => Math.max(0, A[i].lock | 0);
     const out = [];
 
     for (let r = 0; r <= NR; r++) {
@@ -25,8 +31,19 @@
         const submitted = !!rec;
         const count = rec ? (rec.count || 1) : 0;
 
-        const interest = r === 0 ? 0
-          : s.hold.reduce((acc, h, i) => acc + h * xp[i] * (A[i].rate || 0), 0);
+        let interest = 0;
+        if (r > 0) {
+          for (let i = 0; i < NA; i++) {
+            const rate = A[i].rate || 0;
+            if (!lockOf(i)) { interest += s.hold[i] * xp[i] * rate; continue; }
+            for (const lot of s.lots[i]) {
+              lot.age += 1;
+              const amt = lot.q * xp[i] * rate;
+              if (lot.age >= lockOf(i)) { interest += lot.accr + amt; lot.accr = 0; }
+              else lot.accr += amt;
+            }
+          }
+        }
 
         const net = new Array(NA).fill(0);
         if (rec) {
@@ -41,7 +58,22 @@
         const buy = nh.reduce((acc, h, i) => acc + (h - s.hold[i]) * xp[i], 0);
         const fee = r === 0 ? 0
           : nh.reduce((acc, h, i) => acc + Math.max(0, s.hold[i] - h) * xp[i] * (A[i].fee || 0), 0);
-        const cash = s.cash + interest - buy - fee;
+        /* 묶음 정리 — 판 만큼 오래된 묶음부터 빼고, 만기 전이면 쌓인 이자의 일부만 준다 */
+        let early = 0, forfeit = 0;
+        for (let i = 0; i < NA; i++) {
+          if (!lockOf(i)) continue;
+          let sell = s.hold[i] - nh[i];
+          const keep = A[i].early == null ? 0.5 : +A[i].early;
+          while (sell > 0 && s.lots[i].length) {
+            const lot = s.lots[i][0], take = Math.min(lot.q, sell), lost = lot.accr * take / lot.q;
+            early += lost * keep; forfeit += lost * (1 - keep);
+            lot.accr -= lost; lot.q -= take; sell -= take;
+            if (lot.q <= 1e-9) s.lots[i].shift();
+          }
+          if (nh[i] > s.hold[i]) s.lots[i].push({ q: nh[i] - s.hold[i], age: 0, accr: 0 });
+        }
+        const pending = s.lots.reduce((acc, L) => acc + L.reduce((a2, x) => a2 + x.accr, 0), 0);
+        const cash = s.cash + interest + early - buy - fee;
 
         const valX = nh.reduce((acc, h, i) => acc + h * xp[i], 0);
         const valR = nh.reduce((acc, h, i) => acc + h * rp[i], 0);
@@ -57,6 +89,7 @@
 
         row.push({
           team: teams[t], round: r, hold: nh.slice(), interest: interest,
+          early: early, forfeit: forfeit, pending: pending, lots: cloneLots(s.lots),
           buy: buy, fee: fee, cash: cash,
           totX: totX, totR: totR, mxX: mxX, mxR: mxR, swX: swX, swR: swR,
           nAssets: nAssets, submitted: submitted, count: count, exc: exc,
@@ -78,11 +111,65 @@
     if (rec.exc > 0) return '매도초과';
     if (!rec.submitted) return '';
     if (mx > R.stockCap) return '한도초과';
+    if (R.stockTotalCap && rec.swX > R.stockTotalCap + 1e-9) return '주식초과';
     if (rec.nAssets < R.minAssets) return '분산부족';
     if (rec.count > 1) return '중복제출';
     return '';
   }
 
 
-  W.MIENGINE = { runEngine: runEngine, warnOf: warnOf, okey: okey };
+  /* 안정성 점수 — 대회 중 가장 크게 잃은 폭(최고점 대비 최대 낙폭)으로 매긴다.
+     낙폭 0% = 만점, zeroAt(기본 30%) 이상 = 0점. 곡선으로 깎아서 작은 흔들림은 조금, 큰 폭락은 많이 깎인다:
+     점수 = 만점 × (1 − (낙폭 ÷ zeroAt)²). 예) 30% 기준: 낙폭 5% → 19.4, 10% → 17.8, 20% → 11.1. totals = [시작 자금, 라운드별 총자산…] */
+  function stability(totals, rules) {
+    const max = (rules && rules.stabilityMax) || 20, zero = (rules && rules.stabilityZeroAt) || 0.30;
+    let peak = totals.length ? totals[0] : 0, mdd = 0;
+    for (const v of totals) { peak = Math.max(peak, v); if (peak > 0) mdd = Math.min(mdd, v / peak - 1); }
+    const k = Math.min(1, -mdd / zero);
+    const score = Math.max(0, Math.min(max, max * (1 - k * k)));
+    return { mdd: mdd, score: score, max: max };
+  }
+
+  /* 최종 점수 — 수익(순위) + 안정성(최대 낙폭) + 판단 근거(교사 상·중·하) + 규칙 준수(위반 감점)
+     grades = { 라운드: { 팀번호: '상'|'중'|'하' } }. 사유를 낸 라운드인데 아직 안 매겼으면 '중'으로 셈한다.
+     사유가 없거나 제출하지 않은 라운드는 0점. 동점이면 안정성 점수 → 총자산 순. */
+  const GRADE = { '상': 1, '중': 0.6, '하': 0.3 };
+  function finalScores(eng, cfg, grades) {
+    const R = cfg.rules, NR = eng.length - 1, G = grades || {};
+    const num = (k, d) => (R[k] == null ? d : +R[k]);
+    const rows = cfg.teams.map((team, t) => {
+      const path = eng.map((r) => r[t]);
+      const fin = path[NR].totR;
+      const stab = stability([R.initialCash].concat(path.map((p) => p.totR)), R);
+      let ungraded = 0, sum = 0;
+      const judge = path.map((p, r) => {
+        if (!p.submitted || !String(p.reason || '').trim()) return { r: r, g: '', pts: 0, none: true };
+        const g = (G[r] || {})[t] || '';
+        if (!g) ungraded++;
+        const pts = GRADE[g || '중'];
+        sum += pts;
+        return { r: r, g: g, pts: pts };
+      });
+      const viol = path.filter((p) => warnOf(p, 'order', cfg)).length;
+      return { team: team, t: t, fin: fin, ret: fin / R.initialCash - 1, stab: stab, judge: judge,
+               ungraded: ungraded, viol: viol,
+               sJudge: num('scoreJudge', 30) * sum / (NR + 1),
+               sRules: Math.max(0, num('scoreRules', 20) - num('rulePenalty', 4) * viol),
+               sStab: stab.score };
+    });
+    const byFin = rows.slice().sort((a, b) => b.fin - a.fin);
+    byFin.forEach((x, i) => {
+      x.retRank = (i > 0 && Math.abs(x.fin - byFin[i - 1].fin) < 0.5) ? byFin[i - 1].retRank : i + 1;
+      x.sRet = Math.max(0, num('scoreRet', 30) - num('scoreRetStep', 2) * (x.retRank - 1));
+    });
+    rows.forEach((x) => { x.total = x.sRet + x.sStab + x.sJudge + x.sRules; });
+    const key = (x) => [Math.round(x.total * 100), Math.round(x.sStab * 100), Math.round(x.fin)];
+    const cmp = (a, b) => { const p = key(a), q = key(b); for (let i = 0; i < 3; i++) if (p[i] !== q[i]) return q[i] - p[i]; return 0; };
+    const out = rows.slice().sort(cmp);
+    out.forEach((x, i) => { x.rank = (i > 0 && cmp(x, out[i - 1]) === 0) ? out[i - 1].rank : i + 1; });
+    return out;
+  }
+
+  W.MIENGINE = { runEngine: runEngine, warnOf: warnOf, okey: okey, stability: stability,
+                 finalScores: finalScores, GRADE: GRADE };
 })(window);

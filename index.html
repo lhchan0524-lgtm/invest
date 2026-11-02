@@ -121,7 +121,9 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--surface);
 }
 .newsbar .tag{flex:none;font-size:.8rem;font-weight:800;color:var(--brand);letter-spacing:0;}
 .newsbar .tag::after{content:" 뉴스";}
-.newsbar .txt{font-size:1.02rem;font-weight:600;line-height:1.5;color:var(--t1);}
+.newsbar .txt{font-size:1.02rem;font-weight:600;line-height:1.5;color:var(--t1);display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;}
+.newsbar .txt .nl{position:relative;padding-left:.8rem;}
+.newsbar .txt .nl::before{content:"";position:absolute;left:0;top:.62em;width:.32rem;height:.32rem;border-radius:2px;background:var(--brand);}
 
 /* 상태 줄 */
 .statusbar{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;padding:.85rem 1.5rem 0;
@@ -214,6 +216,29 @@ td.name{font-weight:700;font-size:.95rem;color:var(--t1);text-align:left;}
 .hold td.q{color:var(--t1);}
 .hold td.q.z{color:var(--t4);}
 
+
+/* 판단 근거 채점 */
+.gr-rounds{display:flex;gap:.3rem;flex-wrap:wrap;margin-left:.6rem;}
+.gr-chip{border:0;background:var(--fill);color:var(--t2);font-weight:700;font-size:.82rem;height:1.9rem;padding:0 .7rem;
+  border-radius:999px;display:inline-flex;align-items:center;gap:.35rem;}
+.gr-chip.on{background:var(--t1);color:#fff;}
+.gr-chip b{background:var(--warn);color:#fff;border-radius:999px;font-size:.7rem;min-width:1.1rem;height:1.1rem;
+  display:inline-grid;place-items:center;padding:0 .3rem;}
+.gr-row{display:grid;grid-template-columns:7.5rem minmax(0,1fr) auto 5.2rem;gap:.8rem;align-items:center;
+  padding:.6rem .2rem;border-bottom:1px solid var(--line);}
+.gr-row:last-child{border-bottom:0;}
+.gr-row.todo{background:linear-gradient(90deg,var(--warn-soft),transparent 40%);}
+.gr-team{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gr-reason{font-size:.92rem;color:var(--t1);line-height:1.5;}
+.gr-none{color:var(--t3);font-size:.86rem;}
+.gr-btns{display:inline-flex;gap:.3rem;}
+.gr-btn{border:0;background:var(--fill);color:var(--t2);font-weight:800;width:2.4rem;height:2.2rem;border-radius:10px;font-size:.95rem;}
+.gr-btn:hover{background:var(--fill-2);}
+.gr-btn.on.g-상{background:var(--brand);color:#fff;}
+.gr-btn.on.g-중{background:var(--t1);color:#fff;}
+.gr-btn.on.g-하{background:var(--t3);color:#fff;}
+.gr-sum{text-align:right;font-weight:800;}
+.gr-sum small{color:var(--t3);font-weight:600;font-size:.75em;}
 
 /* ═══════════════ 서랍 ═══════════════ */
 .drawer-bg{position:fixed;inset:0;background:rgba(17,24,39,.36);z-index:40;
@@ -324,6 +349,10 @@ body.board-mode .board{
 }
 .b-news::before{content:"뉴스";flex:none;font-size:.62em;font-weight:800;color:var(--b-brand);
   letter-spacing:0;}
+.b-news.multi{font-size:clamp(.92rem,2.3vh,1.7rem);line-height:1.35;padding-top:clamp(.6rem,1.5vh,1.2rem);padding-bottom:clamp(.6rem,1.5vh,1.2rem);}
+.b-news ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:.3em 2.2em;flex:1 1 auto;}
+.b-news li{position:relative;padding-left:.9em;}
+.b-news li::before{content:"";position:absolute;left:0;top:.55em;width:.34em;height:.34em;border-radius:2px;background:var(--b-brand);}
 
 .b-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(.6rem,1.2vw,1.2rem);
   overflow:hidden;min-height:0;}
@@ -382,11 +411,17 @@ body.board-mode .board{
   display:flex;align-items:baseline;gap:.6em;}
 .b-panel h2 small{font-size:.68em;font-weight:600;color:var(--b-t2);letter-spacing:0;}
 .b-stack .b-panel h2{padding-top:clamp(.6rem,1.5vh,1.15rem);padding-bottom:0;}
-.b-stack .b-row{padding:clamp(.15rem,.42vh,.4rem) 0;}
+.b-stack .b-row{padding:clamp(.1rem,.3vh,.32rem) 0;}
 @media (max-aspect-ratio:4/3){ .b-stack .b-row{padding:.08rem 0;} .b-rate small{font-size:.74rem;} }
+/* 낮은 화면(노트북·프로젝터 720~800px) — 뉴스가 두세 줄이어도 표가 넘치지 않게 */
+@media (max-height:820px){ .b-news{font-size:clamp(.95rem,2.35vh,1.6rem);line-height:1.35;padding:.6rem 1rem;}
+  .b-stack .b-row{padding:.06rem 0;} .b-stack .b-panel h2{padding-top:.5rem;}
+  .b-rate b{font-size:clamp(1.05rem,2.8vh,2rem);} .b-rate small{font-size:.72rem;margin-top:0;} }
 .b-srow{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr) minmax(0,.95fr) minmax(0,.85fr);}
 .b-brow{grid-template-columns:minmax(0,1.45fr) minmax(0,1.3fr) minmax(0,.8fr) minmax(0,.85fr);}
-.b-trow{grid-template-columns:auto minmax(0,1.3fr) minmax(0,1.25fr) minmax(0,1fr);}
+.b-trow{grid-template-columns:auto minmax(0,1.2fr) minmax(0,1.2fr) minmax(0,1fr) minmax(0,.75fr);}
+.b-mdd{text-align:right;font-weight:700;font-size:clamp(.85rem,2vh,1.45rem);color:var(--b-t2);white-space:nowrap;line-height:1.15;}
+.b-mdd i{display:block;font-style:normal;font-weight:600;font-size:.66em;color:var(--b-t3);}
 .b-hd{border-bottom:1px solid var(--b-line);padding-top:0!important;}
 .b-hd span{font-size:clamp(.84rem,1.7vh,1.2rem);font-weight:700;color:var(--b-t2);text-align:right;line-height:1.25;
   white-space:nowrap;}
@@ -428,6 +463,48 @@ body.board-mode .board{
 
 .b-foot{font-size:clamp(.8rem,1.8vh,1.25rem);color:var(--b-t2);padding:0 .3rem;font-weight:600;}
 .b-foot.reveal{color:var(--b-brand);font-weight:700;font-size:clamp(.85rem,2vh,1.35rem);}
+
+/* 공지 화면 — 최종 순위 */
+.b-final{position:fixed;inset:0;z-index:18;background:var(--b-bg);color:var(--b-t1);display:grid;
+  grid-template-rows:auto auto minmax(0,1fr) auto;gap:clamp(.6rem,1.6vh,1.2rem);
+  padding:clamp(1rem,2.6vh,2rem) clamp(1.2rem,2.4vw,2.6rem) clamp(.7rem,1.6vh,1.2rem);}
+.b-final[hidden]{display:none;}
+.b-final-top{display:flex;align-items:baseline;gap:1rem;}
+.b-final-lbl{font-weight:800;font-size:clamp(1.6rem,4.6vh,3.6rem);letter-spacing:-.04em;}
+.b-final-sub{font-size:clamp(.85rem,2vh,1.4rem);color:var(--b-t2);font-weight:600;}
+.b-final-top .btn{background:transparent;color:var(--b-t3);opacity:.6;}
+.b-final-win{display:flex;align-items:center;gap:clamp(1rem,2vw,2.4rem);background:var(--b-card);
+  border-radius:clamp(16px,2.4vh,28px);padding:clamp(.9rem,2.4vh,1.8rem) clamp(1.2rem,2vw,2.2rem);}
+.b-final-win .crown{display:inline-grid;place-items:center;width:clamp(3rem,8vh,6rem);height:clamp(3rem,8vh,6rem);
+  border-radius:50%;background:var(--b-brand);color:#fff;font-weight:800;font-size:clamp(1.3rem,3.6vh,2.8rem);flex:none;}
+.b-final-win .who{display:flex;flex-direction:column;gap:.2em;min-width:0;}
+.b-final-win .who small{font-size:clamp(.8rem,1.9vh,1.3rem);color:var(--b-t2);font-weight:700;}
+.b-final-win .who b{font-size:clamp(1.8rem,5.6vh,4.4rem);font-weight:800;letter-spacing:-.04em;line-height:1.05;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.b-final-win .pts{margin-left:auto;text-align:right;}
+.b-final-win .pts .tot{font-size:clamp(2rem,6.4vh,5rem);font-weight:800;letter-spacing:-.04em;line-height:1;
+  box-shadow:inset 0 0 0 3px var(--b-brand);border-radius:12px;padding:.05em .3em;position:relative;display:inline-block;}
+.b-final-win .pts .tot::after{content:"";position:absolute;right:-6px;bottom:-6px;width:12px;height:12px;background:var(--b-brand);
+  border:2px solid var(--b-card);border-radius:2px;}
+.b-final-win .pts .tot small{font-size:.38em;color:var(--b-t2);font-weight:700;margin-left:.15em;}
+.b-final-win .parts{display:flex;gap:.5rem;justify-content:flex-end;margin-top:.6em;flex-wrap:wrap;}
+.b-final-win .parts span{font-size:clamp(.75rem,1.75vh,1.2rem);font-weight:700;color:var(--b-t2);background:var(--b-card-2);
+  border-radius:999px;padding:.25em .8em;white-space:nowrap;}
+.b-final-table{background:var(--b-card);border-radius:clamp(14px,2vh,24px);overflow:hidden;display:flex;flex-direction:column;
+  justify-content:space-evenly;padding:clamp(.4rem,1.2vh,1rem) clamp(1rem,1.6vw,1.6rem);min-height:0;}
+.b-frow{display:grid;grid-template-columns:3.2em minmax(0,1.6fr) repeat(4,minmax(0,.9fr)) minmax(0,1fr);
+  align-items:center;gap:.6rem;padding:clamp(.1rem,.4vh,.4rem) 0;border-bottom:1px solid var(--b-line);}
+.b-frow:last-child{border-bottom:0;}
+.b-frow span{text-align:right;font-variant-numeric:tabular-nums;font-size:clamp(.9rem,2.3vh,1.7rem);font-weight:700;white-space:nowrap;}
+.b-frow span i{display:block;font-style:normal;font-size:.62em;color:var(--b-t3);font-weight:600;}
+.b-frow .rk{text-align:left;}
+.b-frow .nm{text-align:left;overflow:hidden;text-overflow:ellipsis;}
+.b-frow .tt{font-size:clamp(1rem,2.7vh,2rem);font-weight:800;}
+.b-frow.hd span{font-size:clamp(.74rem,1.6vh,1.15rem);color:var(--b-t2);font-weight:700;}
+.b-frow.top .tt{color:var(--b-brand);}
+.b-frow span.b-rank{display:inline-block;text-align:center;font-size:clamp(.85rem,2vh,1.45rem);padding:0;}
+.b-final-foot{font-size:clamp(.8rem,1.8vh,1.25rem);color:var(--b-t2);font-weight:600;}
+.b-final-foot b{color:var(--b-brand);}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
 </style>
@@ -493,6 +570,15 @@ body.board-mode .board{
       <div class="scroll"><table id="rankTable"><thead></thead><tbody></tbody></table></div>
     </section>
 
+    <section class="panel wide gradepanel" id="gradePanel">
+      <div class="panel-head">
+        <h2>판단 근거 채점</h2>
+        <div class="gr-rounds" id="gradeRounds"></div>
+        <span class="spacer"></span>
+        <span class="hint" id="gradeHint">—</span>
+      </div>
+      <div class="scroll" id="gradeList"></div>
+    </section>
     <section class="panel wide holdpanel">
       <div class="panel-head">
         <h2>보유 현황</h2>
@@ -516,7 +602,7 @@ body.board-mode .board{
     <button class="tab" role="tab" data-tab="assets" aria-selected="false">자산</button>
     <button class="tab" role="tab" data-tab="teams" aria-selected="false">팀 · 규칙</button>
     <button class="tab" role="tab" data-tab="signup" aria-selected="false">참가 신청</button>
-    <button class="tab" role="tab" data-tab="export" aria-selected="false">채점 내보내기</button>
+    <button class="tab" role="tab" data-tab="export" aria-selected="false">점수 · 내보내기</button>
   </div>
   <div class="drawer-body" id="drawerBody"></div>
 </aside>
@@ -547,6 +633,17 @@ body.board-mode .board{
     </section>
   </div>
   <div class="b-foot" id="bFoot"></div>
+  <div class="b-final" id="bFinal" hidden>
+    <div class="b-final-top">
+      <span class="b-final-lbl">최종 순위</span>
+      <span class="b-final-sub" id="bFinalSub">—</span>
+      <span class="b-spacer"></span>
+      <button class="btn ghost sm" id="bFinalHide">결과 화면 보기</button>
+    </div>
+    <div class="b-final-win" id="bFinalWin"></div>
+    <div class="b-final-table" id="bFinalTable"></div>
+    <div class="b-final-foot" id="bFinalFoot"></div>
+  </div>
   <div class="b-qrfull" id="bQrFull" hidden>
     <div class="b-qrfull-in">
       <div class="b-qrfull-code" id="bQrFullCode"></div>
@@ -890,7 +987,9 @@ body.board-mode .board{
   const BASE = {
     round: 0, phase: 'order', timerEnd: 0,
     synced: {},        // 학생이 낸 주문 (실시간)
-    manual: {}         // 교사가 직접 고친 주문 — 학생 주문보다 우선한다
+    manual: {},        // 교사가 직접 고친 주문 — 학생 주문보다 우선한다
+    grades: {},        // 판단 근거 채점 { 라운드: { 팀번호: '상'|'중'|'하' } } — 교사 화면에만 있다
+    finalShown: false  // 마지막 결과 뒤 [최종 순위 발표]를 눌렀는가
   };
   const CFG = JSON.parse(JSON.stringify(window.MI_CONFIG || {}));
   const NA0 = (CFG.assets || []).length || 1;
@@ -916,7 +1015,7 @@ body.board-mode .board{
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
         const p = JSON.parse(raw);
-        ['round', 'phase', 'timerEnd', 'manual'].forEach((k) => {
+        ['round', 'phase', 'timerEnd', 'manual', 'grades', 'finalShown'].forEach((k) => {
           if (p[k] !== undefined) s[k] = p[k];
         });
         // 한 번 불러온 시세표는 이 브라우저에 남는다
@@ -928,6 +1027,13 @@ body.board-mode .board{
         ['teams', 'assets', 'rules'].forEach((k) => {
           if (p.edited && p.edited[k]) s[k] = p[k];
         });
+        /* 예전 버전에서 저장된 값에는 새 규칙이 없다 — 빠진 항목만 config.js에서 채운다 */
+        s.rules = Object.assign({}, CFG.rules || {}, s.rules || {});
+        s.assets = (s.assets || []).map((a) => {
+          const d = (CFG.assets || []).find((x) => x.name === a.name);
+          return d ? Object.assign({}, d, a, { lock: a.lock != null ? a.lock : d.lock,
+                                              early: a.early != null ? a.early : d.early }) : a;
+        });
         s.edited = p.edited || {};
       }
     } catch (e) {}
@@ -937,7 +1043,8 @@ body.board-mode .board{
     try {
       localStorage.setItem(LS_KEY, JSON.stringify({
         round: S.round, phase: S.phase, timerEnd: S.timerEnd,
-        manual: S.manual, edited: S.edited || {}, sheetLoaded: !!S.sheetLoaded,
+        manual: S.manual, grades: S.grades || {}, finalShown: !!S.finalShown,
+        edited: S.edited || {}, sheetLoaded: !!S.sheetLoaded,
         teams: S.teams, assets: S.assets, prices: S.prices, news: S.news,
         dates: S.dates, rules: S.rules
       }));
@@ -1037,6 +1144,9 @@ body.board-mode .board{
   const swon = (n) => (n > 0 ? '+' : n < 0 ? '' : '') + Math.round(n).toLocaleString('ko-KR');
   const cls = (n) => n > 0 ? 'pos' : n < 0 ? 'neg' : 'zero';
   const shownRound = () => Math.max(0, S.phase === 'result' ? S.round : S.round - 1);
+  /* 뉴스는 라운드마다 한 줄(예전 시세표)이거나 여러 줄(목록)이다 — 어느 쪽이든 목록으로 */
+  const newsList = (x) => (Array.isArray(x) ? x : [x]).map((t) => String(t == null ? '' : t).trim()).filter(Boolean);
+  window.MI_NEWSLIST = newsList;
   const el = (id) => document.getElementById(id);
 
   /* ═══════════════════ 렌더 ═══════════════════ */
@@ -1048,28 +1158,90 @@ body.board-mode .board{
     ph.textContent = S.phase === 'result' ? '결과공개' : '주문접수';
     ph.className = 'phase ' + (S.phase === 'result' ? 'result' : 'order');
     el('newsTag').textContent = 'R' + S.round;
-    el('newsText').textContent = S.news[S.round] || '—';
+    const nl = newsList(S.news[S.round]);
+    el('newsText').innerHTML = nl.length ? nl.map((t) => '<span class="nl">' + esc(t) + '</span>').join('') : '—';
 
     if (el('setupBar')) el('setupBar').hidden = !!S.sheetLoaded;
     const bn = el('btnNext');
     if (!S.sheetLoaded) { bn.textContent = '시세표를 먼저 불러오세요'; bn.disabled = true; }
     else if (S.phase === 'order') { bn.textContent = '주문 마감 · 결과 공개'; bn.disabled = false; }
     else if (S.round < NR) { bn.textContent = '다음 라운드 R' + (S.round + 1) + ' 시작'; bn.disabled = false; }
-    else { bn.textContent = '대회 종료'; bn.disabled = true; }
+    else if (!S.finalShown) {
+      const u = ungradedCount();
+      bn.textContent = '최종 순위 발표' + (u ? ' (미채점 ' + u + '칸은 중)' : ''); bn.disabled = false;
+    }
+    else { bn.textContent = '대회 종료 · 최종 순위 발표됨'; bn.disabled = true; }
     el('btnPrev').disabled = !S.sheetLoaded || (S.round === 0 && S.phase === 'order');
 
     renderPrices();
     renderRank();
     renderHold();
+    renderGrades();
     renderStatus();
     renderBoard();
     tickTimer();
     saveState();
   }
 
+  /* 판단 근거 채점 — 학생이 낸 매매 사유를 읽고 상·중·하만 누른다. 다음 라운드 뉴스를 읽는 동안 끝낼 수 있게 */
+  let gradeRound = null;                      // null = 지금 라운드를 따라간다
+  function renderGrades() {
+    if (MODE !== 'teacher' || !el('gradeList')) return;
+    const NR = S.prices.length - 1, cur = Math.min(S.round, NR);
+    const gr = gradeRound == null ? cur : Math.min(gradeRound, cur);
+    const R = S.rules, maxJ = R.scoreJudge == null ? 30 : R.scoreJudge;
+    const left = (r) => (ENGINE[r] || []).filter((p, t) => p.submitted && String(p.reason || '').trim() &&
+      !((S.grades[r] || {})[t])).length;
+    el('gradeRounds').innerHTML = Array.from({ length: cur + 1 }, (_, r) => r).map((r) =>
+      '<button class="gr-chip' + (r === gr ? ' on' : '') + '" data-r="' + r + '">R' + r +
+      (left(r) ? '<b>' + left(r) + '</b>' : '') + '</button>').join('');
+    el('gradeRounds').querySelectorAll('.gr-chip').forEach((b) => {
+      b.onclick = () => { const r = +b.dataset.r; gradeRound = r === cur ? null : r; renderGrades(); };
+    });
+    const fr = MIENGINE.finalScores(ENGINE.slice(0, cur + 1), S, S.grades);
+    const jOf = (t) => (fr.find((x) => x.t === t) || {}).sJudge || 0;
+    const row = ENGINE[gr] || [];
+    el('gradeList').innerHTML = row.map((p, t) => {
+      const reason = String(p.reason || '').trim(), g = (S.grades[gr] || {})[t] || '';
+      const body = !p.submitted ? '<span class="gr-none">아직 제출하지 않았습니다 — 0점</span>'
+        : !reason ? '<span class="gr-none">사유 없이 제출 — 0점</span>' : esc(reason);
+      const btns = (p.submitted && reason) ? ['상', '중', '하'].map((k) =>
+        '<button class="gr-btn' + (g === k ? ' on g-' + k : '') + '" data-t="' + t + '" data-g="' + k + '">' + k + '</button>').join('') : '';
+      return '<div class="gr-row' + (p.submitted && reason && !g ? ' todo' : '') + '">' +
+        '<span class="gr-team">' + esc(p.team) + '</span>' +
+        '<span class="gr-reason">' + body + '</span>' +
+        '<span class="gr-btns">' + btns + '</span>' +
+        '<span class="gr-sum num">' + jOf(t).toFixed(1) + '<small> / ' + maxJ + '</small></span></div>';
+    }).join('');
+    el('gradeList').querySelectorAll('.gr-btn').forEach((b) => {
+      b.onclick = () => {
+        const t = +b.dataset.t, k = b.dataset.g;
+        S.grades[gr] = S.grades[gr] || {};
+        if (S.grades[gr][t] === k) delete S.grades[gr][t]; else S.grades[gr][t] = k;
+        render();
+      };
+    });
+    const u = ungradedCount();
+    el('gradeHint').textContent = 'R' + gr + ' · ' + (u ? '안 매긴 칸 ' + u + '개 (마지막에 안 매기면 중)' : '모두 매김') +
+      ' · 오른쪽 숫자 = 지금까지의 판단 근거 점수' +
+      ' · 상 ' + Math.round(MIENGINE.GRADE['상'] * 100) + '% · 중 ' + Math.round(MIENGINE.GRADE['중'] * 100) +
+      '% · 하 ' + Math.round(MIENGINE.GRADE['하'] * 100) + '%';
+  }
+
   /* 실제 시점(연·월)은 마지막 라운드 결과를 공개할 때 한꺼번에 밝힌다 — 그 전에는 학생·공지 화면에 나가지 않는다 */
   function datesRevealed() {
     return S.phase === 'result' && S.round >= S.prices.length - 1;
+  }
+  /* 최종 순위 — 마지막 라운드 결과 공개 뒤 [최종 순위 발표]를 누른 상태 */
+  function finalOn() { return !!S.finalShown && datesRevealed(); }
+  function finalRows() { return MIENGINE.finalScores(ENGINE, S, S.grades); }
+  function ungradedCount() {
+    let n = 0;
+    ENGINE.forEach((row, r) => row.forEach((p, t) => {
+      if (r > S.round) return;
+      if (p.submitted && String(p.reason || '').trim() && !((S.grades[r] || {})[t])) n++;
+    }));
+    return n;
   }
 
   function renderPrices() {
@@ -1145,7 +1317,7 @@ body.board-mode .board{
         '<td class="num big bar" style="--bar:' + Math.round(v.tot / maxTot * 100) + '%">' + won(v.tot) + '</td>' +
         '<td class="num bar ' + cls(ret) + '" style="--bar:' +
           Math.round(Math.abs(ret) / maxRet * 100) + '%">' + spct(ret) + '</td>' +
-        '<td class="num dim">' + pct(v.sw) + '</td>' +
+        '<td class="num' + (S.rules.stockTotalCap && v.r.swX > S.rules.stockTotalCap + 1e-9 ? ' over' : ' dim') + '">' + pct(v.sw) + '</td>' +
         '<td class="num dim">' + pct(v.tot ? v.r.cash / v.tot : 0) + '</td>' +
         '<td class="num' + (v.r.mxX > S.rules.stockCap ? ' over' : ' dim') + '"' +
           (useR ? ' title="주문할 때 ' + pct(v.r.mxX) + ' — 한도 판정은 주문할 때 가격 기준"' : '') + '>' + pct(v.mx) + '</td>' +
@@ -1205,10 +1377,12 @@ body.board-mode .board{
     const NR = S.prices.length - 1;
     if (S.phase === 'order') { S.phase = 'result'; S.timerEnd = 0; }   /* 주문 타이머는 마감과 함께 멈춘다 */
     else if (S.round < NR) { S.round++; S.phase = 'order'; S.timerEnd = 0; }
+    else if (!S.finalShown) { S.finalShown = true; }
     render();
   };
   el('btnPrev').onclick = function () {
-    if (S.phase === 'result') S.phase = 'order';
+    if (S.finalShown) S.finalShown = false;
+    else if (S.phase === 'result') S.phase = 'order';
     else if (S.round > 0) { S.round--; S.phase = 'result'; }
     render();
   };
@@ -1254,12 +1428,19 @@ body.board-mode .board{
     if (MODE !== 'teacher' || !window.MIDB) return;
     if (!S.sheetLoaded) return;              /* 시세표 전이면 학생 쪽으로 아무것도 보내지 않는다 */
     const sh = shownRound();
-    MIDB.setState({ round: S.round, phase: S.phase, timerEnd: S.timerEnd || 0 });
+    const fin = finalOn();
+    MIDB.setState({ round: S.round, phase: S.phase, timerEnd: S.timerEnd || 0, final: fin });
     MIDB.setPublic({
       teams: S.teams, assets: S.assets, rules: S.rules,
+      rounds: S.prices.length,                 /* 라운드 수만 (앞으로의 가격은 보내지 않는다) */
       prices: S.prices.slice(0, sh + 1),
       news: S.news.slice(0, S.round + 1),
-      dates: datesRevealed() ? (S.dates || []).slice(0, sh + 1) : []
+      dates: datesRevealed() ? (S.dates || []).slice(0, sh + 1) : [],
+      /* 교사가 직접 넣은 주문도 공지 화면이 같은 숫자를 그리도록 함께 보낸다 (키에 점·# 등이 있어도 되게 목록으로) */
+      manual: Object.keys(S.manual || {}).map((k) => ({ k: k, rec: S.manual[k] })),
+      final: fin ? finalRows().map((x) => ({ team: x.team, t: x.t, rank: x.rank, total: x.total,
+        sRet: x.sRet, sStab: x.sStab, sJudge: x.sJudge, sRules: x.sRules,
+        fin: x.fin, ret: x.ret, mdd: x.stab.mdd, viol: x.viol, retRank: x.retRank })) : null
     });
   }
 
@@ -1282,6 +1463,9 @@ body.board-mode .board{
   function applyPublic(p) {
     if (MODE !== 'board' || !p) return;
     ['teams', 'assets', 'rules', 'news', 'dates'].forEach((k) => { if (p[k]) S[k] = p[k]; });
+    S.manual = {};
+    (p.manual || []).forEach((m) => { if (m && m.k) S.manual[m.k] = m.rec; });
+    S.finalRows = p.final || null;
     if (p.prices && p.prices.length) {
       const px = p.prices.slice();
       while (px.length < S.round + 1) px.push(px[px.length - 1]);
@@ -1303,6 +1487,7 @@ body.board-mode .board{
         S.round = st.round | 0;
         S.phase = st.phase === 'result' ? 'result' : 'order';
         S.timerEnd = st.timerEnd || 0;
+        S.finalShown = !!st.final;
         render();
       }
     });
@@ -1339,7 +1524,10 @@ body.board-mode .board{
     const bp = el('bPhase');
     bp.textContent = res ? '결과 공개' : '주문 접수 중';
     bp.className = 'b-phase ' + (res ? 'res' : 'ord');
-    el('bNews').textContent = S.news[S.round] || '';
+    const bn = newsList(S.news[S.round]);
+    el('bNews').classList.toggle('multi', bn.length > 1);
+    el('bNews').innerHTML = bn.length > 1
+      ? '<ul>' + bn.map((t) => '<li>' + esc(t) + '</li>').join('') + '</ul>' : esc(bn[0] || '');
     const rows = ENGINE[S.round] || ENGINE[ENGINE.length - 1] || [];
     const prev = S.round > 0 ? (ENGINE[S.round - 1] || []) : null;
 
@@ -1349,7 +1537,7 @@ body.board-mode .board{
     const vsLbl = was ? dl(sh - 1) + '보다' : '지난 라운드보다';
     const dash = '<span class="b-dash">—</span>';
     const nameCell = (a) => '<span class="b-name">' + esc(a.name) +
-      (a.desc ? '<span class="b-desc">' + esc(a.desc) + '</span>' : '') +
+      ((a.desc || a.lock) ? '<span class="b-desc">' + esc([a.desc, a.lock ? a.lock + '라운드 보유 시' : ''].filter(Boolean).join(' · ')) + '</span>' : '') +
       (a.kind === '주식' && a.rate ? '<span class="b-tag">배당 ' + (a.rate * 100).toFixed(2) + '%</span>' : '') + '</span>';
 
     /* 주식 — 1주 가격과 등락 */
@@ -1396,7 +1584,8 @@ body.board-mode .board{
     if (res) {
       el('bRightTitle').innerHTML = '팀별 총자산<small>' + dl(sh) + ' 결과</small>';
       const view = rows.map((r, i) => ({ team: r.team, now: r.totR,
-        was: prev ? prev[i].totR : S.rules.initialCash }));
+        was: prev ? prev[i].totR : S.rules.initialCash,
+        stab: MIENGINE.stability([S.rules.initialCash].concat(ENGINE.slice(0, S.round + 1).map((rr) => rr[i].totR)), S.rules) }));
       const sorted = view.slice().sort((a, b) => b.now - a.now);
       sorted.forEach((v, i) => {
         v.rank = (i > 0 && Math.abs(v.now - sorted[i - 1].now) < 0.5) ? sorted[i - 1].rank : i + 1;
@@ -1404,7 +1593,8 @@ body.board-mode .board{
       const md = Math.max.apply(null, sorted.map((v) => Math.abs(v.now - v.was)).concat([1]));
       el('bRight').innerHTML =
         '<div class="b-row b-trow b-hd"><span></span><span style="text-align:left">팀</span>' +
-          '<span>총자산<i>원</i></span><span>' + (prev ? dl(sh - 1) + '보다' : '시작 자금보다') + '</span></div>' +
+          '<span>총자산<i>원</i></span><span>' + (prev ? dl(sh - 1) + '보다' : '시작 자금보다') + '</span>' +
+          '<span>최대 낙폭<i>안정성 점수</i></span></div>' +
         sorted.map((v) => {
           const d = v.now - v.was;
           return '<div class="b-row b-team b-trow' + (v.rank === 1 ? ' lead' : '') + '">' +
@@ -1413,11 +1603,13 @@ body.board-mode .board{
             '<span class="b-val">' + won(v.now) + '</span>' +
             '<span class="b-delta ' + cls(d) + '" style="--bar:' +
               Math.round(Math.abs(d) / md * 100) + '%">' + swon(d) + '</span>' +
+            '<span class="b-mdd">' + (v.stab.mdd < -0.0005 ? spct(v.stab.mdd) : '0%') +
+              '<i>' + v.stab.score.toFixed(1) + ' / ' + v.stab.max + '</i></span>' +
           '</div>';
         }).join('');
       const rv = reveal
         ? '실제 시점 공개 — ' + S.dates.map((d, i) => '라운드 ' + i + ' ' + (d || '?')).join(' · ') : '';
-      el('bFoot').textContent = rv || '빨강은 올랐다 · 파랑은 내렸다 · 막대 길이는 변화의 크기 · 이자는 결과 공개 때 현금으로 들어옵니다';
+      el('bFoot').textContent = rv || '빨강은 올랐다 · 파랑은 내렸다 · 최대 낙폭 = 가장 높았던 때보다 가장 크게 떨어진 폭 · 우승은 총자산이 아니라 총점(수익·안정성·판단 근거·규칙)으로 정합니다';
       el('bFoot').classList.toggle('reveal', !!rv);
     } else {
       const n = rows.filter((r) => r.submitted).length;
@@ -1438,7 +1630,48 @@ body.board-mode .board{
       el('bFoot').classList.remove('reveal');
     }
     renderBoardQr();
+    renderBoardFinal();
   }
+
+  /* 최종 순위 화면 — 교사가 [최종 순위 발표]를 누르면 공지 화면 전체가 이것으로 바뀐다 */
+  let finalHidden = false;
+  function renderBoardFinal() {
+    const box = el('bFinal'); if (!box) return;
+    let rows = S.finalRows;
+    if (!rows && finalOn()) rows = finalRows().map((x) => ({ team: x.team, rank: x.rank, total: x.total,
+      sRet: x.sRet, sStab: x.sStab, sJudge: x.sJudge, sRules: x.sRules, fin: x.fin, ret: x.ret,
+      mdd: x.stab.mdd, viol: x.viol, retRank: x.retRank }));
+    const on = MODE === 'board' && !!S.finalShown && !!rows && rows.length > 0;
+    if (!on) finalHidden = false;
+    box.hidden = !on || finalHidden;
+    if (!on) return;
+    const R = S.rules, mx = (k, d) => (R[k] == null ? d : R[k]);
+    const w = rows.filter((x) => x.rank === 1);
+    const pct = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v * 100).toFixed(1) + '%';
+    el('bFinalSub').textContent = '총점 = 수익 ' + mx('scoreRet', 30) + ' + 안정성 ' + mx('stabilityMax', 20) +
+      ' + 판단 근거 ' + mx('scoreJudge', 30) + ' + 규칙 준수 ' + mx('scoreRules', 20);
+    el('bFinalWin').innerHTML = '<span class="crown">1</span>' +
+      '<span class="who"><small>' + (w.length > 1 ? '공동 우승' : '우승') + '</small><b>' +
+        w.map((x) => esc(x.team)).join(' · ') + '</b></span>' +
+      '<span class="pts"><span class="tot">' + w[0].total.toFixed(1) + '<small>점</small></span>' +
+        '<span class="parts"><span>수익 ' + w[0].sRet.toFixed(0) + '</span><span>안정성 ' + w[0].sStab.toFixed(1) +
+        '</span><span>판단 근거 ' + w[0].sJudge.toFixed(1) + '</span><span>규칙 ' + w[0].sRules.toFixed(0) + '</span></span></span>';
+    el('bFinalTable').innerHTML =
+      '<div class="b-frow hd"><span class="rk">순위</span><span class="nm">팀</span><span>수익<i>최종 자산 순위</i></span>' +
+      '<span>안정성<i>최대 낙폭</i></span><span>판단 근거<i>교사 채점</i></span><span>규칙<i>위반 횟수</i></span><span>총점</span></div>' +
+      rows.map((x) => '<div class="b-frow' + (x.rank === 1 ? ' top' : '') + '">' +
+        '<span class="rk"><span class="b-rank' + (x.rank === 1 ? ' top' : '') + '">' + x.rank + '</span></span>' +
+        '<span class="nm">' + esc(x.team) + '<i>' + won(x.fin) + '원 · ' + pct(x.ret) + '</i></span>' +
+        '<span>' + x.sRet.toFixed(0) + '<i>' + x.retRank + '위</i></span>' +
+        '<span>' + x.sStab.toFixed(1) + '<i>' + (x.mdd < -0.0005 ? pct(x.mdd) : '0%') + '</i></span>' +
+        '<span>' + x.sJudge.toFixed(1) + '<i>' + mx('scoreJudge', 30) + '점 중</i></span>' +
+        '<span>' + x.sRules.toFixed(0) + '<i>' + (x.viol ? x.viol + '회' : '없음') + '</i></span>' +
+        '<span class="tt">' + x.total.toFixed(1) + '</span></div>').join('');
+    const reveal = (S.dates || []).some(Boolean)
+      ? '실제 시점 — ' + S.dates.map((d, i) => '라운드 ' + i + ' ' + (d || '?')).join(' · ') : '';
+    el('bFinalFoot').innerHTML = (reveal ? esc(reveal) + ' · ' : '') + '동점이면 안정성 점수 → 최종 자산 순';
+  }
+  if (el('bFinalHide')) el('bFinalHide').onclick = function () { finalHidden = true; renderBoardFinal(); };
 
   /* QR은 주문접수 중에만. 기본은 R0에서 켜져 있고, 이후에는 교사가 켜야 나온다. */
   let qrOn = null;                                   // null = 아직 손대지 않음
@@ -1944,12 +2177,18 @@ body.board-mode .board{
     b.querySelectorAll('.dIn').forEach((inp) => {
       inp.onchange = function () { A.setDate(+inp.dataset.r, inp.value); };
     });
-    card(b, '뉴스카드',
+    card(b, '뉴스',
+      '<p>라운드마다 <b>한 줄에 뉴스 하나</b>씩 적습니다. 서너 개를 섞어 두면 학생이 무엇이 중요한지 골라내야 합니다. ' +
+      '결과를 알려 주는 말(폭락·급등)은 빼고 사건만 적으세요.</p>' +
       S.news.map((n, i) =>
         '<div class="field"><label>R' + i + '</label>' +
-        '<input class="txt nIn" data-i="' + i + '" type="text" value="' + esc(n) + '"></div>').join(''));
+        '<textarea class="txt nIn" data-i="' + i + '" rows="' + Math.max(2, (window.MI_NEWSLIST ? MI_NEWSLIST(n).length : 1) + 1) + '">' +
+        esc((window.MI_NEWSLIST ? MI_NEWSLIST(n) : [n]).join('\n')) + '</textarea></div>').join(''));
     b.querySelectorAll('.nIn').forEach((inp) => {
-      inp.onchange = function () { A.setNews(+inp.dataset.i, inp.value); };
+      inp.onchange = function () {
+        const lines = inp.value.split('\n').map((t) => t.trim()).filter(Boolean);
+        A.setNews(+inp.dataset.i, lines.length > 1 ? lines : (lines[0] || ''));
+      };
     });
   }
 
@@ -1983,7 +2222,7 @@ body.board-mode .board{
   function tabTeams(b) {
     const S = A.S();
     card(b, '팀 이름',
-      '<p>구글 폼의 <b>팀 드롭다운 선택지와 글자까지 같아야</b> 합니다.</p>' +
+      '<p>여기 적은 이름이 학생 화면의 팀 목록과 공지 화면에 그대로 나옵니다.</p>' +
       S.teams.map((t, i) =>
         '<div class="field"><label>' + (i + 1) + '팀 자리</label>' +
         '<input class="txt tIn" data-i="' + i + '" value="' + esc(t) + '"></div>').join(''));
@@ -1995,11 +2234,14 @@ body.board-mode .board{
       '<input id="rCash" type="number" step="100000" value="' + S.rules.initialCash + '"></div>' +
       '<div class="field"><label>주식 1종목 최대 비중 (0.4 = 40%)</label>' +
       '<input id="rCap" type="number" step="0.05" value="' + S.rules.stockCap + '"></div>' +
+      '<div class="field"><label>주식 합계 최대 비중 (0.7 = 70%, 0 = 제한 없음)</label>' +
+      '<input id="rTot" type="number" step="0.05" value="' + (S.rules.stockTotalCap || 0) + '"></div>' +
       '<div class="field"><label>최소 보유 자산 수</label>' +
       '<input id="rMin" type="number" step="1" value="' + S.rules.minAssets + '"></div>');
     el('rCash').onchange = () => A.setRule('initialCash', parseFloat(el('rCash').value) || 0);
     el('rCap').onchange = () => A.setRule('stockCap', parseFloat(el('rCap').value) || 0);
     el('rMin').onchange = () => A.setRule('minAssets', parseInt(el('rMin').value, 10) || 0);
+    el('rTot').onchange = () => A.setRule('stockTotalCap', parseFloat(el('rTot').value) || 0);
 
     card(b, '초기화',
       '<p>진행 상황과 주문을 모두 지우고 처음 상태로 되돌립니다.</p>' +
@@ -2177,45 +2419,38 @@ body.board-mode .board{
       const path = E.map((r) => r[ti]);
       const fin = path[NR];
       const minTot = Math.min.apply(null, path.map((p) => p.totR));
+      const stab = MIENGINE.stability([S.rules.initialCash].concat(path.map((p) => p.totR)), S.rules);
       const interest = path.reduce((a, p) => a + p.interest, 0);
       const reasons = path.filter((p) => (p.reason || '').trim()).length;
       const viol = path.filter((p, i) => warnAt(p, i)).length;
       return { team: t, path: path, fin: fin.totR, ret: fin.totR / S.rules.initialCash - 1,
-               minTot: minTot, dd: minTot / S.rules.initialCash - 1,
+               minTot: minTot, dd: stab.mdd, stab: stab,
                interest: interest, reasons: reasons, viol: viol };
     });
-    function warnAt(p) {
-      const R = S.rules;
-      if (p.cash < 0) return '자금초과';
-      if (p.exc > 0) return '매도초과';
-      if (!p.submitted) return '';
-      if (p.mxX > R.stockCap) return '한도초과';   /* 주문할 때 가격 기준 */
-      if (p.nAssets < R.minAssets) return '분산부족';
-      if (p.count > 1) return '중복제출';
-      return '';
-    }
-    const ranked = rows.slice().sort((a, b2) => b2.fin - a.fin);
-    ranked.forEach((r, i) => { r.rank = i + 1; r.scoreRet = Math.max(16, 30 - i * 2); });
-    rows.forEach((r) => { r.scoreRisk = Math.max(12, 20 + r.dd * 40); });
-
-    card(b, '채점 보조표',
+    function warnAt(p) { return MIENGINE.warnOf(p, 'order', S); }   /* 엔진과 같은 판정 */
+    const FR = MIENGINE.finalScores(E, S, S.grades), R = S.rules;
+    const mx = (k, d) => (R[k] == null ? d : R[k]);
+    const fon = !!S.finalShown && S.phase === 'result' && S.round >= S.prices.length - 1;
+    card(b, '최종 점수 (' + (fon ? '발표됨' : '지금까지 기준') + ')',
       '<div style="overflow-x:auto"><table class="edit-table"><thead><tr>' +
-      '<th>팀</th><th>최종 자산</th><th>수익률</th><th>순위</th><th>최대 낙폭</th>' +
-      '<th>누적 이자</th><th>사유</th><th>위반</th><th>수익 30</th><th>리스크 20</th>' +
-      '</tr></thead><tbody>' +
-      ranked.map((r) =>
-        '<tr><td><b>' + esc(r.team) + '</b></td>' +
+      '<th>순위</th><th>팀</th><th>최종 자산</th><th>수익률</th><th>수익 ' + mx('scoreRet', 30) + '</th>' +
+      '<th>최대 낙폭</th><th>안정성 ' + mx('stabilityMax', 20) + '</th><th>판단 근거 ' + mx('scoreJudge', 30) + '</th>' +
+      '<th>위반</th><th>규칙 ' + mx('scoreRules', 20) + '</th><th>총점</th></tr></thead><tbody>' +
+      FR.map((r) =>
+        '<tr' + (r.rank === 1 ? ' class="rank1"' : '') + '><td class="num"><b>' + r.rank + '</b></td><td><b>' + esc(r.team) + '</b></td>' +
         '<td class="num">' + Math.round(r.fin).toLocaleString('ko-KR') + '</td>' +
-        '<td class="num ' + (r.ret > 0 ? 'pos' : r.ret < 0 ? 'neg' : '') + '">' +
-          (r.ret * 100).toFixed(1) + '%</td>' +
-        '<td class="num">' + r.rank + '</td>' +
-        '<td class="num">' + (r.dd * 100).toFixed(1) + '%</td>' +
-        '<td class="num">' + Math.round(r.interest).toLocaleString('ko-KR') + '</td>' +
-        '<td class="num">' + r.reasons + '</td><td class="num">' + r.viol + '</td>' +
-        '<td class="num">' + r.scoreRet.toFixed(1) + '</td>' +
-        '<td class="num">' + r.scoreRisk.toFixed(1) + '</td></tr>').join('') +
+        '<td class="num ' + (r.ret > 0 ? 'pos' : r.ret < 0 ? 'neg' : '') + '">' + (r.ret * 100).toFixed(1) + '%</td>' +
+        '<td class="num">' + r.sRet.toFixed(0) + '<span class="dim"> (' + r.retRank + '위)</span></td>' +
+        '<td class="num">' + (r.stab.mdd * 100).toFixed(1) + '%</td>' +
+        '<td class="num">' + r.sStab.toFixed(1) + '</td>' +
+        '<td class="num">' + r.sJudge.toFixed(1) + (r.ungraded ? '<span class="over"> (미채점 ' + r.ungraded + ')</span>' : '') + '</td>' +
+        '<td class="num">' + r.viol + '</td><td class="num">' + r.sRules.toFixed(0) + '</td>' +
+        '<td class="num"><b>' + r.total.toFixed(1) + '</b></td></tr>').join('') +
       '</tbody></table></div>' +
-      '<p class="note" style="margin-top:.6rem">배점의 절반(논리 30 + 발표 20)은 아래 사유를 직접 읽고 매깁니다.</p>');
+      '<p class="note" style="margin-top:.6rem">수익은 최종 자산 순위로 1위 ' + mx('scoreRet', 30) + '점, 한 등수마다 −' + mx('scoreRetStep', 2) + '점. ' +
+      '안정성은 최고점 대비 최대 낙폭으로, 작게 잃으면 조금·크게 잃으면 많이 깎입니다(' + Math.round(mx('stabilityZeroAt', 0.3) * 100) + '% 이상 0점). ' +
+      '판단 근거는 메인 화면의 [판단 근거 채점]에서 라운드마다 상·중·하로 매긴 평균이고, 사유를 냈는데 안 매긴 칸은 중으로 셉니다. ' +
+      '규칙은 위반 1회마다 −' + mx('rulePenalty', 4) + '점. 동점이면 안정성 점수 → 최종 자산 순입니다.</p>');
 
     let tsv = ['팀\t라운드\t총자산\t수익률\t현금\t이자\t경고\t매매 사유'];
     S.teams.forEach((t, ti) => {

@@ -95,6 +95,10 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
 /* ── 뉴스 ── */
 .newsline{margin:0 0 1rem;background:var(--surface-2);border-radius:14px;padding:.9rem 1rem;
   font-size:.92rem;line-height:1.6;color:var(--t1);font-weight:500;box-shadow:inset 0 0 0 1px var(--line);}
+.newsline.multi ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:.45rem;}
+.newsline.multi li{position:relative;padding-left:.95rem;line-height:1.5;}
+.newsline.multi li::before{content:"";position:absolute;left:.1rem;top:.62em;width:.36rem;height:.36rem;border-radius:2px;background:var(--brand);}
+.nl-tip{margin:.7rem 0 0;font-size:.78rem;color:var(--t3);font-weight:500;}
 .newsline::before{content:"뉴스";display:block;font-size:.74rem;font-weight:800;color:var(--brand);
   margin-bottom:.25rem;}
 
@@ -151,6 +155,49 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
 .tamt{grid-column:1/-1;text-align:right;font-size:.78rem;color:var(--t3);font-weight:600;
   margin-top:.3rem;font-variant-numeric:tabular-nums;}
 .tamt:empty{display:none;}
+/* 첫 화면 대회 안내 */
+details.guide{padding:0;overflow:hidden;}
+details.guide summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:.55rem;padding:1.05rem 1.2rem;}
+details.guide summary::-webkit-details-marker{display:none;}
+.g-lbl{font-size:.74rem;font-weight:800;color:#fff;background:var(--brand);border-radius:6px;padding:.15rem .5rem;flex:none;}
+.g-ttl{font-weight:700;font-size:1.02rem;letter-spacing:-.02em;}
+.g-arrow{margin-left:auto;width:.6rem;height:.6rem;border-right:2px solid var(--t3);border-bottom:2px solid var(--t3);
+  transform:rotate(45deg);transition:transform .15s;margin-top:-.25rem;}
+details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
+#guideBody{padding:0 1.2rem 1.2rem;}
+.g-sec{margin-top:1rem;}
+.g-sec:first-child{margin-top:0;}
+.g-sec h3{margin:0 0 .45rem;font-size:.9rem;font-weight:800;color:var(--brand-ink);}
+.g-steps{margin:0;padding:0;list-style:none;counter-reset:g;}
+.g-steps li{counter-increment:g;position:relative;padding:.3rem 0 .3rem 1.9rem;font-size:.9rem;line-height:1.5;color:var(--t1);}
+.g-steps li::before{content:counter(g);position:absolute;left:0;top:.38rem;width:1.35rem;height:1.35rem;border-radius:50%;
+  background:var(--fill);color:var(--t2);font-size:.74rem;font-weight:800;display:grid;place-items:center;}
+.g-rules{display:grid;grid-template-columns:1fr 1fr;gap:.45rem;}
+.g-rules div{background:var(--surface-2);border-radius:12px;padding:.6rem .7rem;box-shadow:inset 0 0 0 1px var(--line);}
+.g-rules b{display:block;font-size:1.05rem;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+.g-rules span{font-size:.76rem;color:var(--t3);font-weight:600;line-height:1.35;display:block;}
+.g-score{display:grid;grid-template-columns:auto 1fr;gap:.35rem .7rem;font-size:.88rem;align-items:baseline;}
+.g-score b{font-weight:800;color:var(--brand);font-variant-numeric:tabular-nums;text-align:right;}
+.g-score span{color:var(--t1);line-height:1.45;}
+.g-tip{margin:.9rem 0 0;font-size:.84rem;color:var(--t2);background:var(--fill);border-radius:12px;padding:.7rem .85rem;line-height:1.55;}
+.score-rule{margin-top:.9rem;background:var(--brand-soft);border-radius:14px;padding:.85rem .95rem;display:flex;flex-direction:column;gap:.25rem;}
+.score-rule b{color:var(--brand-ink);font-size:.92rem;}
+.score-rule span{font-size:.84rem;color:var(--t1);line-height:1.5;}
+.score-rule .dim{color:var(--t3);}
+.card.fin{box-shadow:inset 0 0 0 2px var(--brand);}
+.fin-lbl{display:inline-block;font-size:.74rem;font-weight:800;color:#fff;background:var(--brand);border-radius:6px;padding:.15rem .5rem;margin-bottom:.5rem;}
+.fin-tot{display:flex;align-items:flex-end;justify-content:space-between;margin:.4rem 0 .2rem;}
+.fin-tot span{font-size:.82rem;color:var(--t3);font-weight:600;}
+.fin-tot b{font-size:1.9rem;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
+.fin-tot b small{font-size:.8rem;color:var(--t3);font-weight:600;}
+.fin-sum{border-top:1px solid var(--line);}
+.stab{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin:0 0 .9rem;}
+.stab:empty{display:none;}
+.stab div{background:var(--surface-2);border-radius:14px;padding:.7rem .85rem;box-shadow:inset 0 0 0 1px var(--line);}
+.stab span{display:block;font-size:.78rem;color:var(--t3);font-weight:600;}
+.stab b{font-size:1.25rem;font-weight:800;font-variant-numeric:tabular-nums;}
+.stab b small{font-size:.75rem;color:var(--t3);font-weight:600;}
+.stab .cell-sel::after{display:none;}
 .tdesc{display:block;font-size:.74rem;font-weight:500;color:var(--t3);line-height:1.3;white-space:nowrap;
   overflow:hidden;text-overflow:ellipsis;}
 .tw{margin-left:.35rem;font-size:.74rem;font-weight:600;color:var(--t3);font-variant-numeric:tabular-nums;}
@@ -230,6 +277,13 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
     <p class="note" id="linkNote" style="margin:.7rem 0 0"></p>
   </section>
 
+  <details class="card guide" id="guideCard" open>
+    <summary><span class="g-lbl">대회 안내</span><span class="g-ttl">처음이라면 꼭 읽어 주세요</span><span class="g-arrow" aria-hidden="true"></span></summary>
+    <div id="guideBody"></div>
+  </details>
+
+  <section class="card fin" id="finalCard" hidden></section>
+
   <section class="card">
     <h2 id="roundTitle">이번 라운드</h2>
     <p class="sub" id="roundSub">선생님 화면이 열리기를 기다리는 중입니다.</p>
@@ -254,13 +308,14 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
 
   <section class="card" id="reasonCard">
     <h2>매매 사유</h2>
-    <p class="sub">채점 30점이 걸린 칸입니다. 왜 그렇게 판단했는지 한두 문장으로.</p>
+    <p class="sub">판단 근거 30점이 걸린 칸입니다. 라운드마다 선생님이 상·중·하로 매기고, 비워 두면 0점입니다. 왜 그렇게 판단했는지 한두 문장으로.</p>
     <textarea id="reason" rows="3" placeholder="예) 금리가 올라 채권값이 떨어질 것 같아 국채를 팔고 예금으로 옮겼다"></textarea>
   </section>
 
   <section class="card">
     <h2>우리 팀 기록</h2>
     <p class="sub">제출한 라운드가 여기에 쌓입니다.</p>
+    <div class="stab" id="stabBox"></div>
     <div id="histBox"></div>
   </section>
 
@@ -309,7 +364,7 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
   function save() { try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {} }
 
   /* 선생님 화면에서 실시간으로 오는 것 */
-  let LIVE = { round: 0, phase: 'order', pub: null, orders: {}, link: { state: 'idle', msg: '' } };
+  let LIVE = { round: 0, phase: 'order', final: false, pub: null, orders: {}, link: { state: 'idle', msg: '' } };
 
   const seed = window.MI_CONFIG || {};
   function view() {
@@ -353,43 +408,37 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
     return out;
   }
 
-  /* 이번 라운드에 들어설 때의 보유·현금 */
-  function entering() {
-    const v = view(), px = pricesFor(LIVE.round), NA = v.assets.length;
-    const zero = { hold: new Array(NA).fill(0), cash: v.rules.initialCash };
-    if (!px || LIVE.round === 0 || !teamName()) return zero;
-    const eng = MIENGINE.runEngine(
-      { assets: v.assets, rules: v.rules, teams: [teamName()], prices: px }, myOrders());
-    const row = eng[LIVE.round - 1] && eng[LIVE.round - 1][0];
-    return row ? { hold: row.hold.slice(), cash: row.cash } : zero;
+  /* 작성 중인 주문까지 넣어 교사와 같은 엔진(engine.js)으로 돌린다 — 이자·예금 만기·수수료가 두 화면에서 어긋나지 않게 */
+  function runMine(px) {
+    const v = view(), nm = teamName() || '—', orders = teamName() ? myOrders() : {};
+    orders[MIENGINE.okey(nm, LIVE.round)] = {
+      items: S.lines.filter((l) => l.a >= 0 && l.a < v.assets.length && l.q > 0)
+        .map((l) => ({ asset: v.assets[l.a].name, side: l.side, qty: l.q })),
+      reason: '', count: 1, at: 0
+    };
+    return MIENGINE.runEngine({ assets: v.assets, rules: v.rules, teams: [nm], prices: px }, orders);
   }
 
-  /* 작성 중인 주문을 반영한 결과 — 교사 엔진과 같은 순서 */
   function compute() {
-    const v = view(), NA = v.assets.length, px = pricesFor(LIVE.round);
-    const base = entering();
-    const xp = px ? px[Math.max(0, LIVE.round - 1)] : null;
+    const v = view(), NA = v.assets.length, px = pricesFor(LIVE.round), r = LIVE.round;
     const net = new Array(NA).fill(0);
     S.lines.forEach((l) => {
-      if (l.a >= 0 && l.q > 0) net[l.a] += (l.side === '매도' ? -l.q : l.q);
+      if (l.a >= 0 && l.a < NA && l.q > 0) net[l.a] += (l.side === '매도' ? -l.q : l.q);
     });
-    const nh = base.hold.map((h, i) => Math.max(0, h + net[i]));
+    if (!px) {
+      const base = { hold: new Array(NA).fill(0), cash: v.rules.initialCash, lots: v.assets.map(() => []) };
+      return { ready: false, base: base, net: net, nh: base.hold.slice(), excess: 0 };
+    }
+    const eng = runMine(px), row = eng[r][0], prev = r > 0 ? eng[r - 1][0] : null;
+    const base = prev ? { hold: prev.hold.slice(), cash: prev.cash, lots: prev.lots }
+                      : { hold: new Array(NA).fill(0), cash: v.rules.initialCash, lots: v.assets.map(() => []) };
+    const xp = px[Math.max(0, r - 1)];
+    const nh = row.hold;
     const excess = nh.reduce((c, h, i) => c + (h > base.hold[i] + net[i] ? 1 : 0), 0);
-    if (!xp) return { ready: false, base: base, net: net, nh: nh, excess: excess };
-
-    const r = LIVE.round;
-    const interest = r === 0 ? 0
-      : base.hold.reduce((a, h, i) => a + h * xp[i] * (v.assets[i].rate || 0), 0);
-    const buy = nh.reduce((a, h, i) => a + (h - base.hold[i]) * xp[i], 0);
-    const fee = r === 0 ? 0
-      : nh.reduce((a, h, i) => a + Math.max(0, base.hold[i] - h) * xp[i] * (v.assets[i].fee || 0), 0);
-    const cash = base.cash + interest - buy - fee;
-    const val = nh.reduce((a, h, i) => a + h * xp[i], 0);
-    const tot = val + cash;
+    const cash = row.cash, tot = row.totX;
     const stk = nh.map((h, i) => v.assets[i].kind === '주식' ? h * xp[i] : 0);
-    const mx = tot ? Math.max.apply(null, stk) / tot : 0;
     const w = stk.map((x) => tot ? x / tot : 0);
-    const cap = v.rules.stockCap;
+    const cap = v.rules.stockCap, tcap = v.rules.stockTotalCap || 0;
     const overs = w.map((x, i) => x > cap ? i : -1).filter((i) => i >= 0);
     /* 넘친 종목을 한도 안으로 — 거래 후 수량을 몇 주 줄이면 되는가 (팔 때 수수료까지 넣어 계산) */
     const cut = w.map((x, i) => {
@@ -397,15 +446,20 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
       const f = r === 0 ? 0 : (v.assets[i].fee || 0);
       return Math.ceil((nh[i] * xp[i] - cap * tot) / (xp[i] * (1 - cap * f)) - 1e-9);
     });
-    const nAssets = nh.filter((q) => q > 0).length;
+    const sw = row.swX, swOver = tcap > 0 && sw > tcap + 1e-9;
     let bought = 0, sold = 0;
     nh.forEach((h, i) => {
       const d = h - base.hold[i];
       if (d > 0) bought += d * xp[i]; else if (d < 0) sold += -d * xp[i];
     });
-    return { ready: true, base: base, xp: xp, net: net, nh: nh, excess: excess,
-             interest: interest, buy: buy, fee: fee, cash: cash, tot: tot,
-             mx: mx, w: w, overs: overs, cut: cut, nAssets: nAssets, bought: bought, sold: sold };
+    /* 결과가 나온 라운드까지의 총자산 흐름 → 안정성 점수 */
+    const done = LIVE.phase === 'result' ? r : r - 1;
+    const stab = MIENGINE.stability([v.rules.initialCash].concat(eng.slice(0, done + 1).map((x) => x[0].totR)), v.rules);
+    return { ready: true, base: base, xp: xp, net: net, nh: nh, excess: excess, row: row,
+             interest: row.interest, early: row.early, forfeit: row.forfeit, pending: row.pending,
+             buy: row.buy, fee: row.fee, cash: cash, tot: tot,
+             mx: row.mxX, w: w, overs: overs, cut: cut, sw: sw, swOver: swOver, tcap: tcap,
+             nAssets: row.nAssets, bought: bought, sold: sold, stab: stab, done: done };
   }
 
   const mySubmitted = () => (LIVE.orders['r' + LIVE.round] || {})['t' + S.teamIdx] || null;
@@ -426,7 +480,59 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
     renderSum();
     renderHist();
     renderRules();
+    renderGuide();
+    renderFinal();
     renderAction();
+  }
+
+  /* 첫 화면 대회 안내 — 규칙 숫자는 선생님 설정(config.js)에서 그대로 읽는다 */
+  function renderGuide() {
+    const v = view(), R = v.rules, n = (k, d) => (R[k] == null ? d : R[k]);
+    const NR = ((LIVE.pub && LIVE.pub.rounds) || 0) - 1;
+    const lock = v.assets.find((a) => a.lock);
+    const html =
+      '<div class="g-sec"><h3>라운드마다 하는 일</h3><ol class="g-steps">' +
+        '<li>위에서 <b>우리 팀</b>을 고릅니다. 한 번만 하면 됩니다.</li>' +
+        '<li><b>뉴스</b> 여러 개를 읽고 무엇이 더 중요한지 팀에서 의논합니다. 모두 같은 방향은 아니고, 상관없는 소식도 섞여 있습니다. 가격은 교실 <b>공지 화면(TV)</b>에 있습니다.</li>' +
+        '<li>아래 <b>사고팔기</b>에서 자산마다 [팔기]·[사기]를 누르고 수량을 적습니다.</li>' +
+        '<li><b>매매 사유</b>를 한두 문장으로 — <b>어떤 뉴스를 근거로 삼았는지</b> 꼭 적고 — 맨 아래 <b>[제출]</b>. 마감 전이면 다시 눌러 고칠 수 있습니다.</li>' +
+        '<li>선생님이 마감하면 결과가 공개되고 다음 라운드로 넘어갑니다.' + (NR > 0 ? ' 라운드 0부터 ' + NR + '까지 진행합니다.' : '') + '</li>' +
+      '</ol></div>' +
+      '<div class="g-sec"><h3>꼭 지켜야 할 규칙</h3><div class="g-rules">' +
+        '<div><b>' + won(R.initialCash) + '원</b><span>팀마다 시작 자금</span></div>' +
+        '<div><b>' + Math.round(R.stockCap * 100) + '%</b><span>주식 한 종목에 넣을 수 있는 최대 비중</span></div>' +
+        (R.stockTotalCap ? '<div><b>' + Math.round(R.stockTotalCap * 100) + '%</b><span>주식을 모두 합쳐 넣을 수 있는 최대 비중</span></div>' : '') +
+        '<div><b>' + R.minAssets + '종 이상</b><span>최소 이만큼 나눠 담기</span></div>' +
+        (lock ? '<div><b>' + lock.lock + '라운드</b><span>' + esc(lock.name) + '은 이만큼 갖고 있어야 이자를 다 받음 (먼저 팔면 쌓인 이자의 ' +
+          Math.round((lock.early == null ? 0.5 : lock.early) * 100) + '%)</span></div>' : '') +
+        '<div><b>직전 가격</b><span>주문은 지난 라운드 가격으로 사고팔림</span></div>' +
+      '</div></div>' +
+      '<div class="g-sec"><h3>우승은 총점 100점으로</h3><div class="g-score">' +
+        '<b>' + n('scoreRet', 30) + '</b><span>수익 — 최종 자산 순위</span>' +
+        '<b>' + n('stabilityMax', 20) + '</b><span>안정성 — 대회 중 가장 크게 잃은 폭이 작을수록 높음</span>' +
+        '<b>' + n('scoreJudge', 30) + '</b><span>판단 근거 — 라운드마다 쓴 매매 사유 (안 쓰면 0점)</span>' +
+        '<b>' + n('scoreRules', 20) + '</b><span>규칙 준수 — 위반 1회마다 −' + n('rulePenalty', 4) + '점</span>' +
+      '</div></div>' +
+      '<p class="g-tip">돈을 가장 많이 번 팀이 아니라 <b>점수가 가장 높은 팀</b>이 이깁니다. 한 번에 크게 잃지 않게 나눠 담고, 왜 그렇게 판단했는지 꼭 적으세요.</p>';
+    if (el('guideBody').dataset.h !== html) { el('guideBody').innerHTML = html; el('guideBody').dataset.h = html; }
+  }
+
+  /* 최종 결과 — 교사가 [최종 순위 발표]를 누르면 우리 팀 순위와 점수가 뜬다 */
+  function renderFinal() {
+    const box = el('finalCard'), rows = (LIVE.pub && LIVE.pub.final) || null;
+    if (!LIVE.final || !rows || !rows.length) { box.hidden = true; return; }
+    const me = rows.find((x) => x.team === teamName()), win = rows.filter((x) => x.rank === 1);
+    const R = view().rules, mx = (k, d) => (R[k] == null ? d : R[k]);
+    box.hidden = false;
+    box.innerHTML = '<span class="fin-lbl">최종 결과</span>' +
+      '<h2>' + (me ? (me.rank === 1 ? '우승을 축하합니다!' : '우리 팀은 ' + me.rank + '위') : '대회가 끝났습니다') + '</h2>' +
+      '<p class="sub">우승 · ' + win.map((x) => esc(x.team)).join(' · ') + ' (' + win[0].total.toFixed(1) + '점)</p>' +
+      (me ? '<div class="fin-tot"><span>우리 팀 총점</span><b class="cell-sel">' + me.total.toFixed(1) + '<small> / 100</small></b></div>' +
+        '<dl class="sum fin-sum">' +
+        '<dt>수익 (' + me.retRank + '위)</dt><dd>' + me.sRet.toFixed(0) + ' / ' + mx('scoreRet', 30) + '</dd>' +
+        '<dt>안정성 (최대 낙폭 ' + (me.mdd < -0.0005 ? '−' + pctTxt(-me.mdd) : '0%') + ')</dt><dd>' + me.sStab.toFixed(1) + ' / ' + mx('stabilityMax', 20) + '</dd>' +
+        '<dt>판단 근거</dt><dd>' + me.sJudge.toFixed(1) + ' / ' + mx('scoreJudge', 30) + '</dd>' +
+        '<dt>규칙 준수 (위반 ' + me.viol + '회)</dt><dd>' + me.sRules.toFixed(0) + ' / ' + mx('scoreRules', 20) + '</dd></dl>' : '');
   }
 
   function renderLink() {
@@ -445,15 +551,19 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
 
   function renderRound() {
     const v = view(), px = pricesFor(LIVE.round);
-    const dl = v.dates[Math.max(0, LIVE.round - 1)] || '';
+    const dl = v.dates[LIVE.round] || '';            /* 라운드 r의 실제 시점 (마지막 결과 공개 때만 옴) */
     el('roundTitle').textContent = '라운드 ' + LIVE.round + (dl ? ' · ' + dl : '');
     el('roundSub').textContent = !px
       ? '선생님 화면이 열리기를 기다리는 중입니다.'
       : LIVE.phase === 'order'
         ? '가격은 공지 화면에서 확인하세요.'
         : '결과가 공개됐습니다. 다음 라운드를 기다리세요.';
-    el('newsBox').innerHTML = v.news[LIVE.round]
-      ? '<p class="newsline">' + esc(v.news[LIVE.round]) + '</p>' : '';
+    const nl = (Array.isArray(v.news[LIVE.round]) ? v.news[LIVE.round] : [v.news[LIVE.round]])
+      .map((t) => String(t == null ? '' : t).trim()).filter(Boolean);
+    el('newsBox').innerHTML = !nl.length ? '' : nl.length === 1
+      ? '<p class="newsline">' + esc(nl[0]) + '</p>'
+      : '<div class="newsline multi"><ul>' + nl.map((t) => '<li>' + esc(t) + '</li>').join('') + '</ul>' +
+        '<p class="nl-tip">모두가 같은 방향을 가리키지는 않습니다. 무엇이 더 중요한지 팀에서 골라 보세요.</p></div>';
   }
 
   /* 자산 하나에 주문은 한 줄 — 같은 자산을 사고 동시에 팔 일은 없다 */
@@ -506,6 +616,18 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
       amt = (v.rules.stockCap * 100).toFixed(0) + '% 넘음 — ' + won(C.cut[i]) + unit(a) + ' 줄이면 됩니다';
       bad = true;
     }
+    /* 정기예금처럼 묶이는 자산 — 언제 이자를 받는지, 먼저 팔면 얼마를 못 받는지 */
+    const lock = a.lock | 0;
+    if (lock && !over) {
+      const lots = (C.base.lots && C.base.lots[i]) || [];
+      const young = lots.filter((x) => x.age + 1 < lock).reduce((t, x) => t + x.q, 0);
+      if (young && !q) top += '<span class="arr">·</span><span class="zero">만기 전 ' + won(young) + '</span>';
+      if (q && side === '매수') amt += ' · 라운드 ' + (LIVE.round + lock) + '부터 이자 받음';
+      if (q && side === '매도' && (C.early + C.forfeit) > 0.5) {
+        amt = '만기 전이라 쌓인 이자 ' + won(C.early + C.forfeit) + '원 중 ' + won(C.early) + '원만 받아요';
+        bad = true;
+      }
+    }
     return { top: top, amt: amt, bad: bad, q: q, side: side, have: have, wtxt: wtxt, overCap: overCap, sellOver: over };
   }
 
@@ -523,8 +645,9 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
       html += '<div class="trow' + (r.q ? ' on' : '') + (r.overCap ? ' capover' : '') + '" data-i="' + i + '">' +
         '<div class="tinfo"><span class="tn">' + esc(a.name) +
           '<span class="tw' + (r.overCap ? ' over' : '') + '">' + r.wtxt + '</span></span>' +
-          '<span class="tdesc">' + esc([a.desc, a.rate ? (a.kind === '주식' ? '배당 ' : '이자 ') +
-            (a.rate * 100).toFixed(2) + '%' : ''].filter(Boolean).join(' · ')) + '</span>' +
+          '<span class="tdesc">' + esc(a.kind === '주식'
+            ? (a.desc || '') + (a.rate ? ' (배당 라운드당 ' + (a.rate * 100).toFixed(2) + '%)' : '')
+            : [a.desc, a.rate ? '이자 ' + (a.rate * 100).toFixed(2) + '%' + (a.lock ? '(' + a.lock + '라운드 보유)' : '') : ''].filter(Boolean).join(' · ')) + '</span>' +
           '<span class="th">' + r.top + '</span></div>' +
         '<div class="seg" role="group" aria-label="' + esc(a.name) + ' 팔기 또는 사기">' +
           '<button class="sell' + (r.side === '매도' ? ' act' : '') + '" data-i="' + i + '" data-s="매도"' +
@@ -588,6 +711,8 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
     if (C.excess > 0) al.push(['warn', '가진 것보다 많이 팔려고 합니다. 주황색 칸의 수량을 줄이세요.']);
     if (C.overs.length) al.push(['warn', C.overs.map((i) => v.assets[i].name + ' ' + pctTxt(C.w[i])).join(' · ') +
       ' — 주식 한 종목은 ' + (v.rules.stockCap * 100).toFixed(0) + '%까지입니다. 주황색 줄을 보세요.']);
+    if (C.swOver) al.push(['warn', '주식이 모두 합쳐 ' + pctTxt(C.sw) + '입니다. 주식은 ' + Math.round(C.tcap * 100) +
+      '%까지 — 주식을 약 ' + won(Math.ceil((C.sw - C.tcap) * C.tot / 10000 - 1e-6) * 10000) + '원어치 줄이고 채권·예금으로 옮기세요.']);
     if (C.nAssets < v.rules.minAssets) al.push(['warn', '자산 ' + C.nAssets + '종입니다. 최소 ' +
       v.rules.minAssets + '종에 나눠 담아야 합니다.']);
     const nw = al.length;
@@ -597,6 +722,9 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
       '<div class="alert ' + a[0] + '">' + esc(a[1]) + '</div>').join('');
     const rows = [['살 금액', '−' + won(C.bought) + '원'], ['팔 금액', '+' + won(C.sold) + '원']];
     if (LIVE.round > 0) rows.push(['이자 · 배당', '+' + won(C.interest) + '원']);
+    if (C.early > 0.5) rows.push(['예금 중도 해지 이자', '+' + won(C.early) + '원']);
+    if (C.pending > 0.5) rows.push(['예금에 쌓이는 이자 (만기 때)', won(C.pending) + '원']);
+    if (C.tcap) rows.push(['주식 비중', pctTxt(C.sw) + ' / ' + Math.round(C.tcap * 100) + '%']);
     if (C.fee > 0) rows.push(['매도 수수료', '−' + won(C.fee) + '원']);
     rows.push(['거래 후 현금', won(C.cash) + '원'], ['총자산', won(C.tot) + '원']);
     el('sumBox').innerHTML = rows.map((r) =>
@@ -604,6 +732,11 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
   }
 
   function renderHist() {
+    const C = compute();
+    el('stabBox').innerHTML = (C.ready && C.done >= 0)
+      ? '<div><span>최대 낙폭</span><b>' + (C.stab.mdd < -0.0005 ? '−' + pctTxt(-C.stab.mdd) : '0%') + '</b></div>' +
+        '<div><span>안정성 점수</span><b class="cell-sel">' + C.stab.score.toFixed(1) + '<small> / ' + C.stab.max + '</small></b></div>'
+      : '';
     const o = myOrders(), keys = Object.keys(o);
     if (!keys.length) {
       el('histBox').innerHTML = '<p class="note">아직 제출한 라운드가 없습니다.</p>'; return;
@@ -625,8 +758,21 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
       '<dl class="sum" style="margin-top:0">' +
       '<dt>시작 자금</dt><dd>' + won(v.rules.initialCash) + '원</dd>' +
       '<dt>주식 한 종목 최대</dt><dd>' + (v.rules.stockCap * 100).toFixed(0) + '% <span style="color:var(--t3);font-weight:500">(주문 때 가격)</span></dd>' +
+      (v.rules.stockTotalCap ? '<dt>주식 합계 최대</dt><dd>' + Math.round(v.rules.stockTotalCap * 100) + '%</dd>' : '') +
       '<dt>최소 자산 수</dt><dd>' + v.rules.minAssets + '종</dd>' +
+      '<dt>안정성 점수</dt><dd>' + (v.rules.stabilityMax || 20) + '점 <span style="color:var(--t3);font-weight:500">(크게 잃을수록 깎임)</span></dd>' +
       '</dl>' +
+      v.assets.filter((a) => a.lock).map((a) => '<p class="note" style="margin:.6rem 0 0">' + esc(a.name) +
+        '은 ' + a.lock + '라운드 넘게 넣어 둬야 이자를 다 받습니다. 그 전에 팔면 쌓인 이자의 ' +
+        Math.round((a.early == null ? 0.5 : a.early) * 100) + '%만 받습니다.</p>').join('') +
+      '<p class="note" style="margin:.4rem 0 0">안정성 점수 — 대회 중 가장 높았던 총자산에서 가장 크게 떨어진 폭(최대 낙폭)으로 매깁니다. 0%면 만점이고, ' +
+        '조금 잃으면 조금, 크게 잃으면 많이 깎입니다(' + Math.round((v.rules.stabilityZeroAt || 0.3) * 100) + '% 넘게 잃으면 0점).</p>' +
+      '<div class="score-rule"><b>우승은 총점 100점으로 정합니다</b>' +
+        '<span>수익 ' + (v.rules.scoreRet == null ? 30 : v.rules.scoreRet) + ' — 최종 자산 순위 (1위 만점, 한 등수마다 −' + (v.rules.scoreRetStep == null ? 2 : v.rules.scoreRetStep) + ')</span>' +
+        '<span>안정성 ' + (v.rules.stabilityMax || 20) + ' — 최대 낙폭</span>' +
+        '<span>판단 근거 ' + (v.rules.scoreJudge == null ? 30 : v.rules.scoreJudge) + ' — 라운드마다 쓴 매매 사유를 선생님이 상·중·하로 (안 쓰면 0점)</span>' +
+        '<span>규칙 준수 ' + (v.rules.scoreRules == null ? 20 : v.rules.scoreRules) + ' — 위반 1회마다 −' + (v.rules.rulePenalty == null ? 4 : v.rules.rulePenalty) + '</span>' +
+        '<span class="dim">동점이면 안정성 점수가 높은 팀이 앞섭니다.</span></div>' +
       '<div class="rowlist" style="margin-top:.6rem">' + v.assets.map((a) =>
         '<div class="hold-row"><span class="hn">' + esc(a.name) +
         '<small>' + esc(a.desc || a.kind) + '</small></span><span class="hq"></span>' +
@@ -715,6 +861,7 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
     if (!st) return;
     LIVE.round = st.round | 0;
     LIVE.phase = st.phase === 'result' ? 'result' : 'order';
+    LIVE.final = !!st.final;
     if (S.forRound !== LIVE.round) {         /* 라운드가 바뀌면 작성판을 비운다 */
       S.lines = []; S.reason = ''; S.forRound = LIVE.round;
       el('reason').value = ''; el('copyNote').textContent = '';
@@ -731,6 +878,10 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
     }
   } catch (e) {}
   el('reason').value = S.reason || '';
+  try { if (localStorage.getItem('mockinvest.student.guide') === 'closed') el('guideCard').open = false; } catch (e) {}
+  el('guideCard').addEventListener('toggle', function () {
+    try { localStorage.setItem('mockinvest.student.guide', this.open ? 'open' : 'closed'); } catch (e) {}
+  });
   renderAll();
 
   window.__STU__ = { compute: compute, state: () => S, live: () => LIVE, view: view, render: renderAll };
