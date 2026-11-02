@@ -135,6 +135,7 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--surface);
 .dot.on{background:var(--brand-bright);box-shadow:0 0 0 3px var(--brand-soft);}
 .dot.err{background:var(--up);box-shadow:0 0 0 3px var(--up-soft);}
 .statusbar .btn.ghost{background:var(--surface);}
+.statusbar #btnQrToggle.on{background:var(--brand-soft);color:var(--brand-ink);font-weight:700;}
 .statusbar .btn.ghost:hover{background:var(--fill-2);}
 
 /* 본문 */
@@ -287,6 +288,7 @@ textarea{width:100%;min-height:120px;resize:vertical;font-size:.84rem;line-heigh
 .qrprev-code svg{width:100%;height:100%;display:block;}
 .qrprev-txt{font-size:.86rem;color:var(--t2);line-height:1.6;word-break:break-all;min-width:0;}
 .qrprev-txt .mono{font-size:.78rem;color:var(--t3);}
+.qrprev-txt .btn{margin-top:.5rem;}
 
 /* ═══════════════════════════════════════════════════════════════════
    공지 화면 — 교실 TV.  기본은 어두운 무대, [밝게]로 바꿀 수 있다.
@@ -338,6 +340,8 @@ body.board-mode .board{
   padding:.18em .45em;border-radius:clamp(12px,1.6vh,20px);background:var(--b-card);color:var(--b-t1);
 }
 .b-timer.warn{background:var(--b-warn);color:#1A1200;}
+/* 타이머가 없을 때도 같은 크기의 자리를 비워 둔다 — 켜고 꺼도 아래 화면이 움직이지 않게 */
+.b-timer.off{visibility:hidden;}
 .b-top .btn{background:transparent;color:var(--b-t3);opacity:.55;}
 .b-top .btn:hover{opacity:1;background:var(--b-card);}
 
@@ -349,7 +353,7 @@ body.board-mode .board{
 }
 .b-news::before{content:"뉴스";flex:none;font-size:.62em;font-weight:800;color:var(--b-brand);
   letter-spacing:0;}
-.b-news.multi{font-size:clamp(.92rem,2.3vh,1.7rem);line-height:1.35;padding-top:clamp(.6rem,1.5vh,1.2rem);padding-bottom:clamp(.6rem,1.5vh,1.2rem);}
+.b-news,.b-news.multi{font-size:clamp(.92rem,2.3vh,1.7rem);line-height:1.35;padding-top:clamp(.6rem,1.5vh,1.2rem);padding-bottom:clamp(.6rem,1.5vh,1.2rem);}
 .b-news ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:.3em 2.2em;flex:1 1 auto;}
 .b-news li{position:relative;padding-left:.9em;}
 .b-news li::before{content:"";position:absolute;left:0;top:.55em;width:.34em;height:.34em;border-radius:2px;background:var(--b-brand);}
@@ -393,8 +397,8 @@ body.board-mode .board{
   background:var(--b-card-2);color:var(--b-t2);}
 .b-rank.top{background:var(--b-brand);color:#fff;}
 /* 1등 팀의 금액에만 '선택된 셀' */
-.b-team.lead .b-val:not(.was){box-shadow:inset 0 0 0 2px var(--b-brand);border-radius:8px;
-  padding:.1em .35em;position:relative;}
+.b-team.lead .b-val:not(.was){box-shadow:0 0 0 2px var(--b-brand);border-radius:8px;
+  padding:0 .35em;position:relative;}   /* 위아래 여백 없이 — 줄 높이가 주문 접수 때와 같게 */
 .b-team.lead .b-val:not(.was)::after{content:"";position:absolute;right:-4px;bottom:-4px;width:8px;height:8px;
   background:var(--b-brand);border:2px solid var(--b-card);border-radius:2px;}
 .b-chip{font-size:clamp(.7rem,1.6vh,1.05rem);font-weight:700;padding:.28em .75em;border-radius:999px;
@@ -461,8 +465,68 @@ body.board-mode .board{
 .b-qrfull-cap{font-size:clamp(1rem,2.6vh,1.8rem);font-weight:700;color:var(--b-t1);text-align:center;}
 .b-qrfull .btn{background:var(--b-card);color:var(--b-t2);}
 
-.b-foot{font-size:clamp(.8rem,1.8vh,1.25rem);color:var(--b-t2);padding:0 .3rem;font-weight:600;}
-.b-foot.reveal{color:var(--b-brand);font-weight:700;font-size:clamp(.85rem,2vh,1.35rem);}
+.b-foot{font-size:clamp(.8rem,1.8vh,1.25rem);color:var(--b-t2);padding:0 .3rem;font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4;}
+/* 주문 접수 ↔ 결과 공개가 바뀌어도 팀 표의 줄 위치·글자 크기가 그대로 — 화면이 덜 흔들린다 */
+.b-rank.ghost{visibility:hidden;}
+.b-h2count{margin-left:auto;font-size:1em;font-weight:800;color:var(--b-t1);letter-spacing:-.02em;}
+.b-h2count small{font-size:.68em;color:var(--b-t2);font-weight:600;margin-left:.15em;}
+.b-trow .b-chip{justify-self:end;}
+/* QR 칸이 함께 뜨는 좁은 화면 — 주문 접수 중에는 팀 · 금액 · 제출만 */
+.b-grid.has-qr:not(.res) .b-trow{grid-template-columns:minmax(0,1.2fr) auto auto;}
+.b-grid.has-qr:not(.res) .b-trow > :first-child, .b-grid.has-qr:not(.res) .b-trow > :last-child{display:none;}
+/* 결과 공개 중에는 등수 · 팀 · 총자산 · 최대 낙폭 (지난 라운드 대비 금액은 접는다) */
+.b-grid.has-qr.res .b-trow{grid-template-columns:auto minmax(0,1.1fr) auto minmax(0,.8fr);}
+.b-grid.has-qr.res .b-trow > :nth-child(4){display:none;}
+/* 좁은 화면(노트북·4:3 프로젝터)에서는 QR 칸을 줄이고, 결과 표는 등수 · 팀 · 총자산만 */
+@media (max-width:1440px){
+  .b-grid.has-qr{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,.56fr);}
+  .b-grid.has-qr.res .b-trow{grid-template-columns:auto minmax(0,1fr) auto;}
+  .b-grid.has-qr.res .b-trow > :nth-child(5){display:none;}
+  .b-grid.has-qr.res .b-team.lead .b-val{margin-right:8px;}   /* 맨 오른쪽 칸이 되어도 '선택된 셀' 꼭짓점이 잘리지 않게 */
+}
+
+/* 공지 화면 — 새 라운드 뉴스를 먼저 크게 */
+.b-intro{position:fixed;inset:0;z-index:17;background:var(--b-bg);color:var(--b-t1);display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto;gap:clamp(.8rem,2.4vh,2rem);
+  padding:clamp(1.2rem,4vh,3.4rem) clamp(1.4rem,4vw,4.4rem) clamp(.9rem,2.4vh,1.8rem);}
+.b-intro[hidden]{display:none;}
+.b-intro-top{display:flex;align-items:baseline;gap:clamp(.8rem,1.6vw,1.6rem);}
+.b-intro-top .b-round{font-size:clamp(2.4rem,7vh,5.6rem);}
+.b-intro-top .ttl{font-size:clamp(1.3rem,3.6vh,2.8rem);font-weight:800;color:var(--b-brand);letter-spacing:-.03em;}
+.b-intro-top .btn{background:transparent;color:var(--b-t3);opacity:.6;}
+.b-intro-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;justify-content:center;
+  gap:clamp(.6rem,1.8vh,1.4rem);min-height:0;overflow:hidden;}
+.b-intro-list li{display:flex;align-items:center;gap:clamp(.8rem,1.6vw,1.6rem);background:var(--b-card);
+  border-radius:clamp(14px,2.2vh,26px);padding:clamp(.8rem,2.3vh,1.8rem) clamp(1rem,2vw,2.2rem);
+  font-size:clamp(1.3rem,4.7vh,3.7rem);font-weight:700;line-height:1.3;letter-spacing:-.03em;}
+.b-intro-list li b{flex:none;display:inline-grid;place-items:center;width:1.6em;height:1.6em;border-radius:50%;
+  background:var(--b-brand-soft);color:var(--b-brand);font-size:.72em;font-weight:800;}
+.b-intro-foot{font-size:clamp(.95rem,2.4vh,1.7rem);color:var(--b-t2);font-weight:600;}
+
+/* 공지 화면 — 실제 시점 공개 (최종 순위 다음) */
+.b-dates{position:fixed;inset:0;z-index:19;background:var(--b-bg);color:var(--b-t1);display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto;gap:clamp(.7rem,2vh,1.6rem);
+  padding:clamp(1rem,3vh,2.6rem) clamp(1.2rem,2.8vw,3rem) clamp(.8rem,2vh,1.4rem);}
+.b-dates[hidden]{display:none;}
+.b-dates-top{display:flex;align-items:baseline;gap:1rem;}
+.b-dates-top .ttl{font-weight:800;font-size:clamp(1.6rem,4.6vh,3.6rem);letter-spacing:-.04em;}
+.b-dates-top .sub{font-size:clamp(.85rem,2vh,1.4rem);color:var(--b-t2);font-weight:600;}
+.b-dates-top .btn{background:transparent;color:var(--b-t3);opacity:.6;}
+.b-dates-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);
+  gap:clamp(.6rem,1.4vw,1.3rem);min-height:0;}
+.b-dcard{background:var(--b-card);border-radius:clamp(14px,2.2vh,26px);padding:clamp(.7rem,2vh,1.5rem) clamp(.9rem,1.5vw,1.6rem);
+  display:flex;flex-direction:column;gap:.35em;min-height:0;overflow:hidden;}
+.b-dcard .rd{font-size:clamp(.8rem,1.9vh,1.35rem);font-weight:700;color:var(--b-t2);display:flex;gap:.6em;align-items:baseline;}
+.b-dcard .rd .chg{margin-left:auto;font-weight:800;}
+.b-dcard .rd .chg.pos{color:var(--b-up);} .b-dcard .rd .chg.neg{color:var(--b-down);}
+.b-dcard .when{font-size:clamp(1.5rem,4.6vh,3.6rem);font-weight:800;letter-spacing:-.04em;line-height:1.05;color:var(--b-brand);}
+.b-dcard ul{list-style:none;margin:.2em 0 0;padding:0;display:flex;flex-direction:column;gap:.25em;
+  font-size:clamp(.78rem,1.95vh,1.38rem);color:var(--b-t2);font-weight:600;line-height:1.35;overflow:hidden;}
+.b-dcard li{position:relative;padding-left:.8em;}
+.b-dcard li::before{content:"";position:absolute;left:0;top:.55em;width:.3em;height:.3em;border-radius:2px;background:var(--b-t3);}
+.b-dates-foot{font-size:clamp(.85rem,2vh,1.35rem);color:var(--b-t2);font-weight:600;}
+@media (max-aspect-ratio:4/3){ .b-dates-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
 
 /* 공지 화면 — 최종 순위 */
 .b-final{position:fixed;inset:0;z-index:18;background:var(--b-bg);color:var(--b-t1);display:grid;
@@ -550,7 +614,7 @@ body.board-mode .board{
     <button class="btn ghost sm" id="btnT6">6분</button>
     <button class="btn ghost sm" id="btnT0">멈춤</button>
     <span class="spacer"></span>
-    <button class="btn ghost sm" id="btnQrToggle">QR 켜기 / 끄기</button>
+    <button class="btn ghost sm" id="btnQrToggle">공지 화면 QR 켜기</button>
   </div>
 
   <main>
@@ -612,7 +676,7 @@ body.board-mode .board{
     <span class="b-round" id="bRound">R0</span>
     <span class="b-phase ord" id="bPhase">주문 접수 중</span>
     <span class="b-spacer"></span>
-    <span class="b-timer" id="bTimer" hidden>0:00</span>
+    <span class="b-timer off" id="bTimer" aria-hidden="true">0:00</span>
     <button class="btn ghost sm" id="bTheme">밝게</button>
     <button class="btn ghost sm" id="bBack">교사 화면</button>
   </div>
@@ -643,6 +707,26 @@ body.board-mode .board{
     <div class="b-final-win" id="bFinalWin"></div>
     <div class="b-final-table" id="bFinalTable"></div>
     <div class="b-final-foot" id="bFinalFoot"></div>
+  </div>
+  <div class="b-intro" id="bIntro" hidden>
+    <div class="b-intro-top">
+      <span class="b-round" id="bIntroRound">R1</span>
+      <span class="ttl">이번 라운드 뉴스</span>
+      <span class="b-spacer"></span>
+      <button class="btn ghost sm" id="bIntroHide">시세표 보기</button>
+    </div>
+    <ul class="b-intro-list" id="bIntroList"></ul>
+    <div class="b-intro-foot">모두 같은 방향을 가리키지는 않습니다. 무엇이 더 중요한지 팀에서 의논하세요 · 시세표는 잠시 뒤 공개합니다</div>
+  </div>
+  <div class="b-dates" id="bDates" hidden>
+    <div class="b-dates-top">
+      <span class="ttl">실제 시점 공개</span>
+      <span class="sub">여러분이 지나온 라운드는 실제로 이때였습니다</span>
+      <span class="b-spacer"></span>
+      <button class="btn ghost sm" id="bDatesHide">최종 순위 보기</button>
+    </div>
+    <div class="b-dates-grid" id="bDatesGrid"></div>
+    <div class="b-dates-foot" id="bDatesFoot"></div>
   </div>
   <div class="b-qrfull" id="bQrFull" hidden>
     <div class="b-qrfull-in">
@@ -989,7 +1073,10 @@ body.board-mode .board{
     synced: {},        // 학생이 낸 주문 (실시간)
     manual: {},        // 교사가 직접 고친 주문 — 학생 주문보다 우선한다
     grades: {},        // 판단 근거 채점 { 라운드: { 팀번호: '상'|'중'|'하' } } — 교사 화면에만 있다
-    finalShown: false  // 마지막 결과 뒤 [최종 순위 발표]를 눌렀는가
+    finalShown: false, // 마지막 결과 뒤 [최종 순위 발표]를 눌렀는가
+    datesShown: false, // 최종 순위 뒤 [실제 시점 공개]를 눌렀는가
+    newsIntro: false,  // 새 라운드를 막 열어 공지 화면에 뉴스만 크게 띄운 상태
+    qrOn: null         // 공지 화면 QR — null이면 기본(라운드 0만), true/false는 교사가 직접 정한 것
   };
   const CFG = JSON.parse(JSON.stringify(window.MI_CONFIG || {}));
   const NA0 = (CFG.assets || []).length || 1;
@@ -1015,7 +1102,7 @@ body.board-mode .board{
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
         const p = JSON.parse(raw);
-        ['round', 'phase', 'timerEnd', 'manual', 'grades', 'finalShown'].forEach((k) => {
+        ['round', 'phase', 'timerEnd', 'manual', 'grades', 'finalShown', 'datesShown', 'newsIntro', 'qrOn'].forEach((k) => {
           if (p[k] !== undefined) s[k] = p[k];
         });
         // 한 번 불러온 시세표는 이 브라우저에 남는다
@@ -1040,10 +1127,13 @@ body.board-mode .board{
     return s;
   }
   function saveState() {
+    /* 공지 화면은 공개된 라운드까지의 시세만 들고 있다 — 그걸 저장하면 교사의 시세표·채점을 덮어쓰므로 교사 화면만 저장한다 */
+    if (MODE !== 'teacher') return;
     try {
       localStorage.setItem(LS_KEY, JSON.stringify({
         round: S.round, phase: S.phase, timerEnd: S.timerEnd,
         manual: S.manual, grades: S.grades || {}, finalShown: !!S.finalShown,
+        datesShown: !!S.datesShown, newsIntro: !!S.newsIntro, qrOn: S.qrOn == null ? null : !!S.qrOn,
         edited: S.edited || {}, sheetLoaded: !!S.sheetLoaded,
         teams: S.teams, assets: S.assets, prices: S.prices, news: S.news,
         dates: S.dates, rules: S.rules
@@ -1155,7 +1245,7 @@ body.board-mode .board{
     const NR = S.prices.length - 1;
     el('rdLabel').innerHTML = '<span class="rd-lbl">라운드</span>' + S.round;
     const ph = el('phaseLabel');
-    ph.textContent = S.phase === 'result' ? '결과공개' : '주문접수';
+    ph.textContent = S.phase === 'result' ? '결과공개' : S.newsIntro ? '뉴스 공개 · 주문접수' : '주문접수';
     ph.className = 'phase ' + (S.phase === 'result' ? 'result' : 'order');
     el('newsTag').textContent = 'R' + S.round;
     const nl = newsList(S.news[S.round]);
@@ -1164,14 +1254,21 @@ body.board-mode .board{
     if (el('setupBar')) el('setupBar').hidden = !!S.sheetLoaded;
     const bn = el('btnNext');
     if (!S.sheetLoaded) { bn.textContent = '시세표를 먼저 불러오세요'; bn.disabled = true; }
+    else if (S.phase === 'order' && S.newsIntro) { bn.textContent = '뉴스 닫고 시세표 보기'; bn.disabled = false; }
     else if (S.phase === 'order') { bn.textContent = '주문 마감 · 결과 공개'; bn.disabled = false; }
     else if (S.round < NR) { bn.textContent = '다음 라운드 R' + (S.round + 1) + ' 시작'; bn.disabled = false; }
     else if (!S.finalShown) {
       const u = ungradedCount();
       bn.textContent = '최종 순위 발표' + (u ? ' (미채점 ' + u + '칸은 중)' : ''); bn.disabled = false;
     }
-    else { bn.textContent = '대회 종료 · 최종 순위 발표됨'; bn.disabled = true; }
+    else if (!S.datesShown) { bn.textContent = '실제 시점 공개'; bn.disabled = false; }
+    else { bn.textContent = '대회 종료 · 실제 시점까지 공개됨'; bn.disabled = true; }
     el('btnPrev').disabled = !S.sheetLoaded || (S.round === 0 && S.phase === 'order');
+    if (el('btnQrToggle')) {
+      const q = qrWanted();
+      el('btnQrToggle').textContent = q ? '공지 화면 QR 끄기' : '공지 화면 QR 켜기';
+      el('btnQrToggle').classList.toggle('on', q);
+    }
 
     renderPrices();
     renderRank();
@@ -1228,12 +1325,11 @@ body.board-mode .board{
       '% · 하 ' + Math.round(MIENGINE.GRADE['하'] * 100) + '%';
   }
 
-  /* 실제 시점(연·월)은 마지막 라운드 결과를 공개할 때 한꺼번에 밝힌다 — 그 전에는 학생·공지 화면에 나가지 않는다 */
-  function datesRevealed() {
-    return S.phase === 'result' && S.round >= S.prices.length - 1;
-  }
+  function lastResult() { return S.phase === 'result' && S.round >= S.prices.length - 1; }
   /* 최종 순위 — 마지막 라운드 결과 공개 뒤 [최종 순위 발표]를 누른 상태 */
-  function finalOn() { return !!S.finalShown && datesRevealed(); }
+  function finalOn() { return !!S.finalShown && lastResult(); }
+  /* 실제 시점(연·월)은 맨 마지막 — 최종 순위 다음 [실제 시점 공개]를 눌러야 학생·공지 화면에 나간다 */
+  function datesRevealed() { return !!S.datesShown && finalOn(); }
   function finalRows() { return MIENGINE.finalScores(ENGINE, S, S.grades); }
   function ungradedCount() {
     let n = 0;
@@ -1375,17 +1471,22 @@ body.board-mode .board{
   /* ═══════════════════ 진행 제어 ═══════════════════ */
   el('btnNext').onclick = function () {
     const NR = S.prices.length - 1;
-    if (S.phase === 'order') { S.phase = 'result'; S.timerEnd = 0; }   /* 주문 타이머는 마감과 함께 멈춘다 */
-    else if (S.round < NR) { S.round++; S.phase = 'order'; S.timerEnd = 0; }
+    if (S.phase === 'order' && S.newsIntro) { S.newsIntro = false; }  /* 뉴스 화면 → 평소 화면 (주문은 그동안에도 받는다) */
+    else if (S.phase === 'order') { S.phase = 'result'; S.timerEnd = 0; }   /* 주문 타이머는 마감과 함께 멈춘다 */
+    else if (S.round < NR) { S.round++; S.phase = 'order'; S.timerEnd = 0; S.newsIntro = true; }
     else if (!S.finalShown) { S.finalShown = true; }
+    else if (!S.datesShown) { S.datesShown = true; }
     render();
   };
   el('btnPrev').onclick = function () {
-    if (S.finalShown) S.finalShown = false;
+    if (S.datesShown) S.datesShown = false;
+    else if (S.finalShown) S.finalShown = false;
     else if (S.phase === 'result') S.phase = 'order';
-    else if (S.round > 0) { S.round--; S.phase = 'result'; }
+    else if (S.round > 0 && !S.newsIntro) S.newsIntro = true;
+    else if (S.round > 0) { S.round--; S.phase = 'result'; S.newsIntro = false; }
     render();
   };
+  window.__MI_INTRO__ = () => !!S.newsIntro;
   document.addEventListener('keydown', function (e) {
     if (e.target.matches('input,textarea,select')) return;
     if (e.key === 'ArrowRight') { el('btnNext').click(); }
@@ -1429,7 +1530,8 @@ body.board-mode .board{
     if (!S.sheetLoaded) return;              /* 시세표 전이면 학생 쪽으로 아무것도 보내지 않는다 */
     const sh = shownRound();
     const fin = finalOn();
-    MIDB.setState({ round: S.round, phase: S.phase, timerEnd: S.timerEnd || 0, final: fin });
+    MIDB.setState({ round: S.round, phase: S.phase, timerEnd: S.timerEnd || 0, final: fin,
+      dates: datesRevealed(), intro: S.phase === 'order' && !!S.newsIntro, qr: qrWanted() });
     MIDB.setPublic({
       teams: S.teams, assets: S.assets, rules: S.rules,
       rounds: S.prices.length,                 /* 라운드 수만 (앞으로의 가격은 보내지 않는다) */
@@ -1456,13 +1558,18 @@ body.board-mode .board{
     document.body.classList.toggle('board-mode', MODE === 'board');
     try { sessionStorage.setItem(MODE_KEY, MODE); } catch (e) {}
   }
-  function setMode(m) { MODE = m; applyMode(); render(); }
+  function setMode(m) {
+    /* 같은 창에서 공지 화면 → 교사 화면으로 돌아올 때는 저장해 둔 교사 상태를 다시 읽는다 (공지 화면이 받은 일부 시세를 버린다) */
+    if (m === 'teacher' && MODE !== 'teacher') { const syn = S.synced; S = loadState(); S.synced = syn || {}; }
+    MODE = m; applyMode(); render();
+  }
 
   /* 공지 화면은 교사 화면이 내보낸 것만 받아 그린다 */
   let bootedBoard = false;
   function applyPublic(p) {
     if (MODE !== 'board' || !p) return;
-    ['teams', 'assets', 'rules', 'news', 'dates'].forEach((k) => { if (p[k]) S[k] = p[k]; });
+    ['teams', 'assets', 'rules', 'news'].forEach((k) => { if (p[k]) S[k] = p[k]; });
+    S.dates = p.dates || [];                 /* 빈 목록은 파이어베이스에서 빠져 오므로 — 없으면 아직 비공개 */
     S.manual = {};
     (p.manual || []).forEach((m) => { if (m && m.k) S.manual[m.k] = m.rec; });
     S.finalRows = p.final || null;
@@ -1488,6 +1595,9 @@ body.board-mode .board{
         S.phase = st.phase === 'result' ? 'result' : 'order';
         S.timerEnd = st.timerEnd || 0;
         S.finalShown = !!st.final;
+        S.datesShown = !!st.dates;
+        S.newsIntro = !!st.intro;
+        S.qrBoard = !!st.qr;
         render();
       }
     });
@@ -1507,12 +1617,12 @@ body.board-mode .board{
     const left = timerLeft();
     const bt = el('bTimer'), tt = el('tTimer');
     if (left === null) {
-      if (bt) bt.hidden = true;
+      if (bt) { bt.className = 'b-timer off'; bt.setAttribute('aria-hidden', 'true'); }
       if (tt) tt.textContent = '';
       return;
     }
     const txt = fmtT(left);
-    if (bt) { bt.hidden = false; bt.textContent = txt; bt.className = 'b-timer' + (left <= 30 ? ' warn' : ''); }
+    if (bt) { bt.removeAttribute('aria-hidden'); bt.textContent = txt; bt.className = 'b-timer' + (left <= 30 ? ' warn' : ''); }
     if (tt) tt.textContent = txt;
   }
   setInterval(tickTimer, 250);
@@ -1607,31 +1717,71 @@ body.board-mode .board{
               '<i>' + v.stab.score.toFixed(1) + ' / ' + v.stab.max + '</i></span>' +
           '</div>';
         }).join('');
-      const rv = reveal
-        ? '실제 시점 공개 — ' + S.dates.map((d, i) => '라운드 ' + i + ' ' + (d || '?')).join(' · ') : '';
-      el('bFoot').textContent = rv || '빨강은 올랐다 · 파랑은 내렸다 · 최대 낙폭 = 가장 높았던 때보다 가장 크게 떨어진 폭 · 우승은 총자산이 아니라 총점(수익·안정성·판단 근거·규칙)으로 정합니다';
-      el('bFoot').classList.toggle('reveal', !!rv);
+      el('bFoot').textContent = '빨강 오름 · 파랑 내림 · 최대 낙폭 = 가장 높았던 때보다 가장 크게 떨어진 폭 · 우승은 총자산이 아니라 총점으로 정합니다';
     } else {
       const n = rows.filter((r) => r.submitted).length;
       const first = S.round === 0;
-      el('bRightTitle').innerHTML = '제출 현황';
+      /* 결과 공개 때와 같은 칸·같은 글자 크기 — 단계가 바뀌어도 팀 줄이 제자리에 있다 */
+      el('bRightTitle').innerHTML = '제출 현황<span class="b-h2count">' + n + '<small>/ ' + rows.length + '팀</small></span>';
       el('bRight').innerHTML =
-        '<div class="b-count">' + n + '<small>/ ' + rows.length + '팀</small></div>' +
+        '<div class="b-row b-trow b-hd"><span></span><span style="text-align:left">팀</span>' +
+          '<span>총자산<i>' + (first ? '시작 자금' : '지금 가격으로') + '</i></span><span>제출</span><span></span></div>' +
         rows.map((r) =>
-          '<div class="b-row b-sub' + (first ? ' first' : '') + '">' +
+          '<div class="b-row b-team b-trow">' +
+          '<span class="b-rank ghost">0</span>' +
           '<span class="b-name">' + esc(r.team) + '</span>' +
+          '<span class="b-val">' + won(first ? S.rules.initialCash : r.totX) + '</span>' +
           '<span class="b-chip ' + (r.submitted ? 'yes' : 'no') + '">' +
-            (r.submitted ? '제출 완료' : '작성 중') + '</span>' +
-          (first ? '' : '<span class="b-val sm">' + won(r.totX) + '</span>') +
+            (r.submitted ? '제출 완료' : '작성 중') + '</span><span class="b-mdd" style="visibility:hidden">0%<i>0</i></span>' +
           '</div>').join('');
-      el('bFoot').textContent = first
-        ? '모든 팀 시작 자금 ' + won(S.rules.initialCash) + '원 · 주문은 휴대폰 작성기에서 [제출]'
-        : '팀 옆 금액은 지금 가격으로 본 총자산 · 주문은 휴대폰 작성기에서 [제출]';
-      el('bFoot').classList.remove('reveal');
+      el('bFoot').textContent = '주문은 휴대폰 작성기에서 [제출] · 마감 전이면 다시 고쳐 낼 수 있습니다';
     }
     renderBoardQr();
     renderBoardFinal();
+    renderBoardIntro();
+    renderBoardDates();
   }
+
+  /* 새 라운드 뉴스 화면 — [다음 라운드]를 누르면 공지 화면 전체가 뉴스로 바뀐다. 교사가 [시세표 보기]로 넘긴다 */
+  let introHiddenAt = '';
+  function renderBoardIntro() {
+    const box = el('bIntro'); if (!box) return;
+    const key = 'R' + S.round;
+    const on = MODE === 'board' && S.phase === 'order' && !!S.newsIntro && S.round > 0;
+    if (!on) introHiddenAt = '';
+    box.hidden = !on || introHiddenAt === key;
+    if (box.hidden) return;
+    el('bIntroRound').innerHTML = '<span class="b-round-lbl">라운드</span>' + S.round;
+    const nl = newsList(S.news[S.round]);
+    el('bIntroList').innerHTML = nl.map((t, i) => '<li><b>' + (i + 1) + '</b><span>' + esc(t) + '</span></li>').join('') ||
+      '<li><span>이번 라운드 뉴스가 없습니다</span></li>';
+  }
+  if (el('bIntroHide')) el('bIntroHide').onclick = function () { introHiddenAt = 'R' + S.round; renderBoardIntro(); };
+
+  /* 실제 시점 공개 — 최종 순위 다음, 대회의 맨 마지막 화면 */
+  let datesHidden = false;
+  function renderBoardDates() {
+    const box = el('bDates'); if (!box) return;
+    const on = MODE === 'board' && datesRevealed() && (S.dates || []).some(Boolean);
+    if (!on) datesHidden = false;
+    box.hidden = !on || datesHidden;
+    if (box.hidden) return;
+    const stk = S.assets.map((a, i) => (a.kind === '주식' ? i : -1)).filter((i) => i >= 0);
+    const avg = (r) => {                 /* 그 라운드 주식 여섯 종목의 평균 등락률 */
+      if (r < 1 || !S.prices[r] || !S.prices[r - 1]) return null;
+      const xs = stk.filter((i) => S.prices[r - 1][i]).map((i) => S.prices[r][i] / S.prices[r - 1][i] - 1);
+      return xs.length ? xs.reduce((p, q) => p + q, 0) / xs.length : null;
+    };
+    el('bDatesGrid').innerHTML = S.dates.map((d, r) => {
+      const a = avg(r);
+      const chg = a == null ? '' : '<span class="chg ' + (a > 0.0005 ? 'pos' : a < -0.0005 ? 'neg' : '') + '">주식 평균 ' + spct(a) + '</span>';
+      return '<div class="b-dcard"><span class="rd">라운드 ' + r + chg + '</span>' +
+        '<span class="when">' + esc(d || '?') + '</span>' +
+        '<ul>' + newsList(S.news[r]).map((t) => '<li>' + esc(t) + '</li>').join('') + '</ul></div>';
+    }).join('');
+    el('bDatesFoot').textContent = '라운드 하나는 실제 시장의 약 3개월 · 같은 뉴스라도 그때 시장이 어떻게 받아들였는지가 가격을 정했습니다';
+  }
+  if (el('bDatesHide')) el('bDatesHide').onclick = function () { datesHidden = true; renderBoardDates(); };
 
   /* 최종 순위 화면 — 교사가 [최종 순위 발표]를 누르면 공지 화면 전체가 이것으로 바뀐다 */
   let finalHidden = false;
@@ -1667,23 +1817,26 @@ body.board-mode .board{
         '<span>' + x.sJudge.toFixed(1) + '<i>' + mx('scoreJudge', 30) + '점 중</i></span>' +
         '<span>' + x.sRules.toFixed(0) + '<i>' + (x.viol ? x.viol + '회' : '없음') + '</i></span>' +
         '<span class="tt">' + x.total.toFixed(1) + '</span></div>').join('');
-    const reveal = (S.dates || []).some(Boolean)
+    const reveal = datesRevealed() && (S.dates || []).some(Boolean)
       ? '실제 시점 — ' + S.dates.map((d, i) => '라운드 ' + i + ' ' + (d || '?')).join(' · ') : '';
     el('bFinalFoot').innerHTML = (reveal ? esc(reveal) + ' · ' : '') + '동점이면 안정성 점수 → 최종 자산 순';
   }
   if (el('bFinalHide')) el('bFinalHide').onclick = function () { finalHidden = true; renderBoardFinal(); };
 
   /* QR은 주문접수 중에만. 기본은 R0에서 켜져 있고, 이후에는 교사가 켜야 나온다. */
-  let qrOn = null;                                   // null = 아직 손대지 않음
-  function qrWanted() { return qrOn === null ? (S.round === 0) : qrOn; }
+  function qrWanted() {
+    if (MODE === 'board' && S.qrBoard !== undefined) return !!S.qrBoard;    /* 공지 화면은 콘솔이 보낸 값을 따른다 */
+    return S.qrOn == null ? (S.round === 0) : !!S.qrOn;
+  }
   function renderBoardQr() {
     const panel = el('bQrPanel'), grid = el('bGrid');
     if (!panel || !grid) return;
-    const payload = (S.phase === 'order' && qrWanted()) ? qrPayload() : '';
+    const payload = qrWanted() ? qrPayload() : '';      /* 결과 공개 중에도 켤 수 있다 */
     const svgTxt = payload ? qrSvg(payload) : '';
     const on = !!svgTxt;
     panel.hidden = !on;
     grid.classList.toggle('has-qr', on);
+    grid.classList.toggle('res', S.phase === 'result');
     if (!on) { if (el('bQrFull')) el('bQrFull').hidden = true; return; }
     const cap = '휴대폰 카메라로 찍으세요 · 팀을 고르면 준비 끝';
     if (el('bQr').getAttribute('data-p') !== payload) {
@@ -1699,7 +1852,7 @@ body.board-mode .board{
     window.__MI_OPEN__ && window.__MI_OPEN__('prices');
   };
   if (el('btnQrToggle')) el('btnQrToggle').onclick = function () {
-    qrOn = !qrWanted(); render();
+    S.qrOn = !qrWanted(); saveState(); render();
   };
   /* 공지 화면 밝기 — 어두운 무대가 기본, 프로젝터처럼 흐린 화면이면 밝게 */
   function applyBoardTheme(light) {
@@ -1753,6 +1906,35 @@ body.board-mode .board{
     catch (e) { out = ''; }
     qrCache = { text: text, svg: out };
     return out;
+  }
+
+  /* QR을 그림(PNG)으로 — 포스터·가정통신문·단톡방에 붙일 수 있게 제목과 주소를 함께 그린다 */
+  function qrPng(text, title, fname) {
+    if (!text || !window.QR) return false;
+    let q; try { q = QR.encode(text); } catch (e) { return false; }
+    const n = q.n, quiet = 4, W = 1200;
+    const cell = Math.floor(860 / (n + quiet * 2)), qs = cell * (n + quiet * 2);
+    const top = 150, H = top + qs + 150;
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const g = cv.getContext('2d');
+    g.fillStyle = '#FFFFFF'; g.fillRect(0, 0, W, H);
+    const font = '"Pretendard Variable",Pretendard,"Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+    g.fillStyle = '#107C41'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = '800 64px ' + font; g.fillText(title, W / 2, 80);
+    const x0 = Math.round((W - qs) / 2), y0 = top;
+    g.fillStyle = '#191F28';
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++)
+      if (q.m[r][c]) g.fillRect(x0 + (c + quiet) * cell, y0 + (r + quiet) * cell, cell, cell);
+    g.fillStyle = '#4E5968'; g.font = '600 30px ' + font;
+    let url = text; while (g.measureText(url).width > W - 120 && url.length > 10) url = url.slice(0, -2);
+    if (url !== text) url = url.slice(0, -1) + '…';
+    g.fillText(url, W / 2, y0 + qs + 40);
+    g.fillStyle = '#8B95A1'; g.font = '600 26px ' + font;
+    g.fillText('휴대폰 카메라로 찍으세요', W / 2, y0 + qs + 95);
+    const a = document.createElement('a');
+    a.download = fname; a.href = cv.toDataURL('image/png');
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    return true;
   }
 
   function copyText(txt) {
@@ -1827,6 +2009,7 @@ body.board-mode .board{
     priceCode: priceCode,
     qrPayload: qrPayload,
     qrSvg: qrSvg,
+    qrPng: qrPng,
     copyText: copyText,
     studentUrl: studentUrl,
     signupUrl: signupUrl,
@@ -1944,14 +2127,16 @@ body.board-mode .board{
       '<span class="note" id="suNote"></span></div>' +
       '<div id="qrPrev" class="qrprev"></div>' +
       '<p class="note" style="margin-top:.6rem">공지 화면에도 같은 QR이 뜹니다. ' +
-      '상단 [QR 켜기 / 끄기]로 언제든 다시 띄울 수 있습니다.</p>');
+      '라운드 0에는 저절로 뜨고, 그 뒤에는 위쪽 [공지 화면 QR 켜기]로 언제든 다시 띄울 수 있습니다(결과 공개 중에도).</p>');
 
     (function () {
       const host = el('qrPrev'), svgTxt = A.qrSvg(surl);
       host.innerHTML = svgTxt
         ? '<div class="qrprev-code">' + svgTxt + '</div>' +
-          '<div class="qrprev-txt"><b>학생 접속 QR</b><br><span class="mono">' + esc(surl) + '</span></div>'
+          '<div class="qrprev-txt"><b>학생 접속 QR</b><br><span class="mono">' + esc(surl) + '</span><br>' +
+          '<button class="btn sm" id="btnSuPng">그림으로 저장 (PNG)</button></div>'
         : '<p class="note warn">QR을 만들지 못했습니다.</p>';
+      if (el('btnSuPng')) el('btnSuPng').onclick = function () { A.qrPng(surl, '모의투자 대회 · 주문 작성기', '모의투자_학생접속_QR.png'); };
     })();
 
     el('btnSu').onclick = function () {
@@ -2290,8 +2475,10 @@ body.board-mode .board{
       const host = el('spQr'), svgTxt = A.qrSvg(su);
       host.innerHTML = svgTxt
         ? '<div class="qrprev-code">' + svgTxt + '</div>' +
-          '<div class="qrprev-txt"><b>신청 QR</b><br><span class="mono">' + esc(su) + '</span></div>'
+          '<div class="qrprev-txt"><b>신청 QR</b><br><span class="mono">' + esc(su) + '</span><br>' +
+          '<button class="btn sm" id="btnSpPng">그림으로 저장 (PNG)</button></div>'
         : '<p class="note warn">QR을 만들지 못했습니다.</p>';
+      if (el('btnSpPng')) el('btnSpPng').onclick = function () { A.qrPng(su, '모의투자 대회 · 참가 신청', '모의투자_참가신청_QR.png'); };
     })();
     el('btnSpCopy').onclick = function () {
       A.copyText(su).then(function (ok) {
