@@ -93,7 +93,8 @@
           buy: buy, fee: fee, cash: cash,
           totX: totX, totR: totR, mxX: mxX, mxR: mxR, swX: swX, swR: swR,
           nAssets: nAssets, submitted: submitted, count: count, exc: exc,
-          reason: rec ? (rec.reason || '') : ''
+          reason: rec ? (rec.reason || '') : '',
+          roles: rec && Array.isArray(rec.roles) ? rec.roles.slice() : null
         });
         s.hold = nh; s.cash = cash;
       }
@@ -118,7 +119,7 @@
   }
 
 
-  /* 안정성 점수 — 대회 중 가장 크게 잃은 폭(최고점 대비 최대 낙폭)으로 매긴다.
+  /* 안정성 점수 — 활동 중 가장 크게 잃은 폭(최고점 대비 최대 낙폭)으로 매긴다.
      낙폭 0% = 만점, zeroAt(기본 30%) 이상 = 0점. 곡선으로 깎아서 작은 흔들림은 조금, 큰 폭락은 많이 깎인다:
      점수 = 만점 × (1 − (낙폭 ÷ zeroAt)²). 예) 30% 기준: 낙폭 5% → 19.4, 10% → 17.8, 20% → 11.1. totals = [시작 자금, 라운드별 총자산…] */
   function stability(totals, rules) {
@@ -130,7 +131,7 @@
     return { mdd: mdd, score: score, max: max };
   }
 
-  /* 최종 점수 — 수익(순위) + 안정성(최대 낙폭) + 판단 근거(교사 상·중·하) + 규칙 준수(위반 감점)
+  /* 최종 점수 — 수익(우리 팀 수익률) + 안정성(최대 낙폭) + 판단 근거(교사 상·중·하) + 규칙 준수(위반 감점)
      grades = { 라운드: { 팀번호: '상'|'중'|'하' } }. 사유를 낸 라운드인데 아직 안 매겼으면 '중'으로 셈한다.
      사유가 없거나 제출하지 않은 라운드는 0점. 동점이면 안정성 점수 → 총자산 순. */
   const GRADE = { '상': 1, '중': 0.6, '하': 0.3 };
@@ -150,17 +151,23 @@
         sum += pts;
         return { r: r, g: g, pts: pts };
       });
-      const viol = path.filter((p) => warnOf(p, 'order', cfg)).length;
+      /* 교사가 직접 더한 위반 (활동 중 검색 등) — cfg.penalty = { 팀번호: 횟수 } */
+      const extra = Math.max(0, +((cfg.penalty || {})[t] || 0));
+      const viol = path.filter((p) => warnOf(p, 'order', cfg)).length + extra;
       return { team: team, t: t, fin: fin, ret: fin / R.initialCash - 1, stab: stab, judge: judge,
-               ungraded: ungraded, viol: viol,
+               ungraded: ungraded, viol: viol, extra: extra,
                sJudge: num('scoreJudge', 30) * sum / (NR + 1),
                sRules: Math.max(0, num('scoreRules', 20) - num('rulePenalty', 4) * viol),
                sStab: stab.score };
     });
     const byFin = rows.slice().sort((a, b) => b.fin - a.fin);
+    const hi = num('retFull', 0.15), lo = num('retZero', -0.15);
     byFin.forEach((x, i) => {
-      x.retRank = (i > 0 && Math.abs(x.fin - byFin[i - 1].fin) < 0.5) ? byFin[i - 1].retRank : i + 1;
-      x.sRet = Math.max(0, num('scoreRet', 30) - num('scoreRetStep', 2) * (x.retRank - 1));
+      x.retRank = (i > 0 && Math.abs(x.fin - byFin[i - 1].fin) < 0.5) ? byFin[i - 1].retRank : i + 1;   /* 교사 화면 참고용 */
+      /* 수익 점수는 다른 팀과 견주지 않는다 — 우리 팀 수익률만으로 (예전 설정 scoreRetStep만 있으면 순위식) */
+      x.sRet = (R.retFull == null && R.scoreRetStep != null)
+        ? Math.max(0, num('scoreRet', 30) - num('scoreRetStep', 2) * (x.retRank - 1))
+        : num('scoreRet', 30) * Math.max(0, Math.min(1, (x.ret - lo) / (hi - lo)));
     });
     rows.forEach((x) => { x.total = x.sRet + x.sStab + x.sJudge + x.sRules; });
     const key = (x) => [Math.round(x.total * 100), Math.round(x.sStab * 100), Math.round(x.fin)];

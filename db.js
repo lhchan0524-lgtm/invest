@@ -12,8 +12,8 @@
   var ROOM  = String(CFG.roomId || 'room').replace(/[.#$\[\]\/]/g, '-');
   var USE_FB = !!(FB.databaseURL && FB.apiKey);
 
-  var cbs = { state: [], orders: [], pub: [], signup: [], status: [] };
-  var cache = { state: null, orders: {}, pub: null, signup: {} };
+  var cbs = { state: [], orders: [], pub: [], signup: [], reflect: [], status: [] };
+  var cache = { state: null, orders: {}, pub: null, signup: {}, reflect: {} };
   var status = { state: USE_FB ? 'connecting' : 'local', msg: '', at: 0 };
 
   function fire(k, v) { cbs[k].forEach(function (f) { try { f(v); } catch (e) {} }); }
@@ -30,7 +30,7 @@
   /* 갈래(state · orders · pub · signup)마다 저장 칸을 따로 둔다.
      한 칸에 통째로 쓰면, 한 창이 자기 갈래를 저장하는 순간 다른 창이 막 넣은
      주문을 옛 값으로 덮어쓰는 일이 생긴다. */
-  var KEYS = ['state', 'orders', 'pub', 'signup'];
+  var KEYS = ['state', 'orders', 'pub', 'signup', 'reflect'];
   function lkey(k) { return LK + '.' + k; }
   function lreadKey(k) {
     try {
@@ -56,7 +56,7 @@
     return JSON.parse(JSON.stringify(v !== undefined && v !== null ? v : (cache[k] || {})));
   }
   function lapply(d) {
-    ['state', 'orders', 'pub', 'signup'].forEach(function (k) {
+    ['state', 'orders', 'pub', 'signup', 'reflect'].forEach(function (k) {
       if (!(k in d)) return;                                   // 안 건드린 갈래는 그대로
       if (JSON.stringify(d[k]) === JSON.stringify(cache[k])) return;
       cache[k] = d[k];
@@ -102,6 +102,9 @@
         });
         base.child('signup').on('value', function (s) {
           cache.signup = s.val() || {}; fire('signup', cache.signup);
+        });
+        base.child('reflect').on('value', function (s) {
+          cache.reflect = s.val() || {}; fire('reflect', cache.reflect);
         });
         fdb.ref('.info/connected').on('value', function (s) {
           setStatus(s.val() ? 'online' : 'offline',
@@ -170,7 +173,7 @@
     },
 
     /* ── 참가 신청 ──────────────────────────────────────────
-       대회 진행 데이터와 따로 보관한다. 대회를 초기화해도 명단은 남는다. */
+       활동 진행 데이터와 따로 보관한다. 진행을 초기화해도 명단은 남는다. */
     addSignup: function (rec) {
       var r = Object.assign({}, rec, { at: Date.now() });
       if (USE_FB) {
@@ -201,16 +204,55 @@
       lwrite({ signup: {} });
     },
 
+    /* ── 개인 성찰지 ─────────────────────────────────────────
+       학생이 활동 뒤 자기 휴대폰으로 낸다. 학번 하나에 하나 — 다시 내면 덮어쓴다.
+       교사가 콘솔로 옮겨 담은 뒤 [성찰지 지우기]로 파이어베이스에서 지운다. */
+    onReflect: on('reflect'),
+    submitReflect: function (sid, rec) {
+      var key = 's' + String(sid).replace(/[^0-9A-Za-z]/g, '');
+      var r = Object.assign({}, rec, { at: Date.now() });
+      if (USE_FB) {
+        return new Promise(function (res, rej) {
+          fbDo(function () { fdb.ref('rooms/' + ROOM + '/reflect/' + key).set(r).then(function () { res(true); }, rej); });
+          setTimeout(function () { rej(new Error('시간이 초과되었습니다.')); }, 12000);
+        });
+      }
+      var o = lfresh('reflect'); o[key] = r; lwrite({ reflect: o });
+      return Promise.resolve(true);
+    },
+    clearReflect: function () {
+      if (USE_FB) { fbDo(function () { fdb.ref('rooms/' + ROOM + '/reflect').remove(); }); return; }
+      lwrite({ reflect: {} });
+    },
+
+    /* 교사 화면 사본 — 진행 단계·채점·직접 넣은 주문 (시세·뉴스·해설은 넣지 않는다)
+       교사 노트북이 꺼져도 다른 컴퓨터에서 시세표만 다시 불러오면 이어 할 수 있게 */
+    saveTeacher: function (obj) {
+      if (USE_FB) fbDo(function () { fdb.ref('rooms/' + ROOM + '/teacher').set(obj); });
+      else { try { localStorage.setItem(lkey('teacher'), JSON.stringify(obj)); } catch (e) {} }
+    },
+    loadTeacher: function () {
+      if (!USE_FB) return Promise.resolve(lreadKey('teacher') || null);
+      return new Promise(function (res) {
+        var done = false;
+        fbDo(function () {
+          fdb.ref('rooms/' + ROOM + '/teacher').once('value').then(function (s) { done = true; res(s.val()); }, function () { done = true; res(null); });
+        });
+        setTimeout(function () { if (!done) res(null); }, 8000);
+      });
+    },
+
     clearAll: function () {
       /* 진행 상태만 지운다 — 참가 신청 명단은 남긴다 */
       if (USE_FB) {
         fbDo(function () {
-          ['state', 'orders', 'pub'].forEach(function (k) {
+          ['state', 'orders', 'pub', 'teacher'].forEach(function (k) {
             fdb.ref('rooms/' + ROOM + '/' + k).remove();
           });
         });
         return;
       }
+      try { localStorage.removeItem(lkey('teacher')); } catch (e) {}
       lwrite({ state: null, orders: {}, pub: null });
     }
   };

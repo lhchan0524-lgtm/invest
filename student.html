@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 
 <style>
-/* 모의투자 대회 — 디자인 시스템 (휴대폰)
+/* 모의투자 프로젝트 — 디자인 시스템 (휴대폰)
    면으로 나누고 선은 최소로 · 엑셀 초록이 브랜드 · 빨강/파랑은 등락에만 ·
    가장 중요한 숫자(총자산) 하나에만 '선택된 셀'. */
 :root{color-scheme:light;}
@@ -102,6 +102,36 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
 .newsline::before{content:"뉴스";display:block;font-size:.74rem;font-weight:800;color:var(--brand);
   margin-bottom:.25rem;}
 
+.fin-bench{margin:.8rem 0 0;font-size:.86rem;line-height:1.6;color:var(--t2);background:var(--surface-2);border-radius:12px;padding:.7rem .85rem;}
+.fin-bench b{color:var(--t1);} .fin-bench b.up{color:var(--up);} .fin-bench b.down{color:var(--down);}
+.fin-reveal{margin:.6rem 0 0;display:flex;flex-wrap:wrap;gap:.35rem;font-size:.8rem;}
+.fin-reveal span{font-weight:800;color:var(--warn);margin-right:.2rem;align-self:center;}
+.fin-reveal i{font-style:normal;font-weight:600;background:var(--fill);border-radius:999px;padding:.2rem .6rem;}
+/* ── 라운드 역할 ── */
+.roles{margin-top:.9rem;border-top:1px solid var(--line);padding-top:.8rem;}
+.roles h3{margin:0 0 .5rem;font-size:.9rem;font-weight:700;}
+.roles h3 small{font-weight:500;color:var(--t3);font-size:.76rem;margin-left:.3rem;}
+.role-row{display:grid;grid-template-columns:6.2rem 1fr;gap:.5rem;align-items:center;margin:.35rem 0;}
+.role-row span{font-size:.84rem;font-weight:700;color:var(--t2);}
+.role-row select{width:100%;padding:.55rem .6rem;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);font:inherit;font-size:.9rem;}
+.roles .dup{color:var(--warn);font-size:.78rem;margin:.3rem 0 0;}
+/* ── 해설 ── */
+.notebox{margin:0 0 1rem;background:#FFF8EC;border-radius:14px;padding:.9rem 1rem;box-shadow:inset 0 0 0 1px #F3E3C3;}
+.notebox .nb-lbl{font-size:.74rem;font-weight:800;color:var(--warn);margin-bottom:.3rem;display:block;}
+.notebox .nb-sum{margin:0 0 .5rem;font-size:.92rem;line-height:1.6;font-weight:600;color:var(--t1);}
+.notebox ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;}
+.notebox li{padding:.6rem 0;border-top:1px solid #F3E3C3;font-size:.84rem;line-height:1.55;}
+.notebox li .nh{display:flex;align-items:baseline;gap:.5rem;margin-bottom:.15rem;}
+.notebox li b{font-weight:700;font-size:.92rem;}
+.notebox li .chg{font-weight:700;font-variant-numeric:tabular-nums;}
+.notebox li .chg.pos{color:var(--up);} .notebox li .chg.neg{color:var(--down);}
+.notebox li .nh i{font-style:normal;font-weight:700;color:var(--warn);margin-left:auto;text-align:right;}
+.notebox li p{margin:0;color:var(--t2);}
+details.notebox > summary{cursor:pointer;list-style:none;font-size:.86rem;font-weight:700;color:var(--warn);}
+details.notebox > summary::-webkit-details-marker{display:none;}
+details.notebox > summary::after{content:" ▾";}
+details.notebox[open] > summary{margin-bottom:.5rem;}
+
 /* ── 줄 목록 (시세 · 보유) ── */
 .rowlist{display:block;}
 .hold-row{display:grid;grid-template-columns:1fr auto auto;gap:.75rem;align-items:center;padding:.62rem 0;
@@ -155,7 +185,7 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);
 .tamt{grid-column:1/-1;text-align:right;font-size:.78rem;color:var(--t3);font-weight:600;
   margin-top:.3rem;font-variant-numeric:tabular-nums;}
 .tamt:empty{display:none;}
-/* 첫 화면 대회 안내 */
+/* 첫 화면 활동 안내 */
 details.guide{padding:0;overflow:hidden;}
 details.guide summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:.55rem;padding:1.05rem 1.2rem;}
 details.guide summary::-webkit-details-marker{display:none;}
@@ -176,6 +206,8 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
 .g-rules div{background:var(--surface-2);border-radius:12px;padding:.6rem .7rem;box-shadow:inset 0 0 0 1px var(--line);}
 .g-rules b{display:block;font-size:1.05rem;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
 .g-rules span{font-size:.76rem;color:var(--t3);font-weight:600;line-height:1.35;display:block;}
+.g-rules .no-search{grid-column:1 / -1;background:var(--warn-soft);box-shadow:none;}
+.g-rules .no-search b{color:var(--warn);}
 .g-score{display:grid;grid-template-columns:auto 1fr;gap:.35rem .7rem;font-size:.88rem;align-items:baseline;}
 .g-score b{font-weight:800;color:var(--brand);font-variant-numeric:tabular-nums;text-align:right;}
 .g-score span{color:var(--t1);line-height:1.45;}
@@ -278,7 +310,7 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
   </section>
 
   <details class="card guide" id="guideCard" open>
-    <summary><span class="g-lbl">대회 안내</span><span class="g-ttl">처음이라면 꼭 읽어 주세요</span><span class="g-arrow" aria-hidden="true"></span></summary>
+    <summary><span class="g-lbl">활동 안내</span><span class="g-ttl">처음이라면 꼭 읽어 주세요</span><span class="g-arrow" aria-hidden="true"></span></summary>
     <div id="guideBody"></div>
   </details>
 
@@ -310,6 +342,10 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
     <h2>매매 사유</h2>
     <p class="sub">판단 근거 30점이 걸린 칸입니다. 라운드마다 선생님이 상·중·하로 매기고, 비워 두면 0점입니다. 왜 그렇게 판단했는지 한두 문장으로.</p>
     <textarea id="reason" rows="3" placeholder="예) 금리가 올라 채권값이 떨어질 것 같아 국채를 팔고 예금으로 옮겼다"></textarea>
+    <div class="roles" id="rolesBox" hidden>
+      <h3>이번 라운드 역할 <small>라운드마다 한 칸씩 돌아갑니다 · 바꿔도 됩니다</small></h3>
+      <div id="rolesList"></div>
+    </div>
   </section>
 
   <section class="card">
@@ -352,7 +388,7 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   /* 이 기기에 남는 것은 팀 번호와 작성 중인 주문뿐 — 나머지는 전부 선생님 화면에서 온다 */
-  const DEF = { teamIdx: -1, lines: [], reason: '', forRound: -1 };
+  const DEF = { teamIdx: -1, lines: [], reason: '', forRound: -1, roles: null };
   let S = load();
   function load() {
     try {
@@ -364,7 +400,8 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
   function save() { try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {} }
 
   /* 선생님 화면에서 실시간으로 오는 것 */
-  let LIVE = { round: 0, phase: 'order', final: false, pub: null, orders: {}, link: { state: 'idle', msg: '' } };
+  let LIVE = { round: 0, phase: 'order', final: false, note: true, pub: null, orders: {}, link: { state: 'idle', msg: '' } };
+  let noteOpen = false;              /* '지난 라운드 해설'을 펼쳐 둔 채로 다시 그려도 접히지 않게 */
 
   const seed = window.MI_CONFIG || {};
   function view() {
@@ -375,6 +412,7 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
       rules:  p.rules  || seed.rules  || { initialCash: 10000000, stockCap: 0.4, minAssets: 3 },
       news:   p.news   || [],
       dates:  p.dates  || [],
+      notes:  p.notes  || [],
       prices: p.prices || []
     };
   }
@@ -475,6 +513,7 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
     el('pPhase').classList.toggle('res', LIVE.phase !== 'order');
     renderLink();
     renderRound();
+    renderRoles();
     renderTotals();
     renderTrade();
     renderSum();
@@ -485,7 +524,7 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
     renderAction();
   }
 
-  /* 첫 화면 대회 안내 — 규칙 숫자는 선생님 설정(config.js)에서 그대로 읽는다 */
+  /* 첫 화면 활동 안내 — 규칙 숫자는 선생님 설정(config.js)에서 그대로 읽는다 */
   function renderGuide() {
     const v = view(), R = v.rules, n = (k, d) => (R[k] == null ? d : R[k]);
     const NR = ((LIVE.pub && LIVE.pub.rounds) || 0) - 1;
@@ -506,33 +545,52 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
         (lock ? '<div><b>' + lock.lock + '라운드</b><span>' + esc(lock.name) + '은 이만큼 갖고 있어야 이자를 다 받음 (먼저 팔면 쌓인 이자의 ' +
           Math.round((lock.early == null ? 0.5 : lock.early) * 100) + '%)</span></div>' : '') +
         '<div><b>직전 가격</b><span>주문은 지난 라운드 가격으로 사고팔림</span></div>' +
+        '<div class="no-search"><b>검색 금지</b><span>활동 중 뉴스나 주가를 인터넷에서 찾아보면 위반 1회 (−' + n('rulePenalty', 4) + '점)</span></div>' +
       '</div></div>' +
-      '<div class="g-sec"><h3>우승은 총점 100점으로</h3><div class="g-score">' +
-        '<b>' + n('scoreRet', 30) + '</b><span>수익 — 최종 자산 순위</span>' +
-        '<b>' + n('stabilityMax', 20) + '</b><span>안정성 — 대회 중 가장 크게 잃은 폭이 작을수록 높음</span>' +
+      '<div class="g-sec"><h3>우리 팀 활동 점수 100점</h3><div class="g-score">' +
+        '<b>' + n('scoreRet', 30) + '</b><span>수익 — 우리 팀 수익률 (' + Math.round(n('retFull', 0.15) * 100) + '% 이상이면 만점)</span>' +
+        '<b>' + n('stabilityMax', 20) + '</b><span>안정성 — 활동 중 가장 크게 잃은 폭이 작을수록 높음</span>' +
         '<b>' + n('scoreJudge', 30) + '</b><span>판단 근거 — 라운드마다 쓴 매매 사유 (안 쓰면 0점)</span>' +
         '<b>' + n('scoreRules', 20) + '</b><span>규칙 준수 — 위반 1회마다 −' + n('rulePenalty', 4) + '점</span>' +
       '</div></div>' +
-      '<p class="g-tip">돈을 가장 많이 번 팀이 아니라 <b>점수가 가장 높은 팀</b>이 이깁니다. 한 번에 크게 잃지 않게 나눠 담고, 왜 그렇게 판단했는지 꼭 적으세요.</p>';
+      '<p class="g-tip">팀끼리 순위를 매기지 않습니다. 점수는 <b>우리 팀이 무엇을 잘했고 무엇을 놓쳤는지</b> 알려 주는 피드백입니다. 한 번에 크게 잃지 않게 나눠 담고, 왜 그렇게 판단했는지 꼭 적으세요.</p>';
     if (el('guideBody').dataset.h !== html) { el('guideBody').innerHTML = html; el('guideBody').dataset.h = html; }
   }
 
-  /* 최종 결과 — 교사가 [최종 순위 발표]를 누르면 우리 팀 순위와 점수가 뜬다 */
+  /* 최종 결과 — 교사가 [최종 결과 공개]를 누르면 우리 팀 점수가 뜬다 */
   function renderFinal() {
     const box = el('finalCard'), rows = (LIVE.pub && LIVE.pub.final) || null;
     if (!LIVE.final || !rows || !rows.length) { box.hidden = true; return; }
-    const me = rows.find((x) => x.team === teamName()), win = rows.filter((x) => x.rank === 1);
+    const me = rows.find((x) => x.team === teamName());
     const R = view().rules, mx = (k, d) => (R[k] == null ? d : R[k]);
+    const sg = (x) => (x > 0 ? '+' : x < 0 ? '−' : '') + Math.abs(x * 100).toFixed(1) + '%';
     box.hidden = false;
     box.innerHTML = '<span class="fin-lbl">최종 결과</span>' +
-      '<h2>' + (me ? (me.rank === 1 ? '우승을 축하합니다!' : '우리 팀은 ' + me.rank + '위') : '대회가 끝났습니다') + '</h2>' +
-      '<p class="sub">우승 · ' + win.map((x) => esc(x.team)).join(' · ') + ' (' + win[0].total.toFixed(1) + '점)</p>' +
-      (me ? '<div class="fin-tot"><span>우리 팀 총점</span><b class="cell-sel">' + me.total.toFixed(1) + '<small> / 100</small></b></div>' +
+      '<h2>' + (me ? '우리 팀 결과' : '활동이 끝났습니다') + '</h2>' +
+      '<p class="sub">' + (me ? '최종 자산 ' + won(me.fin) + '원 (' + sg(me.ret) + ') · 다른 팀과 견주지 않는 우리 팀 기준 점수입니다' : '위에서 우리 팀을 고르면 결과가 보입니다') + '</p>' +
+      (me ? '<div class="fin-tot"><span>우리 팀 활동 점수</span><b class="cell-sel">' + me.total.toFixed(1) + '<small> / 100</small></b></div>' +
         '<dl class="sum fin-sum">' +
-        '<dt>수익 (' + me.retRank + '위)</dt><dd>' + me.sRet.toFixed(0) + ' / ' + mx('scoreRet', 30) + '</dd>' +
+        '<dt>수익 (수익률 ' + sg(me.ret) + ')</dt><dd>' + me.sRet.toFixed(1) + ' / ' + mx('scoreRet', 30) + '</dd>' +
         '<dt>안정성 (최대 낙폭 ' + (me.mdd < -0.0005 ? '−' + pctTxt(-me.mdd) : '0%') + ')</dt><dd>' + me.sStab.toFixed(1) + ' / ' + mx('stabilityMax', 20) + '</dd>' +
         '<dt>판단 근거</dt><dd>' + me.sJudge.toFixed(1) + ' / ' + mx('scoreJudge', 30) + '</dd>' +
-        '<dt>규칙 준수 (위반 ' + me.viol + '회)</dt><dd>' + me.sRules.toFixed(0) + ' / ' + mx('scoreRules', 20) + '</dd></dl>' : '');
+        '<dt>규칙 준수 (위반 ' + me.viol + '회)</dt><dd>' + me.sRules.toFixed(0) + ' / ' + mx('scoreRules', 20) + '</dd></dl>' : '') +
+      benchHtml(me, R) + revealHtml();
+  }
+  /* 코스피를 그대로 샀다면 — 최종 결과 공개 뒤 */
+  function benchHtml(me, R) {
+    const b = LIVE.pub && LIVE.pub.bench;
+    if (!b || !Array.isArray(b.ret)) return '';
+    let v = R.initialCash; b.ret.forEach((x, r) => { if (r > 0 && x != null) v *= 1 + (+x); });
+    const r = v / R.initialCash - 1, sg = (x) => (x > 0 ? '+' : x < 0 ? '−' : '') + Math.abs(x * 100).toFixed(1) + '%';
+    return '<p class="fin-bench">' + esc(b.name || '코스피') + '를 처음에 사서 그대로 들고 있었다면 <b>' + won(v) + '원 (' + sg(r) + ')</b>' +
+      (me ? ' — 우리 팀은 ' + won(me.fin) + '원으로 ' + (me.fin > v ? '<b class="up">시장보다 잘했습니다</b>' : '<b class="down">시장보다 덜 벌었습니다</b>') : '') + '</p>';
+  }
+  /* 실제 회사 — 실제 시점 공개 뒤 */
+  function revealHtml() {
+    const rv = LIVE.pub && LIVE.pub.reveal;
+    if (!rv) return '';
+    const list = view().assets.filter((a) => a.kind === '주식' && rv[a.name]);
+    return list.length ? '<p class="fin-reveal"><span>실제 회사</span>' + list.map((a) => '<i>' + esc(a.name) + ' = ' + esc(rv[a.name]) + '</i>').join('') + '</p>' : '';
   }
 
   function renderLink() {
@@ -563,7 +621,31 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
     el('newsBox').innerHTML = !nl.length ? '' : nl.length === 1
       ? '<p class="newsline">' + esc(nl[0]) + '</p>'
       : '<div class="newsline multi"><ul>' + nl.map((t) => '<li>' + esc(t) + '</li>').join('') + '</ul>' +
-        '<p class="nl-tip">모두가 같은 방향을 가리키지는 않습니다. 무엇이 더 중요한지 팀에서 골라 보세요.</p></div>';
+        '<p class="nl-tip">모두가 같은 방향을 가리키지는 않습니다. 무엇이 더 중요한지 팀에서 골라 보세요. 인터넷 검색은 금지입니다.</p></div>';
+    el('newsBox').innerHTML += noteHtml(v);
+  }
+
+  el('newsBox').addEventListener('toggle', function (e) {
+    if (e.target && e.target.classList && e.target.classList.contains('notebox')) noteOpen = e.target.open;
+  }, true);
+  /* 해설 — 결과가 공개된 라운드만 온다. 결과 공개 중에는 펼쳐서, 다음 라운드 주문 중에는 접어서 */
+  function noteHtml(v) {
+    const res = LIVE.phase === 'result';
+    const r = res ? LIVE.round : LIVE.round - 1;
+    const n = r >= 1 ? v.notes[r] : null;
+    if (!n || typeof n !== 'object' || (res && !LIVE.note)) return '';
+    const cur = v.prices[r] || [], was = v.prices[r - 1] || [];
+    const list = v.assets.map((a, i) => {
+      const it = (n.items || {})[a.name]; if (!it) return '';
+      const rt = was[i] ? cur[i] / was[i] - 1 : 0;
+      const t = Math.abs(rt) < 0.0005 ? '0%' : (rt > 0 ? '+' : '') + (rt * 100).toFixed(1) + '%';
+      return '<li><div class="nh"><b>' + esc(a.name) + '</b><span class="chg ' + (rt > 0.0005 ? 'pos' : rt < -0.0005 ? 'neg' : '') + '">' + t + '</span>' +
+        '<i>' + esc(it[0] || '') + '</i></div><p>' + esc(it[1] || '') + '</p></li>';
+    }).join('');
+    const body = '<p class="nb-sum">' + esc(n.sum || '') + '</p>' + (list ? '<ul>' + list + '</ul>' : '');
+    return res
+      ? '<div class="notebox"><span class="nb-lbl">이번 라운드 해설 — 왜 이렇게 움직였을까</span>' + body + '</div>'
+      : '<details class="notebox"' + (noteOpen ? ' open' : '') + '><summary>지난 라운드(라운드 ' + r + ') 해설 다시 보기</summary>' + body + '</details>';
   }
 
   /* 자산 하나에 주문은 한 줄 — 같은 자산을 사고 동시에 팔 일은 없다 */
@@ -761,18 +843,20 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
       (v.rules.stockTotalCap ? '<dt>주식 합계 최대</dt><dd>' + Math.round(v.rules.stockTotalCap * 100) + '%</dd>' : '') +
       '<dt>최소 자산 수</dt><dd>' + v.rules.minAssets + '종</dd>' +
       '<dt>안정성 점수</dt><dd>' + (v.rules.stabilityMax || 20) + '점 <span style="color:var(--t3);font-weight:500">(크게 잃을수록 깎임)</span></dd>' +
+      '<dt>활동 중 검색</dt><dd style="color:var(--warn)">금지 — 걸리면 위반 1회</dd>' +
       '</dl>' +
       v.assets.filter((a) => a.lock).map((a) => '<p class="note" style="margin:.6rem 0 0">' + esc(a.name) +
         '은 ' + a.lock + '라운드 넘게 넣어 둬야 이자를 다 받습니다. 그 전에 팔면 쌓인 이자의 ' +
         Math.round((a.early == null ? 0.5 : a.early) * 100) + '%만 받습니다.</p>').join('') +
-      '<p class="note" style="margin:.4rem 0 0">안정성 점수 — 대회 중 가장 높았던 총자산에서 가장 크게 떨어진 폭(최대 낙폭)으로 매깁니다. 0%면 만점이고, ' +
+      '<p class="note" style="margin:.4rem 0 0">안정성 점수 — 활동 중 가장 높았던 총자산에서 가장 크게 떨어진 폭(최대 낙폭)으로 매깁니다. 0%면 만점이고, ' +
         '조금 잃으면 조금, 크게 잃으면 많이 깎입니다(' + Math.round((v.rules.stabilityZeroAt || 0.3) * 100) + '% 넘게 잃으면 0점).</p>' +
-      '<div class="score-rule"><b>우승은 총점 100점으로 정합니다</b>' +
-        '<span>수익 ' + (v.rules.scoreRet == null ? 30 : v.rules.scoreRet) + ' — 최종 자산 순위 (1위 만점, 한 등수마다 −' + (v.rules.scoreRetStep == null ? 2 : v.rules.scoreRetStep) + ')</span>' +
+      '<div class="score-rule"><b>우리 팀 활동 점수 100점 — 팀끼리 순위는 매기지 않습니다</b>' +
+        '<span>수익 ' + (v.rules.scoreRet == null ? 30 : v.rules.scoreRet) + ' — 우리 팀 수익률 (' + Math.round((v.rules.retFull == null ? 0.15 : v.rules.retFull) * 100) + '% 이상 만점, ' +
+          Math.round((v.rules.retZero == null ? -0.15 : v.rules.retZero) * 100) + '% 이하 0점, 0%면 절반)</span>' +
         '<span>안정성 ' + (v.rules.stabilityMax || 20) + ' — 최대 낙폭</span>' +
         '<span>판단 근거 ' + (v.rules.scoreJudge == null ? 30 : v.rules.scoreJudge) + ' — 라운드마다 쓴 매매 사유를 선생님이 상·중·하로 (안 쓰면 0점)</span>' +
         '<span>규칙 준수 ' + (v.rules.scoreRules == null ? 20 : v.rules.scoreRules) + ' — 위반 1회마다 −' + (v.rules.rulePenalty == null ? 4 : v.rules.rulePenalty) + '</span>' +
-        '<span class="dim">동점이면 안정성 점수가 높은 팀이 앞섭니다.</span></div>' +
+        '<span class="dim">점수는 순위가 아니라 우리 팀 피드백입니다.</span></div>' +
       '<div class="rowlist" style="margin-top:.6rem">' + v.assets.map((a) =>
         '<div class="hold-row"><span class="hn">' + esc(a.name) +
         '<small>' + esc(a.desc || a.kind) + '</small></span><span class="hq"></span>' +
@@ -828,6 +912,34 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
     try { localStorage.setItem('mockinvest.student.bigtype', big ? '1' : ''); } catch (e) {}
   };
 
+  /* 라운드 역할 — 뉴스 분석가 · 위험 관리자 · 기록자 · 주문 담당. 참가 신청 명단의 팀원에서 고른다.
+     라운드마다 한 칸씩 돌아가게 미리 채워 두고, 팀이 바꿀 수 있다. 학생마다 다른 생활기록부 근거가 된다. */
+  const ROLES = ['뉴스 분석가', '위험 관리자', '기록자', '주문 담당'];
+  let SIGNUPS = {};
+  function members() {
+    const t = teamName(); if (!t) return [];
+    const k = Object.keys(SIGNUPS || {}).find((id) => String((SIGNUPS[id] || {}).team || '').trim() === t.trim());
+    return k ? (SIGNUPS[k].members || []) : [];
+  }
+  function defaultRoles(n) { return ROLES.map((_, i) => (i + LIVE.round) % n); }
+  function renderRoles() {
+    const box = el('rolesBox'), ms = members();
+    if (!ms.length || S.teamIdx < 0) { box.hidden = true; return; }
+    box.hidden = false;
+    if (!Array.isArray(S.roles) || S.roles.length !== ROLES.length || S.roles.some((x) => x >= ms.length)) { S.roles = defaultRoles(ms.length); save(); }
+    const sig = JSON.stringify([ms.map((m) => m.name), S.roles, LIVE.round]);
+    if (box.dataset.sig === sig) return;
+    box.dataset.sig = sig;
+    const used = {}; S.roles.forEach((m) => { used[m] = (used[m] || 0) + 1; });
+    el('rolesList').innerHTML = ROLES.map((r, i) => '<div class="role-row"><span>' + r + '</span><select data-i="' + i + '">' +
+      ms.map((m, mi) => '<option value="' + mi + '"' + (S.roles[i] === mi ? ' selected' : '') + '>' + esc(m.name) + '</option>').join('') + '</select></div>').join('') +
+      (Object.values(used).some((c) => c > 1) ? '<p class="dup">한 사람이 두 역할을 맡았습니다. 네 명이 하나씩 맡는 것이 좋습니다.</p>' : '');
+    el('rolesList').querySelectorAll('select').forEach((sel) => {
+      sel.onchange = function () { S.roles[+this.dataset.i] = +this.value; save(); renderRoles(); };
+    });
+  }
+  if (MIDB.onSignups) MIDB.onSignups(function (m) { SIGNUPS = m || {}; renderRoles(); });
+
   el('btnCommit').onclick = function () {
     const v = view(), C = compute(), note = el('copyNote'), btn = this;
     if (C.ready && C.cash < 0) {
@@ -840,7 +952,9 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
       .map((l) => ({ asset: v.assets[l.a].name, side: l.side, qty: l.q }));
     btn.disabled = true; btn.textContent = '보내는 중…';
     note.className = 'note'; note.textContent = '';
-    MIDB.submitOrder(LIVE.round, S.teamIdx, { items: items, reason: S.reason || '' })
+    const ms = members();
+    MIDB.submitOrder(LIVE.round, S.teamIdx, { items: items, reason: S.reason || '',
+      roles: ms.length && Array.isArray(S.roles) ? S.roles.slice() : null })
       .then(function () {
         note.className = 'note ok';
         note.textContent = 'R' + LIVE.round + ' 제출 완료. 선생님 화면에 떴습니다.';
@@ -862,8 +976,9 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
     LIVE.round = st.round | 0;
     LIVE.phase = st.phase === 'result' ? 'result' : 'order';
     LIVE.final = !!st.final;
+    LIVE.note = st.note !== false;
     if (S.forRound !== LIVE.round) {         /* 라운드가 바뀌면 작성판을 비운다 */
-      S.lines = []; S.reason = ''; S.forRound = LIVE.round;
+      S.lines = []; S.reason = ''; S.forRound = LIVE.round; S.roles = null;
       el('reason').value = ''; el('copyNote').textContent = '';
       save();
     }

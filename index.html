@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="color-scheme" content="light">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>모의투자 대회 콘솔</title>
+<title>모의투자 프로젝트 콘솔</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 
 <style>
 /* ═══════════════════════════════════════════════════════════════════
-   모의투자 대회 — 디자인 시스템
+   모의투자 프로젝트 — 디자인 시스템
    · 면으로 나누고 선은 최소로. 흰 카드 · 넉넉한 여백 · 큰 숫자.
    · 엑셀 초록이 브랜드 색. 빨강·파랑은 오직 등락에만.
    · 화면마다 가장 중요한 숫자 하나에만 '선택된 셀'(초록 테두리 + 채우기 핸들)을 씌운다.
@@ -136,6 +136,8 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--surface);
 .dot.err{background:var(--up);box-shadow:0 0 0 3px var(--up-soft);}
 .statusbar .btn.ghost{background:var(--surface);}
 .statusbar #btnQrToggle.on{background:var(--brand-soft);color:var(--brand-ink);font-weight:700;}
+.statusbar #btnNoteToggle.off{background:var(--warn-soft);color:var(--warn);font-weight:700;}
+.newsbar .nl.note{color:var(--warn);font-weight:600;}
 .statusbar .btn.ghost:hover{background:var(--fill-2);}
 
 /* 본문 */
@@ -225,7 +227,7 @@ td.name{font-weight:700;font-size:.95rem;color:var(--t1);text-align:left;}
 .gr-chip.on{background:var(--t1);color:#fff;}
 .gr-chip b{background:var(--warn);color:#fff;border-radius:999px;font-size:.7rem;min-width:1.1rem;height:1.1rem;
   display:inline-grid;place-items:center;padding:0 .3rem;}
-.gr-row{display:grid;grid-template-columns:7.5rem minmax(0,1fr) auto 5.2rem;gap:.8rem;align-items:center;
+.gr-row{display:grid;grid-template-columns:7.5rem minmax(0,1fr) auto auto 5.2rem;gap:.8rem;align-items:center;
   padding:.6rem .2rem;border-bottom:1px solid var(--line);}
 .gr-row:last-child{border-bottom:0;}
 .gr-row.todo{background:linear-gradient(90deg,var(--warn-soft),transparent 40%);}
@@ -233,6 +235,38 @@ td.name{font-weight:700;font-size:.95rem;color:var(--t1);text-align:left;}
 .gr-reason{font-size:.92rem;color:var(--t1);line-height:1.5;}
 .gr-none{color:var(--t3);font-size:.86rem;}
 .gr-btns{display:inline-flex;gap:.3rem;}
+/* 교사가 직접 더하는 위반 (활동 중 검색 등) */
+.gr-pen{display:inline-flex;align-items:center;gap:.25rem;font-size:.78rem;color:var(--t3);white-space:nowrap;}
+.gr-pen button{border:0;background:var(--fill);color:var(--t2);width:1.7rem;height:1.7rem;border-radius:8px;font-weight:800;}
+.gr-pen b{min-width:1.1rem;text-align:center;color:var(--t2);}
+.gr-pen.on b{color:var(--warn);}
+/* 학생별 관찰 — 팀 줄 아래 팀원 칩, 누르면 태그·메모 */
+.gr-mem{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;margin-top:-.2rem;}
+.gr-mem .lbl{font-size:.72rem;color:var(--t3);margin-right:.2rem;}
+.gr-mem button{border:0;background:var(--fill);color:var(--t2);border-radius:999px;padding:.22rem .65rem;font-size:.78rem;font-weight:600;}
+.gr-mem button.has{background:var(--brand-soft);color:var(--brand-ink);}
+.gr-mem button.open{box-shadow:inset 0 0 0 2px var(--brand);}
+.gr-mem button small{font-weight:500;color:var(--t3);margin-left:.25rem;}
+.gr-obs{grid-column:1 / -1;background:var(--surface-2);border-radius:12px;padding:.6rem .7rem;display:flex;flex-direction:column;gap:.45rem;}
+.gr-obs .tags{display:flex;flex-wrap:wrap;gap:.3rem;}
+.gr-obs .tags button{border:0;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line-2);color:var(--t2);border-radius:8px;padding:.3rem .6rem;font-size:.78rem;}
+.gr-obs .tags button.on{background:var(--brand);color:#fff;box-shadow:none;}
+.card.rec{padding:.75rem 1rem;}
+.rec-h{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;cursor:pointer;}
+.rec-h b{font-size:.92rem;}
+.rec-flags{margin-left:auto;display:flex;gap:.25rem;flex-wrap:wrap;}
+.rec-flags i{font-style:normal;font-size:.72rem;font-weight:600;padding:.12rem .5rem;border-radius:999px;background:var(--brand-soft);color:var(--brand-ink);}
+.rec-flags i.g{background:var(--fill);color:var(--t3);}
+.rec-flags i.w{background:#FDECEE;color:#D22030;}
+.rec-b{margin-top:.7rem;display:flex;flex-direction:column;gap:.75rem;}
+.rec-sec .lbl{font-size:.78rem;font-weight:700;color:var(--t2);margin-bottom:.35rem;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;}
+.rec-sec .cnt{font-weight:500;color:var(--t3);}
+.rec-sec .cnt .over{color:#D22030;}
+.rec-sec textarea{min-height:110px;}
+.rec .rf{display:flex;flex-direction:column;gap:.25rem;font-size:.82rem;color:var(--t2);line-height:1.5;}
+.rec .rf span{display:inline-block;min-width:7.5rem;color:var(--t3);font-weight:600;}
+.gr-obs .tags button.neg.on{background:var(--warn);}
+.gr-obs input{width:100%;font-size:.84rem;}
 .gr-btn{border:0;background:var(--fill);color:var(--t2);font-weight:800;width:2.4rem;height:2.2rem;border-radius:10px;font-size:.95rem;}
 .gr-btn:hover{background:var(--fill-2);}
 .gr-btn.on.g-상{background:var(--brand);color:#fff;}
@@ -253,7 +287,7 @@ td.name{font-weight:700;font-size:.95rem;color:var(--t1);text-align:left;}
 .drawer-head h2{margin:0;font-size:1.25rem;font-weight:800;letter-spacing:-.03em;}
 .tabs{display:flex;gap:.3rem;padding:.3rem 1.25rem .9rem;flex:none;overflow-x:auto;
   border-bottom:1px solid var(--line);}
-.tab{border:0;background:transparent;color:var(--t2);height:34px;padding:0 .85rem;border-radius:999px;
+.tab{border:0;background:transparent;color:var(--t2);height:34px;padding:0 .7rem;border-radius:999px;
   font-size:.86rem;font-weight:600;white-space:nowrap;transition:background .15s,color .15s;}
 .tab:hover{background:var(--fill);}
 .tab[aria-selected="true"]{background:var(--t1);color:#fff;}
@@ -289,6 +323,10 @@ textarea{width:100%;min-height:120px;resize:vertical;font-size:.84rem;line-heigh
 .qrprev-txt{font-size:.86rem;color:var(--t2);line-height:1.6;word-break:break-all;min-width:0;}
 .qrprev-txt .mono{font-size:.78rem;color:var(--t3);}
 .qrprev-txt .btn{margin-top:.5rem;}
+.note-ed{border-top:1px solid var(--line);padding:.6rem 0;}
+.note-ed summary{cursor:pointer;font-size:.9rem;color:var(--t2);}
+.note-ed summary b{color:var(--t1);margin-right:.3rem;}
+.note-ed textarea.mono{font-size:.8rem;line-height:1.55;}
 
 /* ═══════════════════════════════════════════════════════════════════
    공지 화면 — 교실 TV.  기본은 어두운 무대, [밝게]로 바꿀 수 있다.
@@ -354,6 +392,32 @@ body.board-mode .board{
 .b-news::before{content:"뉴스";flex:none;font-size:.62em;font-weight:800;color:var(--b-brand);
   letter-spacing:0;}
 .b-news,.b-news.multi{font-size:clamp(.92rem,2.3vh,1.7rem);line-height:1.35;padding-top:clamp(.6rem,1.5vh,1.2rem);padding-bottom:clamp(.6rem,1.5vh,1.2rem);}
+/* 뉴스(두 줄 목록) ↔ 해설(한두 줄 글)이 바뀌어도 높이가 같게 — 아래 표가 움직이지 않는다 */
+.b-news{min-height:calc(3em + 2 * clamp(.6rem,1.5vh,1.2rem));align-items:center;}   /* 두 줄(1.35em×2) + 줄 사이 .3em */
+.b-news::before{align-self:center;}
+.b-news.note::before{content:"해설";color:var(--b-gold);}
+.b-news.note{font-weight:600;}
+.b-name .b-why{font-size:max(.78rem,.62em);font-weight:700;color:var(--b-gold);margin-left:.5em;letter-spacing:-.01em;}
+.b-ncard{cursor:pointer;transition:transform .12s ease;}
+.b-ncard:hover{transform:translateY(-2px);}
+.b-dcard .more{margin-top:auto;font-size:clamp(.7rem,1.5vh,1rem);font-weight:700;color:var(--b-brand);}
+.b-notebox{position:fixed;inset:0;z-index:21;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;
+  padding:clamp(.8rem,3vh,2.4rem);}
+.b-notebox[hidden]{display:none;}
+.b-notebox-in{background:var(--b-card);color:var(--b-t1);border-radius:clamp(16px,2.4vh,28px);width:min(1500px,100%);max-height:100%;
+  overflow:auto;padding:clamp(1rem,2.8vh,2.2rem) clamp(1.1rem,2.2vw,2.4rem);display:flex;flex-direction:column;gap:clamp(.5rem,1.4vh,1rem);}
+.b-notebox-top{display:flex;align-items:baseline;gap:.8rem;}
+.b-notebox-top .rd{font-size:clamp(1.3rem,3.6vh,2.6rem);font-weight:800;letter-spacing:-.03em;}
+.b-notebox-top .when{font-size:clamp(1.1rem,3vh,2.2rem);font-weight:800;color:var(--b-brand);}
+.b-notebox-top .btn{margin-left:auto;background:var(--b-card-2);color:var(--b-t2);}
+.b-notebox .sum{font-size:clamp(.95rem,2.4vh,1.7rem);font-weight:600;line-height:1.45;color:var(--b-t1);margin:0;}
+.b-nrow{display:grid;grid-template-columns:minmax(5em,auto) 5.2em minmax(0,1fr);gap:.4rem 1rem;align-items:baseline;
+  padding:clamp(.3rem,.9vh,.6rem) 0;border-top:1px solid var(--b-line);font-size:clamp(.82rem,2vh,1.4rem);line-height:1.45;}
+.b-nrow b{font-weight:800;}
+.b-nrow .chg{font-weight:800;text-align:right;white-space:nowrap;}
+.b-nrow .chg.pos{color:var(--b-up);} .b-nrow .chg.neg{color:var(--b-down);}
+.b-nrow .why{color:var(--b-t2);font-weight:500;}
+.b-nrow .why i{font-style:normal;font-weight:800;color:var(--b-gold);margin-right:.5em;}
 .b-news ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:.3em 2.2em;flex:1 1 auto;}
 .b-news li{position:relative;padding-left:.9em;}
 .b-news li::before{content:"";position:absolute;left:0;top:.55em;width:.34em;height:.34em;border-radius:2px;background:var(--b-brand);}
@@ -504,9 +568,9 @@ body.board-mode .board{
   background:var(--b-brand-soft);color:var(--b-brand);font-size:.72em;font-weight:800;}
 .b-intro-foot{font-size:clamp(.95rem,2.4vh,1.7rem);color:var(--b-t2);font-weight:600;}
 
-/* 공지 화면 — 실제 시점 공개 (최종 순위 다음) */
+/* 공지 화면 — 실제 시점 공개 (최종 결과 다음) */
 .b-dates{position:fixed;inset:0;z-index:19;background:var(--b-bg);color:var(--b-t1);display:grid;
-  grid-template-rows:auto minmax(0,1fr) auto;gap:clamp(.7rem,2vh,1.6rem);
+  grid-template-rows:auto auto minmax(0,1fr) auto;gap:clamp(.7rem,2vh,1.6rem);
   padding:clamp(1rem,3vh,2.6rem) clamp(1.2rem,2.8vw,3rem) clamp(.8rem,2vh,1.4rem);}
 .b-dates[hidden]{display:none;}
 .b-dates-top{display:flex;align-items:baseline;gap:1rem;}
@@ -526,9 +590,15 @@ body.board-mode .board{
 .b-dcard li{position:relative;padding-left:.8em;}
 .b-dcard li::before{content:"";position:absolute;left:0;top:.55em;width:.3em;height:.3em;border-radius:2px;background:var(--b-t3);}
 .b-dates-foot{font-size:clamp(.85rem,2vh,1.35rem);color:var(--b-t2);font-weight:600;}
+.b-reveal{display:flex;flex-wrap:wrap;gap:.4rem .6rem;align-items:center;}
+.b-reveal[hidden]{display:none;}
+.b-reveal .lbl{font-size:clamp(.8rem,1.9vh,1.3rem);font-weight:800;color:var(--b-gold);margin-right:.2rem;}
+.b-reveal span.c{font-size:clamp(.78rem,1.8vh,1.25rem);font-weight:700;background:var(--b-card);border-radius:999px;padding:.25em .8em;white-space:nowrap;}
+.b-reveal span.c b{color:var(--b-t3);font-weight:700;margin-right:.35em;}
+.b-dcard .rd .kospi{font-weight:700;color:var(--b-t3);font-size:.9em;}
 @media (max-aspect-ratio:4/3){ .b-dates-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
 
-/* 공지 화면 — 최종 순위 */
+/* 공지 화면 — 최종 결과 */
 .b-final{position:fixed;inset:0;z-index:18;background:var(--b-bg);color:var(--b-t1);display:grid;
   grid-template-rows:auto auto minmax(0,1fr) auto;gap:clamp(.6rem,1.6vh,1.2rem);
   padding:clamp(1rem,2.6vh,2rem) clamp(1.2rem,2.4vw,2.6rem) clamp(.7rem,1.6vh,1.2rem);}
@@ -559,6 +629,7 @@ body.board-mode .board{
 .b-frow{display:grid;grid-template-columns:3.2em minmax(0,1.6fr) repeat(4,minmax(0,.9fr)) minmax(0,1fr);
   align-items:center;gap:.6rem;padding:clamp(.1rem,.4vh,.4rem) 0;border-bottom:1px solid var(--b-line);}
 .b-frow:last-child{border-bottom:0;}
+.noscore .b-frow{grid-template-columns:3.2em minmax(0,1.6fr) repeat(4,minmax(0,1fr));}
 .b-frow span{text-align:right;font-variant-numeric:tabular-nums;font-size:clamp(.9rem,2.3vh,1.7rem);font-weight:700;white-space:nowrap;}
 .b-frow span i{display:block;font-style:normal;font-size:.62em;color:var(--b-t3);font-weight:600;}
 .b-frow .rk{text-align:left;}
@@ -599,6 +670,14 @@ body.board-mode .board{
     <button class="btn primary sm" id="btnLoadSheet">시세표 불러오기</button>
   </div>
 
+  <div class="setupbar" id="restoreBar" hidden>
+    <span class="sb-lbl">이어 하기</span>
+    <span class="sb-txt" id="restoreTxt"></span>
+    <span class="spacer"></span>
+    <button class="btn primary sm" id="btnRestore">이어 하기</button>
+    <button class="btn ghost sm" id="btnRestoreNo">무시</button>
+  </div>
+
   <div class="newsbar">
     <span class="tag" id="newsTag">R0</span>
     <span class="txt" id="newsText">—</span>
@@ -614,6 +693,7 @@ body.board-mode .board{
     <button class="btn ghost sm" id="btnT6">6분</button>
     <button class="btn ghost sm" id="btnT0">멈춤</button>
     <span class="spacer"></span>
+    <button class="btn ghost sm" id="btnNoteToggle">공지 화면 해설 숨기기</button>
     <button class="btn ghost sm" id="btnQrToggle">공지 화면 QR 켜기</button>
   </div>
 
@@ -628,7 +708,7 @@ body.board-mode .board{
 
     <section class="panel">
       <div class="panel-head">
-        <h2>순위판</h2>
+        <h2>팀별 자산</h2>
         <span class="hint" id="rankHint">—</span>
       </div>
       <div class="scroll"><table id="rankTable"><thead></thead><tbody></tbody></table></div>
@@ -667,6 +747,7 @@ body.board-mode .board{
     <button class="tab" role="tab" data-tab="teams" aria-selected="false">팀 · 규칙</button>
     <button class="tab" role="tab" data-tab="signup" aria-selected="false">참가 신청</button>
     <button class="tab" role="tab" data-tab="export" aria-selected="false">점수 · 내보내기</button>
+    <button class="tab" role="tab" data-tab="records" aria-selected="false">학생 기록</button>
   </div>
   <div class="drawer-body" id="drawerBody"></div>
 </aside>
@@ -699,7 +780,7 @@ body.board-mode .board{
   <div class="b-foot" id="bFoot"></div>
   <div class="b-final" id="bFinal" hidden>
     <div class="b-final-top">
-      <span class="b-final-lbl">최종 순위</span>
+      <span class="b-final-lbl">팀별 최종 결과</span>
       <span class="b-final-sub" id="bFinalSub">—</span>
       <span class="b-spacer"></span>
       <button class="btn ghost sm" id="bFinalHide">결과 화면 보기</button>
@@ -716,17 +797,21 @@ body.board-mode .board{
       <button class="btn ghost sm" id="bIntroHide">시세표 보기</button>
     </div>
     <ul class="b-intro-list" id="bIntroList"></ul>
-    <div class="b-intro-foot">모두 같은 방향을 가리키지는 않습니다. 무엇이 더 중요한지 팀에서 의논하세요 · 시세표는 잠시 뒤 공개합니다</div>
+    <div class="b-intro-foot">모두 같은 방향을 가리키지는 않습니다. 무엇이 더 중요한지 팀에서 의논하세요 · 인터넷 검색은 금지입니다</div>
   </div>
   <div class="b-dates" id="bDates" hidden>
     <div class="b-dates-top">
       <span class="ttl">실제 시점 공개</span>
       <span class="sub">여러분이 지나온 라운드는 실제로 이때였습니다</span>
       <span class="b-spacer"></span>
-      <button class="btn ghost sm" id="bDatesHide">최종 순위 보기</button>
+      <button class="btn ghost sm" id="bDatesHide">최종 결과 보기</button>
     </div>
+    <div class="b-reveal" id="bReveal" hidden></div>
     <div class="b-dates-grid" id="bDatesGrid"></div>
     <div class="b-dates-foot" id="bDatesFoot"></div>
+  </div>
+  <div class="b-notebox" id="bNoteBox" hidden>
+    <div class="b-notebox-in" id="bNoteIn"></div>
   </div>
   <div class="b-qrfull" id="bQrFull" hidden>
     <div class="b-qrfull-in">
@@ -739,6 +824,7 @@ body.board-mode .board{
 
 <script src="config.js"></script>
 <script src="engine.js"></script>
+<script src="record.js"></script>
 <script src="db.js"></script>
 <script>
 /* 최소 QR 인코더 — 바이트 모드, 오류정정 M, 버전 1~20
@@ -1073,10 +1159,19 @@ body.board-mode .board{
     synced: {},        // 학생이 낸 주문 (실시간)
     manual: {},        // 교사가 직접 고친 주문 — 학생 주문보다 우선한다
     grades: {},        // 판단 근거 채점 { 라운드: { 팀번호: '상'|'중'|'하' } } — 교사 화면에만 있다
-    finalShown: false, // 마지막 결과 뒤 [최종 순위 발표]를 눌렀는가
-    datesShown: false, // 최종 순위 뒤 [실제 시점 공개]를 눌렀는가
+    finalShown: false, // 마지막 결과 뒤 [최종 결과 공개]를 눌렀는가
+    datesShown: false, // 최종 결과 뒤 [실제 시점 공개]를 눌렀는가
     newsIntro: false,  // 새 라운드를 막 열어 공지 화면에 뉴스만 크게 띄운 상태
-    qrOn: null         // 공지 화면 QR — null이면 기본(라운드 0만), true/false는 교사가 직접 정한 것
+    qrOn: null,        // 공지 화면 QR — null이면 기본(라운드 0만), true/false는 교사가 직접 정한 것
+    noteOff: false,    // 결과 공개 때 해설을 잠시 숨긴다 (학생에게 먼저 물어보고 싶을 때)
+    penalty: {},       // 교사가 직접 더한 규칙 위반 { 팀번호: 횟수 } — 활동 중 검색 등
+    qrKind: 'order',   // 공지 화면 QR이 가리키는 곳 — 'order'(주문 작성기) | 'reflect'(개인 성찰지)
+    /* 학생 한 명 한 명의 기록 — 생활기록부 초안의 근거. 이 브라우저(와 백업 파일)에만 둔다 */
+    obs: {},           // 교사 관찰 { 학번: { tags: { 태그: true }, memo: '' } }
+    reflect: {},       // 학생 성찰지 (파이어베이스에서 옮겨 온 것) { 학번: {...} }
+    career: {},        // 진로 후속 과제 (교사 입력) { 학번: { title, obs } }
+    drafts: {},        // 특기사항 초안 { 학번: { auto, career, autoEdited, careerEdited } }
+    recMeta: {}        // 초안에 들어갈 활동 정보 { when: '2026.12.22.' }
   };
   const CFG = JSON.parse(JSON.stringify(window.MI_CONFIG || {}));
   const NA0 = (CFG.assets || []).length || 1;
@@ -1085,7 +1180,8 @@ body.board-mode .board{
     sheetLoaded: false,
     prices: [0, 1, 2, 3, 4, 5].map(() => new Array(NA0).fill(0)),
     news: ['', '', '', '', '', ''],
-    dates: ['', '', '', '', '', '']
+    dates: ['', '', '', '', '', ''],
+    notes: []          // 라운드별 해설 { sum, items: {자산: [짧게, 길게]}, src } — 결과를 공개한 라운드까지만 학생 쪽으로 나간다
   });
 
   const LS_KEY = 'mockinvest.console.v1';
@@ -1102,13 +1198,13 @@ body.board-mode .board{
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
         const p = JSON.parse(raw);
-        ['round', 'phase', 'timerEnd', 'manual', 'grades', 'finalShown', 'datesShown', 'newsIntro', 'qrOn'].forEach((k) => {
+        ['round', 'phase', 'timerEnd', 'manual', 'grades', 'finalShown', 'datesShown', 'newsIntro', 'qrOn', 'noteOff', 'penalty', 'qrKind', 'obs', 'reflect', 'career', 'drafts', 'recMeta'].forEach((k) => {
           if (p[k] !== undefined) s[k] = p[k];
         });
         // 한 번 불러온 시세표는 이 브라우저에 남는다
         if (p.sheetLoaded) {
           s.sheetLoaded = true;
-          ['prices', 'news', 'dates'].forEach((k) => { if (p[k]) s[k] = p[k]; });
+          ['prices', 'news', 'dates', 'notes', 'bench', 'reveal'].forEach((k) => { if (p[k]) s[k] = p[k]; });
         }
         // 교사가 서랍에서 고친 팀·자산·규칙
         ['teams', 'assets', 'rules'].forEach((k) => {
@@ -1126,20 +1222,84 @@ body.board-mode .board{
     } catch (e) {}
     return s;
   }
+  function snapshot() {
+    return {
+      round: S.round, phase: S.phase, timerEnd: S.timerEnd,
+      manual: S.manual, grades: S.grades || {}, finalShown: !!S.finalShown,
+      datesShown: !!S.datesShown, newsIntro: !!S.newsIntro, qrOn: S.qrOn == null ? null : !!S.qrOn, noteOff: !!S.noteOff, penalty: S.penalty || {}, qrKind: S.qrKind || 'order',
+      obs: S.obs || {}, reflect: S.reflect || {}, career: S.career || {}, drafts: S.drafts || {}, recMeta: S.recMeta || {},
+      edited: S.edited || {}, sheetLoaded: !!S.sheetLoaded,
+      teams: S.teams, assets: S.assets, prices: S.prices, news: S.news,
+      dates: S.dates, notes: S.notes || [], bench: S.bench || null, reveal: S.reveal || null, rules: S.rules
+    };
+  }
   function saveState() {
     /* 공지 화면은 공개된 라운드까지의 시세만 들고 있다 — 그걸 저장하면 교사의 시세표·채점을 덮어쓰므로 교사 화면만 저장한다 */
     if (MODE !== 'teacher') return;
-    try {
-      localStorage.setItem(LS_KEY, JSON.stringify({
-        round: S.round, phase: S.phase, timerEnd: S.timerEnd,
-        manual: S.manual, grades: S.grades || {}, finalShown: !!S.finalShown,
-        datesShown: !!S.datesShown, newsIntro: !!S.newsIntro, qrOn: S.qrOn == null ? null : !!S.qrOn,
-        edited: S.edited || {}, sheetLoaded: !!S.sheetLoaded,
-        teams: S.teams, assets: S.assets, prices: S.prices, news: S.news,
-        dates: S.dates, rules: S.rules
-      }));
-    } catch (e) {}
+    try { localStorage.setItem(LS_KEY, JSON.stringify(snapshot())); } catch (e) {}
     publish();
+    mirror();
+  }
+
+  /* ═══════════════════ 백업 · 이어 하기 ═══════════════════
+     채점과 진행 단계는 이 브라우저에만 있다. 노트북이 꺼져도 다른 컴퓨터에서 이어 할 수 있게
+     ① 파이어베이스에 사본을 둔다 (시세·뉴스·해설은 빼고)  ② 파일로도 내려받을 수 있다 */
+  const PROG = ['round', 'phase', 'grades', 'finalShown', 'datesShown', 'newsIntro', 'qrOn', 'noteOff', 'penalty'];
+  const sheetSig = (px) => (px || []).length + ':' + (px || []).reduce((a, r) => a + (r || []).reduce((x, y) => x + (+y || 0), 0), 0);
+  /* 파이어베이스는 0,1,2… 키를 배열로 바꾸고 빈 값을 버린다 — 다시 객체로 */
+  const toObj = (x) => Array.isArray(x) ? x.reduce((o, v, i) => { if (v != null) o[i] = v; return o; }, {}) : (x && typeof x === 'object' ? x : {});
+  const progress = (x) => x ? ((x.round | 0) * 4 + (x.phase === 'result' ? 2 : 0) + (x.finalShown ? 1 : 0) + (x.datesShown ? 1 : 0)) * 1000 +
+    Object.values(toObj(x.grades)).reduce((n, g) => n + Object.keys(toObj(g)).length, 0) : 0;
+  let mirrorT = 0;
+  function mirror() {
+    if (!window.MIDB || !S.sheetLoaded || MODE !== 'teacher') return;
+    clearTimeout(mirrorT);
+    mirrorT = setTimeout(function () {
+      const o = {};
+      PROG.forEach((k) => { o[k] = S[k] == null ? null : S[k]; });
+      o.manual = Object.keys(S.manual || {}).map((k) => ({ k: k, rec: S.manual[k] }));   /* 키에 점·# 이 있어도 되게 목록으로 */
+      o.teams = S.teams; o.assets = S.assets; o.rules = S.rules; o.edited = S.edited || {};
+      o.sig = sheetSig(S.prices); o.at = Date.now();
+      MIDB.saveTeacher(JSON.parse(JSON.stringify(o)));
+    }, 700);
+  }
+  /* 사본(또는 백업 파일)을 지금 화면에 되살린다 — 시세표가 다르면 하지 않는다 */
+  function restoreProgress(o, fromFile) {
+    if (!o) return '사본이 없습니다.';
+    if (fromFile) {
+      if (!Array.isArray(o.prices) || !o.prices.length) return '진행 상태 백업 파일이 아닙니다.';
+      ['prices', 'news', 'dates', 'notes', 'bench', 'reveal'].forEach((k) => { if (o[k]) S[k] = o[k]; });
+      S.sheetLoaded = true;
+    } else if (o.sig !== sheetSig(S.prices)) return '불러온 시세표가 사본과 다릅니다. 같은 시세표를 먼저 불러오세요.';
+    PROG.forEach((k) => { if (o[k] !== undefined) S[k] = o[k]; });
+    S.grades = {}; Object.entries(toObj(o.grades)).forEach(([r, g]) => { S.grades[r] = toObj(g); });
+    S.penalty = toObj(o.penalty);
+    S.manual = {};
+    if (Array.isArray(o.manual)) o.manual.forEach((m) => { if (m && m.k) S.manual[m.k] = m.rec; });
+    else S.manual = toObj(o.manual);
+    ['teams', 'assets', 'rules', 'edited'].forEach((k) => { if (o[k]) S[k] = o[k]; });
+    if (fromFile) ['obs', 'reflect', 'career', 'drafts', 'recMeta'].forEach((k) => { if (o[k]) S[k] = o[k]; });
+    S.phase = S.phase === 'result' ? 'result' : 'order';
+    S.timerEnd = 0;
+    render();
+    return '';
+  }
+  function checkRestore() {
+    const bar = el('restoreBar');
+    if (!bar || MODE !== 'teacher' || !window.MIDB || !S.sheetLoaded) { if (bar) bar.hidden = true; return; }
+    MIDB.loadTeacher().then(function (o) {
+      if (!o || o.sig !== sheetSig(S.prices) || progress(o) <= progress(S)) { bar.hidden = true; return; }
+      const g = Object.values(toObj(o.grades)).reduce((n, x) => n + Object.keys(toObj(x)).length, 0);
+      el('restoreTxt').textContent = '다른 컴퓨터(또는 지난번)에서 진행하던 활동이 있습니다 — 라운드 ' + (o.round | 0) + ' ' +
+        (o.phase === 'result' ? '결과 공개' : '주문 접수') + (o.finalShown ? ' · 최종 결과 공개' : '') + ' · 채점 ' + g + '칸' +
+        (o.at ? ' · ' + new Date(o.at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) + ' 저장' : '') + '. 이어 할까요?';
+      bar.hidden = false;
+      el('btnRestore').onclick = function () {
+        const err = restoreProgress(o, false);
+        if (err) el('restoreTxt').textContent = err; else bar.hidden = true;
+      };
+      el('btnRestoreNo').onclick = function () { bar.hidden = true; };
+    });
   }
 
   /* ═══════════════════ 계산 엔진 ═══════════════════ */
@@ -1249,7 +1409,9 @@ body.board-mode .board{
     ph.className = 'phase ' + (S.phase === 'result' ? 'result' : 'order');
     el('newsTag').textContent = 'R' + S.round;
     const nl = newsList(S.news[S.round]);
-    el('newsText').innerHTML = nl.length ? nl.map((t) => '<span class="nl">' + esc(t) + '</span>').join('') : '—';
+    const cn = S.phase === 'result' ? noteOf(S.round) : null;     /* 결과 공개 중에는 해설도 같이 보인다 (선생님용) */
+    el('newsText').innerHTML = (nl.length ? nl.map((t) => '<span class="nl">' + esc(t) + '</span>').join('') : '—') +
+      (cn ? '<span class="nl note">해설 · ' + esc(cn.sum || '') + (S.noteOff ? ' (공지 화면에는 숨김)' : '') + '</span>' : '');
 
     if (el('setupBar')) el('setupBar').hidden = !!S.sheetLoaded;
     const bn = el('btnNext');
@@ -1259,11 +1421,15 @@ body.board-mode .board{
     else if (S.round < NR) { bn.textContent = '다음 라운드 R' + (S.round + 1) + ' 시작'; bn.disabled = false; }
     else if (!S.finalShown) {
       const u = ungradedCount();
-      bn.textContent = '최종 순위 발표' + (u ? ' (미채점 ' + u + '칸은 중)' : ''); bn.disabled = false;
+      bn.textContent = '최종 결과 공개' + (u ? ' (미채점 ' + u + '칸은 중)' : ''); bn.disabled = false;
     }
     else if (!S.datesShown) { bn.textContent = '실제 시점 공개'; bn.disabled = false; }
-    else { bn.textContent = '대회 종료 · 실제 시점까지 공개됨'; bn.disabled = true; }
+    else { bn.textContent = '활동 종료 · 실제 시점까지 공개됨'; bn.disabled = true; }
     el('btnPrev').disabled = !S.sheetLoaded || (S.round === 0 && S.phase === 'order');
+    if (el('btnNoteToggle')) {
+      el('btnNoteToggle').textContent = S.noteOff ? '공지 화면 해설 보이기' : '공지 화면 해설 숨기기';
+      el('btnNoteToggle').classList.toggle('off', !!S.noteOff);
+    }
     if (el('btnQrToggle')) {
       const q = qrWanted();
       el('btnQrToggle').textContent = q ? '공지 화면 QR 끄기' : '공지 화면 QR 켜기';
@@ -1282,6 +1448,34 @@ body.board-mode .board{
 
   /* 판단 근거 채점 — 학생이 낸 매매 사유를 읽고 상·중·하만 누른다. 다음 라운드 뉴스를 읽는 동안 끝낼 수 있게 */
   let gradeRound = null;                      // null = 지금 라운드를 따라간다
+  /* 학생별 관찰 — 생활기록부는 교사가 직접 본 것이 주된 근거다. 채점하면서 눈에 띈 학생을 태그 하나로 남긴다 */
+  const OBS_TAGS = ['근거 제시 주도', '위험을 먼저 짚음', '의견 조율', '계산이 정확함', '해설을 다음 판단에 연결', '꼼꼼한 기록', '질문이 날카로움', '맡은 역할 이상 참여'];
+  const OBS_NEG = ['도움이 필요함'];     /* 피드백용 — 초안 문장에는 넣지 않는다 */
+  const ROLE_NAMES = ['뉴스 분석가', '위험 관리자', '기록자', '주문 담당'];
+  let obsOpen = '';
+  function teamMembers(team) {
+    const k = Object.keys(signups || {}).find((id) => String((signups[id] || {}).team || '').trim() === String(team || '').trim());
+    return k ? (signups[k].members || []) : [];
+  }
+  function obsOf(sid) { S.obs = S.obs || {}; return (S.obs[sid] = S.obs[sid] || { tags: {}, memo: '' }); }
+  function memChips(t, r, ms, roles) {
+    if (!ms.length) return '';
+    const roleOf = (mi) => Array.isArray(roles) ? roles.map((m, ri) => m === mi ? ROLE_NAMES[ri].split(' ')[0] : '').filter(Boolean).join('·') : '';
+    let html = '<span class="gr-mem"><span class="lbl">관찰</span>' + ms.map((m, mi) => {
+      const o = (S.obs || {})[m.sid], has = o && (Object.keys(o.tags || {}).length || (o.memo || '').trim());
+      return '<button data-sid="' + esc(m.sid) + '" class="' + (has ? 'has' : '') + (obsOpen === String(m.sid) ? ' open' : '') + '">' + esc(m.name) +
+        (roleOf(mi) ? '<small>' + esc(roleOf(mi)) + '</small>' : '') + '</button>';
+    }).join('') + '</span>';
+    const m = ms.find((x) => String(x.sid) === obsOpen);
+    if (m) {
+      const o = obsOf(m.sid);
+      html += '<div class="gr-obs"><span class="tags">' + OBS_TAGS.concat(OBS_NEG).map((tg) =>
+        '<button data-sid="' + esc(m.sid) + '" data-tag="' + esc(tg) + '" class="' + (o.tags[tg] ? 'on' : '') + (OBS_NEG.indexOf(tg) >= 0 ? ' neg' : '') + '">' + esc(tg) + '</button>').join('') + '</span>' +
+        '<input class="txt" data-sid="' + esc(m.sid) + '" placeholder="' + esc(m.name) + ' — 본 것을 한 줄로 (예: 회사채 위험을 먼저 짚고 비중 조정을 제안함)" value="' + esc(o.memo || '') + '"></div>';
+    }
+    return html;
+  }
+
   function renderGrades() {
     if (MODE !== 'teacher' || !el('gradeList')) return;
     const NR = S.prices.length - 1, cur = Math.min(S.round, NR);
@@ -1298,6 +1492,8 @@ body.board-mode .board{
     const fr = MIENGINE.finalScores(ENGINE.slice(0, cur + 1), S, S.grades);
     const jOf = (t) => (fr.find((x) => x.t === t) || {}).sJudge || 0;
     const row = ENGINE[gr] || [];
+    const pen = (t) => +((S.penalty || {})[t] || 0);
+    const memOf = (t) => teamMembers(S.teams[t]);
     el('gradeList').innerHTML = row.map((p, t) => {
       const reason = String(p.reason || '').trim(), g = (S.grades[gr] || {})[t] || '';
       const body = !p.submitted ? '<span class="gr-none">아직 제출하지 않았습니다 — 0점</span>'
@@ -1308,8 +1504,33 @@ body.board-mode .board{
         '<span class="gr-team">' + esc(p.team) + '</span>' +
         '<span class="gr-reason">' + body + '</span>' +
         '<span class="gr-btns">' + btns + '</span>' +
-        '<span class="gr-sum num">' + jOf(t).toFixed(1) + '<small> / ' + maxJ + '</small></span></div>';
+        '<span class="gr-pen' + (pen(t) ? ' on' : '') + '" title="활동 중 검색 등 — 1회마다 규칙 준수 −' + (R.rulePenalty == null ? 4 : R.rulePenalty) + '점">위반' +
+          '<button data-pt="' + t + '" data-d="-1">−</button><b>' + pen(t) + '</b><button data-pt="' + t + '" data-d="1">+</button></span>' +
+        '<span class="gr-sum num">' + jOf(t).toFixed(1) + '<small> / ' + maxJ + '</small></span>' +
+        memChips(t, gr, memOf(t), p.roles) + '</div>';
     }).join('');
+    el('gradeList').querySelectorAll('.gr-mem button').forEach((b) => {
+      b.onclick = () => { obsOpen = obsOpen === b.dataset.sid ? '' : b.dataset.sid; renderGrades(); };
+    });
+    el('gradeList').querySelectorAll('.gr-obs .tags button').forEach((b) => {
+      b.onclick = () => {
+        const o = obsOf(b.dataset.sid);
+        if (o.tags[b.dataset.tag]) delete o.tags[b.dataset.tag]; else o.tags[b.dataset.tag] = true;
+        saveState(); renderGrades();
+      };
+    });
+    el('gradeList').querySelectorAll('.gr-obs input').forEach((inp) => {
+      inp.onchange = () => { obsOf(inp.dataset.sid).memo = inp.value; saveState(); };
+    });
+    el('gradeList').querySelectorAll('.gr-pen button').forEach((b) => {
+      b.onclick = () => {
+        const t = +b.dataset.pt;
+        S.penalty = S.penalty || {};
+        S.penalty[t] = Math.max(0, pen(t) + (+b.dataset.d));
+        if (!S.penalty[t]) delete S.penalty[t];
+        render();
+      };
+    });
     el('gradeList').querySelectorAll('.gr-btn').forEach((b) => {
       b.onclick = () => {
         const t = +b.dataset.t, k = b.dataset.g;
@@ -1326,9 +1547,9 @@ body.board-mode .board{
   }
 
   function lastResult() { return S.phase === 'result' && S.round >= S.prices.length - 1; }
-  /* 최종 순위 — 마지막 라운드 결과 공개 뒤 [최종 순위 발표]를 누른 상태 */
+  /* 최종 결과 — 마지막 라운드 결과 공개 뒤 [최종 결과 공개]를 누른 상태 */
   function finalOn() { return !!S.finalShown && lastResult(); }
-  /* 실제 시점(연·월)은 맨 마지막 — 최종 순위 다음 [실제 시점 공개]를 눌러야 학생·공지 화면에 나간다 */
+  /* 실제 시점(연·월)은 맨 마지막 — 최종 결과 다음 [실제 시점 공개]를 눌러야 학생·공지 화면에 나간다 */
   function datesRevealed() { return !!S.datesShown && finalOn(); }
   function finalRows() { return MIENGINE.finalScores(ENGINE, S, S.grades); }
   function ungradedCount() {
@@ -1400,7 +1621,7 @@ body.board-mode .board{
     });
     el('rankHint').textContent = useR ? 'R' + S.round + ' 결과 기준' : '체결가 기준 (결과 미공개)';
     el('rankTable').querySelector('thead').innerHTML =
-      '<tr><th>순위</th><th>팀</th><th>총자산</th><th>수익률</th><th>주식</th><th>현금</th>' +
+      '<tr><th>#</th><th>팀</th><th>총자산</th><th>수익률</th><th>주식</th><th>현금</th>' +
       '<th>최대주식</th><th>자산수</th><th>제출</th><th>경고</th></tr>';
     const maxRet = Math.max.apply(null,
       view.map((v) => Math.abs(v.tot / S.rules.initialCash - 1)).concat([0.0001]));
@@ -1516,7 +1737,8 @@ body.board-mode .board{
             asset: String(o.asset || ''), side: o.side === '매도' ? '매도' : '매수',
             qty: Math.max(0, +o.qty || 0)
           })),
-          reason: rec.reason || '', count: 1, at: rec.at || 0
+          reason: rec.reason || '', count: 1, at: rec.at || 0,
+          roles: Array.isArray(rec.roles) ? rec.roles.map(Number) : null
         };
         if (rec.at && rec.at > lastOrderAt) lastOrderAt = rec.at;
       });
@@ -1531,18 +1753,22 @@ body.board-mode .board{
     const sh = shownRound();
     const fin = finalOn();
     MIDB.setState({ round: S.round, phase: S.phase, timerEnd: S.timerEnd || 0, final: fin,
-      dates: datesRevealed(), intro: S.phase === 'order' && !!S.newsIntro, qr: qrWanted() });
+      dates: datesRevealed(), intro: S.phase === 'order' && !!S.newsIntro, qr: qrWanted(), note: !S.noteOff, qrKind: S.qrKind || 'order' });
     MIDB.setPublic({
       teams: S.teams, assets: S.assets, rules: S.rules,
       rounds: S.prices.length,                 /* 라운드 수만 (앞으로의 가격은 보내지 않는다) */
       prices: S.prices.slice(0, sh + 1),
       news: S.news.slice(0, S.round + 1),
       dates: datesRevealed() ? (S.dates || []).slice(0, sh + 1) : [],
+      /* 해설도 시세처럼 — 결과를 공개한 라운드까지만 (주문 접수 중인 라운드의 해설은 나가지 않는다) */
+      notes: (S.notes || []).slice(0, sh + 1).map((n) => n || 0),
+      bench: fin && S.bench ? S.bench : null,                  /* 최종 결과 공개 뒤 — 코스피를 그대로 샀다면 */
+      reveal: datesRevealed() && S.reveal ? S.reveal : null,    /* 실제 시점 공개 때 — 실제 회사 이름 */
       /* 교사가 직접 넣은 주문도 공지 화면이 같은 숫자를 그리도록 함께 보낸다 (키에 점·# 등이 있어도 되게 목록으로) */
       manual: Object.keys(S.manual || {}).map((k) => ({ k: k, rec: S.manual[k] })),
-      final: fin ? finalRows().map((x) => ({ team: x.team, t: x.t, rank: x.rank, total: x.total,
+      final: fin ? finalRows().map((x) => ({ team: x.team, t: x.t, total: x.total,
         sRet: x.sRet, sStab: x.sStab, sJudge: x.sJudge, sRules: x.sRules,
-        fin: x.fin, ret: x.ret, mdd: x.stab.mdd, viol: x.viol, retRank: x.retRank })) : null
+        fin: x.fin, ret: x.ret, mdd: x.stab.mdd, viol: x.viol })).sort((a, b) => a.t - b.t) : null
     });
   }
 
@@ -1570,6 +1796,9 @@ body.board-mode .board{
     if (MODE !== 'board' || !p) return;
     ['teams', 'assets', 'rules', 'news'].forEach((k) => { if (p[k]) S[k] = p[k]; });
     S.dates = p.dates || [];                 /* 빈 목록은 파이어베이스에서 빠져 오므로 — 없으면 아직 비공개 */
+    S.notes = p.notes || [];
+    S.bench = p.bench || null;
+    S.reveal = p.reveal || null;
     S.manual = {};
     (p.manual || []).forEach((m) => { if (m && m.k) S.manual[m.k] = m.rec; });
     S.finalRows = p.final || null;
@@ -1598,6 +1827,8 @@ body.board-mode .board{
         S.datesShown = !!st.dates;
         S.newsIntro = !!st.intro;
         S.qrBoard = !!st.qr;
+        S.noteOff = st.note === false;
+        S.qrKind = st.qrKind === 'reflect' ? 'reflect' : 'order';
         render();
       }
     });
@@ -1627,6 +1858,7 @@ body.board-mode .board{
   }
   setInterval(tickTimer, 250);
 
+  const newsH = {};                 /* 라운드별 주문 접수 때 뉴스 칸 높이 (공지 화면 창 안에서만) */
   /* 공지 화면 렌더 — 왼쪽은 주식 · 채권·예금 두 표, 오른쪽은 팀 */
   function renderBoard() {
     const sh = shownRound(), res = S.phase === 'result';
@@ -1635,9 +1867,14 @@ body.board-mode .board{
     bp.textContent = res ? '결과 공개' : '주문 접수 중';
     bp.className = 'b-phase ' + (res ? 'res' : 'ord');
     const bn = newsList(S.news[S.round]);
-    el('bNews').classList.toggle('multi', bn.length > 1);
-    el('bNews').innerHTML = bn.length > 1
+    const note = res && noteOn() ? noteOf(sh) : null;      /* 결과 공개 때는 뉴스 자리에 그 라운드 해설 */
+    el('bNews').classList.toggle('note', !!note);
+    el('bNews').classList.toggle('multi', !note && bn.length > 1);
+    el('bNews').innerHTML = note ? esc(note.sum || '') : bn.length > 1
       ? '<ul>' + bn.map((t) => '<li>' + esc(t) + '</li>').join('') + '</ul>' : esc(bn[0] || '');
+    /* 좁은 화면에서는 뉴스 목록이 서너 줄이 되기도 한다 — 결과 공개 때도 주문 접수 때의 높이를 지켜 아래 표가 움직이지 않게 */
+    if (!res) { el('bNews').style.minHeight = ''; newsH[S.round] = el('bNews').offsetHeight; }
+    else el('bNews').style.minHeight = newsH[S.round] ? newsH[S.round] + 'px' : '';
     const rows = ENGINE[S.round] || ENGINE[ENGINE.length - 1] || [];
     const prev = S.round > 0 ? (ENGINE[S.round - 1] || []) : null;
 
@@ -1646,8 +1883,10 @@ body.board-mode .board{
     const cur = S.prices[sh], was = sh > 0 ? S.prices[sh - 1] : null;
     const vsLbl = was ? dl(sh - 1) + '보다' : '지난 라운드보다';
     const dash = '<span class="b-dash">—</span>';
+    const why = (a) => (note && note.items && note.items[a.name] && note.items[a.name][0]) || '';
     const nameCell = (a) => '<span class="b-name">' + esc(a.name) +
-      ((a.desc || a.lock) ? '<span class="b-desc">' + esc([a.desc, a.lock ? a.lock + '라운드 보유 시' : ''].filter(Boolean).join(' · ')) + '</span>' : '') +
+      (why(a) ? '<span class="b-why">' + esc(why(a)) + '</span>'
+        : (a.desc || a.lock) ? '<span class="b-desc">' + esc([a.desc, a.lock ? a.lock + '라운드 보유 시' : ''].filter(Boolean).join(' · ')) + '</span>' : '') +
       (a.kind === '주식' && a.rate ? '<span class="b-tag">배당 ' + (a.rate * 100).toFixed(2) + '%</span>' : '') + '</span>';
 
     /* 주식 — 1주 가격과 등락 */
@@ -1705,10 +1944,10 @@ body.board-mode .board{
         '<div class="b-row b-trow b-hd"><span></span><span style="text-align:left">팀</span>' +
           '<span>총자산<i>원</i></span><span>' + (prev ? dl(sh - 1) + '보다' : '시작 자금보다') + '</span>' +
           '<span>최대 낙폭<i>안정성 점수</i></span></div>' +
-        sorted.map((v) => {
+        view.map((v) => {          /* 순위를 매기지 않는다 — 팀 순서 그대로 (순위·우승을 가리면 대회 성격이 된다) */
           const d = v.now - v.was;
-          return '<div class="b-row b-team b-trow' + (v.rank === 1 ? ' lead' : '') + '">' +
-            '<span class="b-rank' + (v.rank === 1 ? ' top' : '') + '">' + v.rank + '</span>' +
+          return '<div class="b-row b-team b-trow">' +
+            '<span class="b-rank ghost">0</span>' +
             '<span class="b-name">' + esc(v.team) + '</span>' +
             '<span class="b-val">' + won(v.now) + '</span>' +
             '<span class="b-delta ' + cls(d) + '" style="--bar:' +
@@ -1717,7 +1956,7 @@ body.board-mode .board{
               '<i>' + v.stab.score.toFixed(1) + ' / ' + v.stab.max + '</i></span>' +
           '</div>';
         }).join('');
-      el('bFoot').textContent = '빨강 오름 · 파랑 내림 · 최대 낙폭 = 가장 높았던 때보다 가장 크게 떨어진 폭 · 우승은 총자산이 아니라 총점으로 정합니다';
+      el('bFoot').textContent = '빨강 오름 · 파랑 내림 · 최대 낙폭 = 가장 높았던 때보다 가장 크게 떨어진 폭 · 점수는 다른 팀과 견주지 않고 팀마다 매깁니다';
     } else {
       const n = rows.filter((r) => r.submitted).length;
       const first = S.round === 0;
@@ -1758,14 +1997,14 @@ body.board-mode .board{
   }
   if (el('bIntroHide')) el('bIntroHide').onclick = function () { introHiddenAt = 'R' + S.round; renderBoardIntro(); };
 
-  /* 실제 시점 공개 — 최종 순위 다음, 대회의 맨 마지막 화면 */
+  /* 실제 시점 공개 — 최종 결과 다음, 활동의 맨 마지막 화면 */
   let datesHidden = false;
   function renderBoardDates() {
     const box = el('bDates'); if (!box) return;
     const on = MODE === 'board' && datesRevealed() && (S.dates || []).some(Boolean);
     if (!on) datesHidden = false;
     box.hidden = !on || datesHidden;
-    if (box.hidden) return;
+    if (box.hidden) { if (el('bNoteBox')) el('bNoteBox').hidden = true; return; }
     const stk = S.assets.map((a, i) => (a.kind === '주식' ? i : -1)).filter((i) => i >= 0);
     const avg = (r) => {                 /* 그 라운드 주식 여섯 종목의 평균 등락률 */
       if (r < 1 || !S.prices[r] || !S.prices[r - 1]) return null;
@@ -1775,51 +2014,115 @@ body.board-mode .board{
     el('bDatesGrid').innerHTML = S.dates.map((d, r) => {
       const a = avg(r);
       const chg = a == null ? '' : '<span class="chg ' + (a > 0.0005 ? 'pos' : a < -0.0005 ? 'neg' : '') + '">주식 평균 ' + spct(a) + '</span>';
-      return '<div class="b-dcard"><span class="rd">라운드 ' + r + chg + '</span>' +
+      const has = !!noteOf(r);
+      const bx = S.bench && S.bench.ret && S.bench.ret[r] != null ? S.bench.ret[r] : null;
+      return '<div class="b-dcard' + (has ? ' b-ncard' : '') + '" data-r="' + r + '"><span class="rd">라운드 ' + r +
+        (bx != null ? '<span class="kospi">' + esc((S.bench && S.bench.name) || '코스피') + ' ' + spct(bx) + '</span>' : '') + chg + '</span>' +
         '<span class="when">' + esc(d || '?') + '</span>' +
-        '<ul>' + newsList(S.news[r]).map((t) => '<li>' + esc(t) + '</li>').join('') + '</ul></div>';
+        '<ul>' + newsList(S.news[r]).map((t) => '<li>' + esc(t) + '</li>').join('') + '</ul>' +
+        (has ? '<span class="more">누르면 자산별 해설 →</span>' : '') + '</div>';
     }).join('');
+    el('bDatesGrid').querySelectorAll('.b-ncard').forEach((c) => { c.onclick = () => openNote(+c.dataset.r); });
+    const rv = S.reveal ? S.assets.filter((a) => S.reveal[a.name] && a.kind === '주식') : [];
+    el('bReveal').hidden = !rv.length;
+    el('bReveal').innerHTML = rv.length ? '<span class="lbl">실제 회사</span>' +
+      rv.map((a) => '<span class="c"><b>' + esc(a.name) + '</b>' + esc(S.reveal[a.name]) + '</span>').join('') : '';
     el('bDatesFoot').textContent = '라운드 하나는 실제 시장의 약 3개월 · 같은 뉴스라도 그때 시장이 어떻게 받아들였는지가 가격을 정했습니다';
   }
   if (el('bDatesHide')) el('bDatesHide').onclick = function () { datesHidden = true; renderBoardDates(); };
 
-  /* 최종 순위 화면 — 교사가 [최종 순위 발표]를 누르면 공지 화면 전체가 이것으로 바뀐다 */
+  /* 비교 지수 — 시작 자금으로 라운드 0에 사서 끝까지 들고 있었다면 */
+  function benchFinal() {
+    if (!S.bench || !Array.isArray(S.bench.ret)) return null;
+    let v = S.rules.initialCash;
+    S.bench.ret.forEach((x, r) => { if (r > 0 && x != null) v *= 1 + (+x); });
+    return { name: S.bench.name || '코스피', fin: v, ret: v / S.rules.initialCash - 1 };
+  }
+  const realName = (a) => (S.reveal && S.reveal[a]) ? S.reveal[a] : '';
+
+  /* 해설 — 시세표의 notes. 0이나 빈 값은 '없음' */
+  function noteOf(r) { const n = (S.notes || [])[r]; return n && typeof n === 'object' ? n : null; }
+  function noteOn() { return !S.noteOff; }
+  /* 시점 공개 화면에서 라운드 카드를 누르면 — 자산마다 얼마나 움직였고 왜 그랬는지 */
+  function openNote(r) {
+    const n = noteOf(r), box = el('bNoteBox'); if (!n || !box) return;
+    const cur = S.prices[r] || [], was = S.prices[r - 1] || [];
+    el('bNoteIn').innerHTML =
+      '<div class="b-notebox-top"><span class="rd">라운드 ' + r + '</span>' +
+        '<span class="when">' + esc((S.dates || [])[r] || '') + '</span>' +
+        '<button class="btn sm" id="bNoteClose">닫기</button></div>' +
+      '<p class="sum">' + esc(n.sum || '') + '</p>' +
+      S.assets.map((a, i) => {
+        const it = (n.items || {})[a.name]; if (!it) return '';
+        const rt = was[i] ? cur[i] / was[i] - 1 : 0;
+        return '<div class="b-nrow"><b>' + esc(a.name) + (realName(a.name) && a.kind === '주식' ? '<br><small style="font-weight:600;color:var(--b-t3)">' + esc(realName(a.name)) + '</small>' : '') + '</b>' +
+          '<span class="chg ' + (rt > 0.0005 ? 'pos' : rt < -0.0005 ? 'neg' : '') + '">' + (Math.abs(rt) < 0.0005 ? '0%' : spct(rt)) + '</span>' +
+          '<span class="why"><i>' + esc(it[0] || '') + '</i>' + esc(it[1] || '') + '</span></div>';
+      }).join('');
+    box.hidden = false;
+    el('bNoteClose').onclick = function () { box.hidden = true; };
+  }
+  if (el('bNoteBox')) el('bNoteBox').onclick = function (e) { if (e.target === this) this.hidden = true; };
+
+  /* 최종 결과 화면 — 교사가 [최종 결과 공개]를 누르면 공지 화면 전체가 이것으로 바뀐다 */
   let finalHidden = false;
   function renderBoardFinal() {
     const box = el('bFinal'); if (!box) return;
     let rows = S.finalRows;
-    if (!rows && finalOn()) rows = finalRows().map((x) => ({ team: x.team, rank: x.rank, total: x.total,
+    if (!rows && finalOn()) rows = finalRows().map((x) => ({ team: x.team, t: x.t, total: x.total,
       sRet: x.sRet, sStab: x.sStab, sJudge: x.sJudge, sRules: x.sRules, fin: x.fin, ret: x.ret,
-      mdd: x.stab.mdd, viol: x.viol, retRank: x.retRank }));
+      mdd: x.stab.mdd, viol: x.viol }));
     const on = MODE === 'board' && !!S.finalShown && !!rows && rows.length > 0;
     if (!on) finalHidden = false;
     box.hidden = !on || finalHidden;
     if (!on) return;
     const R = S.rules, mx = (k, d) => (R[k] == null ? d : R[k]);
-    const w = rows.filter((x) => x.rank === 1);
     const pct = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v * 100).toFixed(1) + '%';
-    el('bFinalSub').textContent = '총점 = 수익 ' + mx('scoreRet', 30) + ' + 안정성 ' + mx('stabilityMax', 20) +
-      ' + 판단 근거 ' + mx('scoreJudge', 30) + ' + 규칙 준수 ' + mx('scoreRules', 20);
-    el('bFinalWin').innerHTML = '<span class="crown">1</span>' +
-      '<span class="who"><small>' + (w.length > 1 ? '공동 우승' : '우승') + '</small><b>' +
-        w.map((x) => esc(x.team)).join(' · ') + '</b></span>' +
-      '<span class="pts"><span class="tot">' + w[0].total.toFixed(1) + '<small>점</small></span>' +
-        '<span class="parts"><span>수익 ' + w[0].sRet.toFixed(0) + '</span><span>안정성 ' + w[0].sStab.toFixed(1) +
-        '</span><span>판단 근거 ' + w[0].sJudge.toFixed(1) + '</span><span>규칙 ' + w[0].sRules.toFixed(0) + '</span></span></span>';
+    rows = rows.slice().sort((a, b) => (a.t == null ? 0 : a.t) - (b.t == null ? 0 : b.t));   /* 팀 순서 — 순위 없음 */
+    const bf0 = benchFinal();
+    el('bFinalSub').textContent = '활동 점수 = 수익 ' + mx('scoreRet', 30) + ' + 안정성 ' + mx('stabilityMax', 20) +
+      ' + 판단 근거 ' + mx('scoreJudge', 30) + ' + 규칙 준수 ' + mx('scoreRules', 20) + ' · 다른 팀과 견주지 않는 우리 팀 기준';
+    /* 반 전체가 함께 돌아볼 숫자 — 한 팀을 뽑아 세우지 않는다 */
+    const avg = rows.reduce((a, x) => a + x.ret, 0) / rows.length;
+    const keep = rows.filter((x) => !x.viol).length;
+    const small = rows.filter((x) => x.mdd > -0.1).length;
+    const beat0 = bf0 ? rows.filter((x) => x.fin > bf0.fin).length : null;
+    el('bFinalWin').innerHTML = '<span class="crown">=</span>' +
+      '<span class="who"><small>우리 반 전체</small><b>평균 수익률 ' + pct(avg) + '</b></span>' +
+      '<span class="pts"><span class="parts">' +
+        (bf0 ? '<span>' + esc(bf0.name) + ' ' + pct(bf0.ret) + '</span><span>시장보다 많이 번 팀 ' + beat0 + ' / ' + rows.length + '</span>' : '') +
+        '<span>규칙을 다 지킨 팀 ' + keep + ' / ' + rows.length + '</span><span>최대 낙폭 10% 안쪽 ' + small + ' / ' + rows.length + '</span></span></span>';
+    /* 교사가 매긴 점수(판단 근거·활동 점수)는 기본으로 공지 화면에 올리지 않는다 — 각 팀 휴대폰에서만.
+       점수를 나란히 세우면 ‘우수 팀 선정’처럼 읽힐 수 있다 (config.js program.boardScores) */
+    const showScores = !!((window.MI_CONFIG || {}).program || {}).boardScores;
+    el('bFinalTable').classList.toggle('noscore', !showScores);
+    if (!showScores) {
+      el('bFinalSub').textContent = '팀 순서대로 · 활동 점수는 팀마다 자기 휴대폰에서 확인합니다';
+      el('bFinalTable').innerHTML =
+        '<div class="b-frow hd"><span class="rk"></span><span class="nm">팀</span><span>최종 자산</span><span>수익률</span>' +
+        '<span>최대 낙폭<i>최고점 대비</i></span><span>규칙 위반</span></div>' +
+        rows.map((x) => '<div class="b-frow"><span class="rk"></span><span class="nm">' + esc(x.team) + '</span>' +
+          '<span>' + won(x.fin) + '<i>원</i></span><span>' + pct(x.ret) + '</span>' +
+          '<span>' + (x.mdd < -0.0005 ? pct(x.mdd) : '0%') + '</span><span>' + (x.viol ? x.viol + '회' : '없음') + '</span></div>').join('');
+    } else
     el('bFinalTable').innerHTML =
-      '<div class="b-frow hd"><span class="rk">순위</span><span class="nm">팀</span><span>수익<i>최종 자산 순위</i></span>' +
-      '<span>안정성<i>최대 낙폭</i></span><span>판단 근거<i>교사 채점</i></span><span>규칙<i>위반 횟수</i></span><span>총점</span></div>' +
-      rows.map((x) => '<div class="b-frow' + (x.rank === 1 ? ' top' : '') + '">' +
-        '<span class="rk"><span class="b-rank' + (x.rank === 1 ? ' top' : '') + '">' + x.rank + '</span></span>' +
+      '<div class="b-frow hd"><span class="rk"></span><span class="nm">팀</span><span>수익<i>수익률 기준</i></span>' +
+      '<span>안정성<i>최대 낙폭</i></span><span>판단 근거<i>교사 채점</i></span><span>규칙<i>위반 횟수</i></span><span>활동 점수</span></div>' +
+      rows.map((x) => '<div class="b-frow">' +
+        '<span class="rk"></span>' +
         '<span class="nm">' + esc(x.team) + '<i>' + won(x.fin) + '원 · ' + pct(x.ret) + '</i></span>' +
-        '<span>' + x.sRet.toFixed(0) + '<i>' + x.retRank + '위</i></span>' +
+        '<span>' + x.sRet.toFixed(0) + '<i>' + pct(x.ret) + '</i></span>' +
         '<span>' + x.sStab.toFixed(1) + '<i>' + (x.mdd < -0.0005 ? pct(x.mdd) : '0%') + '</i></span>' +
         '<span>' + x.sJudge.toFixed(1) + '<i>' + mx('scoreJudge', 30) + '점 중</i></span>' +
         '<span>' + x.sRules.toFixed(0) + '<i>' + (x.viol ? x.viol + '회' : '없음') + '</i></span>' +
         '<span class="tt">' + x.total.toFixed(1) + '</span></div>').join('');
     const reveal = datesRevealed() && (S.dates || []).some(Boolean)
       ? '실제 시점 — ' + S.dates.map((d, i) => '라운드 ' + i + ' ' + (d || '?')).join(' · ') : '';
-    el('bFinalFoot').innerHTML = (reveal ? esc(reveal) + ' · ' : '') + '동점이면 안정성 점수 → 최종 자산 순';
+    const bf = benchFinal();
+    const beat = bf ? rows.filter((x) => x.fin > bf.fin).length : 0;
+    el('bFinalFoot').innerHTML = (bf ? '<b>참고 — ' + esc(bf.name) + '를 라운드 0에 사서 그대로 들고 있었다면 ' + won(bf.fin) + '원 (' + pct(bf.ret) + ')</b> · ' +
+        rows.length + '팀 중 ' + beat + '팀이 시장보다 많이 벌었습니다 · ' : '') +
+      (reveal ? esc(reveal) : '점수는 순위가 아니라 우리 팀이 무엇을 잘했고 무엇을 놓쳤는지 보는 피드백입니다');
   }
   if (el('bFinalHide')) el('bFinalHide').onclick = function () { finalHidden = true; renderBoardFinal(); };
 
@@ -1838,7 +2141,9 @@ body.board-mode .board{
     grid.classList.toggle('has-qr', on);
     grid.classList.toggle('res', S.phase === 'result');
     if (!on) { if (el('bQrFull')) el('bQrFull').hidden = true; return; }
-    const cap = '휴대폰 카메라로 찍으세요 · 팀을 고르면 준비 끝';
+    /* 성찰지 QR은 활동이 끝난 뒤 화면 가득 — [닫기]를 누르면 다시 띄우지 않는다 */
+    if (S.qrKind === 'reflect' && el('bQrFull') && MODE === 'board' && (S.finalShown || S.datesShown) && qrFullShut !== payload) el('bQrFull').hidden = false;
+    const cap = S.qrKind === 'reflect' ? '각자 자기 휴대폰으로 찍어 성찰지를 내세요 · 10분' : '휴대폰 카메라로 찍으세요 · 팀을 고르면 준비 끝';
     if (el('bQr').getAttribute('data-p') !== payload) {
       el('bQr').innerHTML = svgTxt;
       el('bQr').setAttribute('data-p', payload);
@@ -1848,9 +2153,13 @@ body.board-mode .board{
     if (el('bQrFullCap')) el('bQrFullCap').textContent = cap;
   }
 
+  var qrFullShut = '';
+  if (el('bQrBig')) el('bQrBig').onclick = function () { qrFullShut = ''; if (el('bQrFull')) el('bQrFull').hidden = false; };
+  if (el('bQrClose')) el('bQrClose').onclick = function () { qrFullShut = el('bQr').getAttribute('data-p') || ''; el('bQrFull').hidden = true; };
   if (el('btnLoadSheet')) el('btnLoadSheet').onclick = function () {
     window.__MI_OPEN__ && window.__MI_OPEN__('prices');
   };
+  if (el('btnNoteToggle')) el('btnNoteToggle').onclick = function () { S.noteOff = !S.noteOff; saveState(); render(); };
   if (el('btnQrToggle')) el('btnQrToggle').onclick = function () {
     S.qrOn = !qrWanted(); saveState(); render();
   };
@@ -1881,19 +2190,38 @@ body.board-mode .board{
     try { return new URL('student.html', location.href).href.split('#')[0]; }
     catch (e) { return ''; }
   }
-  function qrPayload() { return studentUrl(); }
+  function reflectUrl() {
+    try { return new URL('reflect.html', location.href).href.split('#')[0]; }
+    catch (e) { return ''; }
+  }
+  function qrPayload() { return S.qrKind === 'reflect' ? reflectUrl() : studentUrl(); }
   function signupUrl() {
     try { return new URL('signup.html', location.href).href.split('#')[0]; }
     catch (e) { return ''; }
   }
 
-  /* 참가 신청 — 대회 전에 미리 받아 둔 명단 */
+  /* 참가 신청 — 활동 전에 미리 받아 둔 명단 */
   let signups = {};
   const signupCbs = [];
   if (window.MIDB && MIDB.onSignups) {
     MIDB.onSignups(function (o) {
       signups = o || {};
       signupCbs.forEach((f) => { try { f(); } catch (e) {} });
+    });
+  }
+
+  const reflectCbs = [];
+  if (window.MIDB && MIDB.onReflect) {
+    MIDB.onReflect(function (o) {
+      if (MODE !== 'teacher') return;
+      let ch = false;
+      Object.values(o || {}).forEach((r) => {
+        if (!r || !r.sid) return;
+        const cur = (S.reflect || {})[r.sid];
+        if (!cur || (r.at || 0) > (cur.at || 0)) { S.reflect = S.reflect || {}; S.reflect[r.sid] = r; ch = true; }
+      });
+      if (ch) saveState();
+      reflectCbs.forEach((f) => { try { f(); } catch (e) {} });
     });
   }
 
@@ -1985,29 +2313,60 @@ body.board-mode .board{
       while (S.news.length < S.prices.length) S.news.push('');
       S.dates = (o.dates || []).slice(0, S.prices.length);
       while (S.dates.length < S.prices.length) S.dates.push('');
+      S.notes = (Array.isArray(o.notes) ? o.notes : []).slice(0, S.prices.length);
+      while (S.notes.length < S.prices.length) S.notes.push(null);
+      S.bench = o.bench && Array.isArray(o.bench.ret) ? o.bench : null;     /* 코스피 등 비교 지수의 라운드별 등락 */
+      S.reveal = o.reveal && typeof o.reveal === 'object' ? o.reveal : null; /* A사 = 실제 회사 */
       S.sheetLoaded = true;
       if (S.round > S.prices.length - 1) { S.round = 0; S.phase = 'order'; }
       touch();
+      setTimeout(checkRestore, 300);
       return S.prices.length;
     },
     sheetJson: () => JSON.stringify(
-      { dates: S.dates, news: S.news, prices: S.prices }, null, 2),
+      { dates: S.dates, news: S.news, prices: S.prices, notes: S.notes || [], bench: S.bench || undefined, reveal: S.reveal || undefined }, null, 2),
     setPrice: (r, i, v) => { S.prices[r][i] = v; touch(); },
     setNews: (i, v) => { S.news[i] = v; touch(); },
     setDate: (i, v) => { if (!S.dates) S.dates = []; S.dates[i] = v; touch(); },
+    setNote: (i, v) => { if (!S.notes) S.notes = []; S.notes[i] = v; touch(); },
+    backupJson: () => JSON.stringify(Object.assign({ kind: 'mockinvest-backup', at: Date.now() }, snapshot()), null, 1),
+    restoreFile: (o) => restoreProgress(o, true),
+    restoreCloud: () => window.MIDB ? MIDB.loadTeacher().then((o) => restoreProgress(o, false)) : Promise.resolve('연결이 없습니다.'),
+    jumpTo: (r, ph) => {
+      const NR = S.prices.length - 1;
+      S.round = Math.max(0, Math.min(NR, r | 0)); S.phase = ph === 'result' ? 'result' : 'order';
+      S.newsIntro = false; S.finalShown = false; S.datesShown = false; S.timerEnd = 0;
+      touch();
+    },
     setAsset: (i, k, v) => { S.assets[i][k] = v; touch(); },
     setTeam: (i, v) => { S.teams[i] = v; touch(); },
     setRule: (k, v) => { S.rules[k] = v; touch(); },
     setRoundCount: (n) => {
       n = Math.max(2, Math.min(12, n | 0));
       const NA = S.assets.length;
+      if (!S.notes) S.notes = [];
       while (S.prices.length > n) { S.prices.pop(); S.news.pop(); S.dates.pop(); }
       while (S.prices.length < n) { S.prices.push(new Array(NA).fill(0)); S.news.push(''); S.dates.push(''); }
+      S.notes = S.notes.slice(0, n); while (S.notes.length < n) S.notes.push(null);
       if (S.round > n - 1) { S.round = 0; S.phase = 'order'; }
       touch();
     },
     priceCode: priceCode,
     qrPayload: qrPayload,
+    reflectUrl: reflectUrl,
+    onReflect: (f) => reflectCbs.push(f),
+    clearReflectDb: () => { if (window.MIDB && MIDB.clearReflect) MIDB.clearReflect(); },
+    teamMembers: teamMembers,
+    obsOf: obsOf,
+    OBS_TAGS: OBS_TAGS, OBS_NEG: OBS_NEG, ROLE_NAMES: ROLE_NAMES,
+    save: () => saveState(),
+    setQr: (kind, on) => { S.qrKind = kind === 'reflect' ? 'reflect' : 'order'; S.qrOn = on == null ? null : !!on; touch(); },
+    wipePersonal: () => {
+      S.obs = {}; S.reflect = {}; S.career = {}; S.drafts = {};
+      if (window.MIDB) { MIDB.clearSignups(); if (MIDB.clearReflect) MIDB.clearReflect(); }
+      touch();
+    },
+    orders: () => effOrders(),
     qrSvg: qrSvg,
     qrPng: qrPng,
     copyText: copyText,
@@ -2027,10 +2386,12 @@ body.board-mode .board{
     startTimer: (sec) => { S.timerEnd = Date.now() + sec * 1000; touch(); },
     stopTimer: () => { S.timerEnd = 0; touch(); },
     resetAll: () => {
-      /* 대회만 처음으로 되돌린다 — 불러온 시세표와 팀·자산 설정은 그대로 둔다 */
+      /* 진행만 처음으로 되돌린다 — 불러온 시세표와 팀·자산 설정은 그대로 둔다 */
       const keep = {
-        sheetLoaded: S.sheetLoaded, prices: S.prices, news: S.news, dates: S.dates,
-        teams: S.teams, assets: S.assets, rules: S.rules, edited: S.edited
+        sheetLoaded: S.sheetLoaded, prices: S.prices, news: S.news, dates: S.dates, notes: S.notes, bench: S.bench, reveal: S.reveal,
+        teams: S.teams, assets: S.assets, rules: S.rules, edited: S.edited,
+        /* 학생 개인 기록은 [학생 기록] 탭의 [모두 지우기]로만 지운다 */
+        obs: S.obs, reflect: S.reflect, career: S.career, drafts: S.drafts, recMeta: S.recMeta
       };
       try { localStorage.removeItem(LS_KEY); } catch (e) {}
       if (window.MIDB) MIDB.clearAll();
@@ -2047,6 +2408,7 @@ body.board-mode .board{
   render();
   tickTimer();
   publish();
+  setTimeout(checkRestore, 1500);   /* 다른 컴퓨터에서 하던 활동이 있으면 [이어 하기]를 띄운다 */
 })();
 </script>
 
@@ -2056,6 +2418,7 @@ body.board-mode .board{
   const A = window.__MI__;                       // part3에서 노출한 내부 API
   const el = (id) => document.getElementById(id);
   const esc = A.esc, okey = A.okey;
+  const won = (n) => Math.round(n).toLocaleString("ko-KR");
 
   /* ═══════════════════ 서랍 ═══════════════════ */
   let tab = 'orders';
@@ -2080,7 +2443,7 @@ body.board-mode .board{
     const b = el('drawerBody');
     b.innerHTML = '';
     ({ orders: tabOrders, prices: tabPrices, assets: tabAssets,
-       teams: tabTeams, signup: tabSignup, export: tabExport }[tab] || tabOrders)(b);
+       teams: tabTeams, signup: tabSignup, export: tabExport, records: tabRecords }[tab] || tabOrders)(b);
   }
 
   function card(parent, title, html) {
@@ -2136,7 +2499,7 @@ body.board-mode .board{
           '<div class="qrprev-txt"><b>학생 접속 QR</b><br><span class="mono">' + esc(surl) + '</span><br>' +
           '<button class="btn sm" id="btnSuPng">그림으로 저장 (PNG)</button></div>'
         : '<p class="note warn">QR을 만들지 못했습니다.</p>';
-      if (el('btnSuPng')) el('btnSuPng').onclick = function () { A.qrPng(surl, '모의투자 대회 · 주문 작성기', '모의투자_학생접속_QR.png'); };
+      if (el('btnSuPng')) el('btnSuPng').onclick = function () { A.qrPng(surl, '모의투자 프로젝트 · 주문 작성기', '모의투자_학생접속_QR.png'); };
     })();
 
     el('btnSu').onclick = function () {
@@ -2349,7 +2712,7 @@ body.board-mode .board{
       '</tr>').join('');
     card(b, '라운드별 시세',
       '<p>시점 칸에는 그 라운드가 실제 어느 시점인지 적으세요(예: 2025.12). 여러 해를 섞어 써도 됩니다. ' +
-      '<b>학생·공지 화면에는 마지막 라운드 결과를 공개할 때 한꺼번에 나갑니다</b> — 그 전에는 선생님 콘솔에만 보입니다. ' +
+      '<b>학생·공지 화면에는 최종 결과 다음 [실제 시점 공개]를 누를 때 한꺼번에 나갑니다</b> — 그 전에는 선생님 콘솔에만 보입니다. ' +
       '라운드 r의 주문은 <b>R(r−1) 가격</b>으로 체결되고, R(r) 가격으로 평가됩니다. ' +
       '예금 행은 모든 라운드가 같은 값이어야 합니다.</p>' +
       '<div style="overflow-x:auto"><table class="edit-table"><thead>' + head +
@@ -2375,6 +2738,41 @@ body.board-mode .board{
         A.setNews(+inp.dataset.i, lines.length > 1 ? lines : (lines[0] || ''));
       };
     });
+
+    /* 해설 — 결과 공개 때 공지 화면 뉴스 자리와 학생 휴대폰에, 시점 공개 화면에서는 자산별로 자세히 */
+    const noteOf = (r) => { const n = (S.notes || [])[r]; return n && typeof n === 'object' ? n : null; };
+    const itemsTxt = (n) => S.assets.map((a) => {
+      const it = n && n.items && n.items[a.name];
+      return a.name + ' | ' + (it ? (it[0] || '') + ' | ' + (it[1] || '') : ' | ');
+    }).join('\n');
+    card(b, '해설',
+      '<p>결과를 공개하면 공지 화면의 뉴스 자리에 <b>요약</b>이, 주식·채권 이름 옆에 <b>짧은 이유</b>가 뜹니다. ' +
+      '학생 휴대폰에는 자산별 <b>자세한 설명</b>까지 나옵니다. 주문 접수 중인 라운드의 해설은 학생 쪽으로 나가지 않습니다. ' +
+      '연도·달처럼 시점을 짐작할 수 있는 말은 쓰지 마세요.</p>' +
+      '<p class="note">자산 줄은 <span class="mono">자산 | 짧은 이유 | 자세한 설명</span> 모양입니다. 비워 두면 그 자산은 해설 없이 나옵니다.</p>' +
+      S.prices.map((_, r) => {
+        if (r === 0) return '';
+        const n = noteOf(r);
+        return '<details class="note-ed"' + (r === 1 ? ' open' : '') + '><summary><b>R' + r + '</b> ' +
+          esc(n && n.sum ? n.sum.slice(0, 40) + (n.sum.length > 40 ? '…' : '') : '(비어 있음)') + '</summary>' +
+          '<div class="field"><label>요약 (공지 화면 두 줄 · 110자 안팎)</label>' +
+          '<textarea class="txt ntS" data-r="' + r + '" rows="3">' + esc(n ? n.sum || '' : '') + '</textarea></div>' +
+          '<div class="field"><label>자산별 이유</label>' +
+          '<textarea class="txt ntI mono" data-r="' + r + '" rows="' + (S.assets.length + 1) + '">' + esc(itemsTxt(n)) + '</textarea></div>' +
+          (n && n.src && n.src.length ? '<p class="note">출처 ' + n.src.length + '건 — 시세표 파일에 함께 저장됩니다.</p>' : '') +
+          '</details>';
+      }).join(''));
+    const saveNote = (r) => {
+      const sum = (b.querySelector('.ntS[data-r="' + r + '"]').value || '').trim();
+      const items = {};
+      (b.querySelector('.ntI[data-r="' + r + '"]').value || '').split('\n').forEach((line) => {
+        const p = line.split('|').map((t) => t.trim());
+        if (p[0] && (p[1] || p[2])) items[p[0]] = [p[1] || '', p[2] || ''];
+      });
+      const old = noteOf(r) || {};
+      A.setNote(r, (sum || Object.keys(items).length) ? { sum: sum, items: items, src: old.src || [] } : null);
+    };
+    b.querySelectorAll('.ntS, .ntI').forEach((inp) => { inp.onchange = () => saveNote(+inp.dataset.r); });
   }
 
   /* ═══════════════════ 탭: 자산 ═══════════════════ */
@@ -2428,6 +2826,61 @@ body.board-mode .board{
     el('rMin').onchange = () => A.setRule('minAssets', parseInt(el('rMin').value, 10) || 0);
     el('rTot').onchange = () => A.setRule('stockTotalCap', parseFloat(el('rTot').value) || 0);
 
+    /* 백업 · 이어 하기 · 라운드 바로 가기 */
+    const NRb = S.prices.length - 1;
+    card(b, '백업 · 이어 하기',
+      '<p>판단 근거 채점과 진행 단계는 <b>이 브라우저에만</b> 저장됩니다. 그래서 두 가지를 해 둡니다.</p>' +
+      '<p>① <b>자동 사본</b> — 진행할 때마다 파이어베이스에 사본이 저장됩니다(시세·뉴스·해설은 빼고). 노트북이 꺼지면 다른 컴퓨터에서 사이트를 열고 ' +
+      '<b>같은 시세표를 불러오면</b> 위쪽에 [이어 하기]가 뜹니다. 안 뜨면 아래 버튼을 누르세요.</p>' +
+      '<div class="row"><button class="btn" id="btnCloud">파이어베이스 사본에서 이어 하기</button><span class="note" id="cloudNote"></span></div>' +
+      '<p style="margin-top:.8rem">② <b>백업 파일</b> — 라운드가 끝날 때마다 한 번씩 받아 두면 인터넷이 끊겨도 되살릴 수 있습니다. ' +
+      '<b>시세가 들어 있으니 학생에게 주지 마세요.</b></p>' +
+      '<div class="row"><button class="btn primary" id="btnBackup">진행 상태 파일로 저장</button>' +
+      '<button class="btn" id="btnRestoreFile">백업 파일 불러오기</button>' +
+      '<input type="file" id="backupFile" accept=".json,application/json" hidden><span class="note" id="backupNote"></span></div>' +
+      '<p style="margin-top:.8rem"><b>라운드 바로 가기</b> — 단계를 잘못 넘겼거나 처음부터 다시 따라가기 번거로울 때. 학생 주문과 채점은 그대로 남습니다.</p>' +
+      '<div class="row"><select id="jumpSel">' + Array.from({ length: NRb + 1 }, (_, r) =>
+        ['order', 'result'].map((ph) => '<option value="' + r + ':' + ph + '"' + (r === S.round && ph === S.phase ? ' selected' : '') + '>라운드 ' + r + ' · ' +
+          (ph === 'order' ? '주문 접수' : '결과 공개') + '</option>').join('')).join('') + '</select>' +
+      '<button class="btn" id="btnJump">이 단계로 가기</button><span class="note" id="jumpNote"></span></div>');
+    el('btnBackup').onclick = function () {
+      const blob = new Blob([A.backupJson()], { type: 'application/json' });
+      const a = document.createElement('a');
+      const S2 = A.S();
+      a.href = URL.createObjectURL(blob);
+      a.download = '진행상태_R' + S2.round + (S2.phase === 'result' ? '결과' : '주문') + '_' +
+        new Date().toTimeString().slice(0, 5).replace(':', '') + '.json';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      el('backupNote').className = 'note ok'; el('backupNote').textContent = '받았습니다.';
+    };
+    el('btnRestoreFile').onclick = function () { el('backupFile').click(); };
+    el('backupFile').onchange = function () {
+      const f = this.files && this.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = function () {
+        let err = '';
+        try { err = A.restoreFile(JSON.parse(rd.result)); } catch (e) { err = '파일을 읽지 못했습니다.'; }
+        el('backupNote').className = 'note ' + (err ? 'warn' : 'ok');
+        el('backupNote').textContent = err || '되살렸습니다.';
+        if (!err) drawTab();
+      };
+      rd.readAsText(f, 'utf-8');
+    };
+    el('btnCloud').onclick = function () {
+      el('cloudNote').className = 'note'; el('cloudNote').textContent = '불러오는 중…';
+      A.restoreCloud().then(function (err) {
+        el('cloudNote').className = 'note ' + (err ? 'warn' : 'ok');
+        el('cloudNote').textContent = err || '이어 하기 완료.';
+        if (!err) drawTab();
+      });
+    };
+    el('btnJump').onclick = function () {
+      const v = el('jumpSel').value.split(':');
+      A.jumpTo(+v[0], v[1]);
+      el('jumpNote').className = 'note ok'; el('jumpNote').textContent = '옮겼습니다.';
+    };
+
     card(b, '초기화',
       '<p>진행 상황과 주문을 모두 지우고 처음 상태로 되돌립니다.</p>' +
       '<button class="btn danger" id="btnReset">전체 초기화</button>' +
@@ -2447,6 +2900,64 @@ body.board-mode .board{
   }
 
   /* ═══════════════════ 탭: 채점 내보내기 ═══════════════════ */
+  function resultSheets(S, E, FR) {
+    const R = S.rules, NR = E.length - 1, mx = (k, d) => (R[k] == null ? d : R[k]);
+    const sign = (x) => (x > 0 ? '+' : x < 0 ? '−' : '') + Math.abs(x * 100).toFixed(1) + '%';
+    const all = A.signups ? A.signups() : {};
+    const members = (team) => {
+      const k = Object.keys(all || {}).find((id) => String((all[id] || {}).team || '').trim() === String(team).trim());
+      return k ? (all[k].members || []) : [];
+    };
+    const unit = (a) => a.kind === '주식' ? '주' : '좌';
+    const fon = !!S.finalShown && S.phase === 'result' && S.round >= S.prices.length - 1;
+    let bfin = null;
+    if (S.bench && Array.isArray(S.bench.ret)) { bfin = R.initialCash; S.bench.ret.forEach((x, r) => { if (r > 0 && x != null) bfin *= 1 + (+x); }); }
+    const pages = S.teams.map((team, t) => {
+      const fr = FR.find((x) => x.t === t) || {};
+      const path = E.map((r) => r[t]);
+      const ms = members(team);
+      const rows = path.map((p, r) => {
+        const prev = r > 0 ? path[r - 1].hold : new Array(S.assets.length).fill(0);
+        const tr = S.assets.map((a, i) => {
+          const d = Math.round(p.hold[i] - prev[i]);
+          return d ? esc(a.name) + ' ' + (d > 0 ? '+' : '−') + Math.abs(d) + unit(a) : '';
+        }).filter(Boolean).join(', ') || (p.submitted ? '거래 없음' : '제출 안 함');
+        const g = ((S.grades || {})[r] || {})[t] || '';
+        const grade = !p.submitted || !String(p.reason || '').trim() ? '0점' : (g || '중(미채점)');
+        const w = MIENGINE.warnOf(p, 'order', S);
+        return '<tr><td class="c">' + r + (S.dates && S.dates[r] && fon ? '<br><small>' + esc(S.dates[r]) + '</small>' : '') + '</td>' +
+          '<td>' + tr + '</td><td>' + (esc(p.reason || '') || '<span class="dim">—</span>') + '</td>' +
+          '<td class="c">' + grade + '</td><td class="n">' + won(p.totR) + '<br><small>' + sign(p.totR / R.initialCash - 1) + '</small></td>' +
+          '<td class="c">' + (w ? '<b class="w">' + esc(w) + '</b>' : '') + '</td></tr>';
+      }).join('');
+      return '<section class="page">' +
+        '<header><span class="k">2026학년도 2학년 모의투자 프로젝트 · 팀 결과지</span><h1>' + esc(team) + '</h1>' +
+          (ms.length ? '<p class="mem">' + ms.map((m) => esc(m.name) + ' <small>' + esc(m.sid) + '</small>').join(' · ') + '</p>' : '') + '</header>' +
+        '<div class="score"><div><span>시장(' + esc((S.bench && S.bench.name) || '코스피') + ') 대비</span><b>' + (bfin ? (fr.fin > bfin ? '앞섬' : '뒤짐') : '—') + '</b></div>' +
+          '<div><span>활동 점수</span><b>' + (fr.total != null ? fr.total.toFixed(1) : '—') + '<small> / 100</small></b></div>' +
+          '<div><span>수익 (수익률 기준)</span><b>' + (fr.sRet != null ? fr.sRet.toFixed(0) : '—') + '<small> / ' + mx('scoreRet', 30) + '</small></b></div>' +
+          '<div><span>안정성 (최대 낙폭 ' + (fr.stab ? sign(fr.stab.mdd) : '—') + ')</span><b>' + (fr.sStab != null ? fr.sStab.toFixed(1) : '—') + '<small> / ' + mx('stabilityMax', 20) + '</small></b></div>' +
+          '<div><span>판단 근거</span><b>' + (fr.sJudge != null ? fr.sJudge.toFixed(1) : '—') + '<small> / ' + mx('scoreJudge', 30) + '</small></b></div>' +
+          '<div><span>규칙 준수 (위반 ' + (fr.viol || 0) + '회' + (fr.extra ? ', 교사 추가 ' + fr.extra : '') + ')</span><b>' + (fr.sRules != null ? fr.sRules.toFixed(0) : '—') + '<small> / ' + mx('scoreRules', 20) + '</small></b></div></div>' +
+        '<p class="fin">최종 자산 <b>' + won(fr.fin || 0) + '원</b> (' + sign((fr.fin || R.initialCash) / R.initialCash - 1) + ')' +
+          (fon ? '' : ' · <span class="dim">활동이 끝나기 전 기준</span>') + '</p>' +
+        '<table><colgroup><col style="width:9%"><col style="width:27%"><col style="width:36%"><col style="width:10%"><col style="width:12%"><col style="width:6%"></colgroup>' +
+        '<thead><tr><th class="c">라운드</th><th>사고판 것</th><th>매매 사유</th><th class="c">판단 근거</th><th class="n">총자산</th><th class="c">규칙</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+        '</section>';
+    }).join('');
+    return '<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>팀별 결과지</title><style>' +
+      '@page{size:A4;margin:14mm}*{box-sizing:border-box}body{margin:0 auto;max-width:190mm;padding:0 4mm;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#191F28;font-size:10.5pt;line-height:1.5}' +
+      '.page{page-break-after:always;padding:2mm 0}.page:last-child{page-break-after:auto}' +
+      'header .k{font-size:9pt;color:#107C41;font-weight:700}h1{margin:.1em 0 .1em;font-size:22pt;letter-spacing:-.03em}.mem{margin:0 0 .6em;color:#4E5968}.mem small{color:#8B95A1}' +
+      '.score{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:.4em 0}.score div{background:#F2F4F6;border-radius:8px;padding:6px 8px}' +
+      '.score span{display:block;font-size:8pt;color:#4E5968}.score b{font-size:14pt}.score small{font-size:8pt;color:#8B95A1}' +
+      '.fin{margin:.4em 0 .6em}.dim{color:#8B95A1}table{width:100%;border-collapse:collapse;font-size:9.5pt}' +
+      'th{background:#107C41;color:#fff;font-weight:700;padding:5px;text-align:left}th.c{text-align:center}th.n{text-align:right}table{table-layout:fixed}td{border-bottom:1px solid #DDE1E5;padding:5px;vertical-align:top}' +
+      'td.c{text-align:center;white-space:nowrap}td.n{text-align:right;white-space:nowrap}small{color:#8B95A1}.w{color:#B25E00}' +
+      '.bar{position:sticky;top:0;background:#fff;padding:8px 0;border-bottom:1px solid #eee;margin-bottom:8px}@media print{.bar{display:none}}' +
+      '</style></head><body><div class="bar"><button onclick="print()">인쇄 · PDF로 저장</button> 팀 ' + S.teams.length + '개 · 팀마다 한 쪽</div>' + pages + '</body></html>';
+  }
+
   /* ═══════════════════ 탭: 참가 신청 ═══════════════════ */
   function tabSignup(b) {
     const S = A.S();
@@ -2478,7 +2989,7 @@ body.board-mode .board{
           '<div class="qrprev-txt"><b>신청 QR</b><br><span class="mono">' + esc(su) + '</span><br>' +
           '<button class="btn sm" id="btnSpPng">그림으로 저장 (PNG)</button></div>'
         : '<p class="note warn">QR을 만들지 못했습니다.</p>';
-      if (el('btnSpPng')) el('btnSpPng').onclick = function () { A.qrPng(su, '모의투자 대회 · 참가 신청', '모의투자_참가신청_QR.png'); };
+      if (el('btnSpPng')) el('btnSpPng').onclick = function () { A.qrPng(su, '모의투자 프로젝트 · 참가 신청', '모의투자_참가신청_QR.png'); };
     })();
     el('btnSpCopy').onclick = function () {
       A.copyText(su).then(function (ok) {
@@ -2530,17 +3041,17 @@ body.board-mode .board{
       });
     }
 
-    /* 3. 신청 팀을 대회 팀으로 */
-    card(b, '신청한 팀을 대회 팀으로 쓰기',
-      '<p>위 <b>' + CAP + '팀</b>의 이름을 그대로 대회 팀 이름으로 바꿉니다. ' +
+    /* 3. 신청 팀을 활동 팀으로 */
+    card(b, '신청한 팀을 활동 팀으로 쓰기',
+      '<p>위 <b>' + CAP + '팀</b>의 이름을 그대로 활동 팀 이름으로 바꿉니다. ' +
       '공지 화면과 학생 작성기의 팀 목록이 한 번에 맞춰집니다.</p>' +
       '<div class="row"><button class="btn primary" id="btnAdopt"' +
         (inCap.length ? '' : ' disabled') + '>팀 이름 가져오기</button>' +
       '<button class="btn" id="btnRoster"' + (rows.length ? '' : ' disabled') +
         '>명단 복사 (표)</button>' +
       '<span class="note" id="adoptNote"></span></div>' +
-      '<p class="note warn" style="margin-top:.5rem">대회가 시작된 뒤에 바꾸면 이미 들어온 주문이 ' +
-      '팀과 어긋납니다. <b>대회 전에</b> 눌러 주세요.</p>');
+      '<p class="note warn" style="margin-top:.5rem">활동이 시작된 뒤에 바꾸면 이미 들어온 주문이 ' +
+      '팀과 어긋납니다. <b>시작 전에</b> 눌러 주세요.</p>');
     el('btnAdopt').onclick = function () {
       const names = inCap.map(nameOf);
       const seen = {};
@@ -2555,7 +3066,7 @@ body.board-mode .board{
     /* 4. 다음에 다시 쓰기 */
     card(b, '명단 비우기',
       '<p>시험 삼아 넣어 본 신청을 지우거나, 다음 학기·다음 해에 처음부터 다시 받을 때 씁니다. ' +
-      '<b>대회 진행 초기화([팀 · 규칙] 탭)와는 따로</b> 움직입니다 — 그쪽을 눌러도 명단은 남습니다.</p>' +
+      '<b>진행 초기화([팀 · 규칙] 탭)와는 따로</b> 움직입니다 — 그쪽을 눌러도 명단은 남습니다.</p>' +
       '<div class="row"><button class="btn danger" id="btnWipe"' +
         (rows.length ? '' : ' disabled') + '>신청 명단 전체 지우기</button>' +
       '<span class="note" id="wipeNote"></span></div>' +
@@ -2618,26 +3129,41 @@ body.board-mode .board{
     const FR = MIENGINE.finalScores(E, S, S.grades), R = S.rules;
     const mx = (k, d) => (R[k] == null ? d : R[k]);
     const fon = !!S.finalShown && S.phase === 'result' && S.round >= S.prices.length - 1;
-    card(b, '최종 점수 (' + (fon ? '발표됨' : '지금까지 기준') + ')',
+    card(b, '팀별 활동 점수 (' + (fon ? '공개됨' : '지금까지 기준') + ')',
       '<div style="overflow-x:auto"><table class="edit-table"><thead><tr>' +
-      '<th>순위</th><th>팀</th><th>최종 자산</th><th>수익률</th><th>수익 ' + mx('scoreRet', 30) + '</th>' +
+      '<th>팀</th><th>최종 자산</th><th>수익률</th><th>수익 ' + mx('scoreRet', 30) + '</th>' +
       '<th>최대 낙폭</th><th>안정성 ' + mx('stabilityMax', 20) + '</th><th>판단 근거 ' + mx('scoreJudge', 30) + '</th>' +
-      '<th>위반</th><th>규칙 ' + mx('scoreRules', 20) + '</th><th>총점</th></tr></thead><tbody>' +
-      FR.map((r) =>
-        '<tr' + (r.rank === 1 ? ' class="rank1"' : '') + '><td class="num"><b>' + r.rank + '</b></td><td><b>' + esc(r.team) + '</b></td>' +
+      '<th>위반</th><th>규칙 ' + mx('scoreRules', 20) + '</th><th>활동 점수</th></tr></thead><tbody>' +
+      FR.slice().sort((a, b) => a.t - b.t).map((r) =>
+        '<tr><td><b>' + esc(r.team) + '</b></td>' +
         '<td class="num">' + Math.round(r.fin).toLocaleString('ko-KR') + '</td>' +
         '<td class="num ' + (r.ret > 0 ? 'pos' : r.ret < 0 ? 'neg' : '') + '">' + (r.ret * 100).toFixed(1) + '%</td>' +
-        '<td class="num">' + r.sRet.toFixed(0) + '<span class="dim"> (' + r.retRank + '위)</span></td>' +
+        '<td class="num">' + r.sRet.toFixed(1) + '</td>' +
         '<td class="num">' + (r.stab.mdd * 100).toFixed(1) + '%</td>' +
         '<td class="num">' + r.sStab.toFixed(1) + '</td>' +
         '<td class="num">' + r.sJudge.toFixed(1) + (r.ungraded ? '<span class="over"> (미채점 ' + r.ungraded + ')</span>' : '') + '</td>' +
         '<td class="num">' + r.viol + '</td><td class="num">' + r.sRules.toFixed(0) + '</td>' +
         '<td class="num"><b>' + r.total.toFixed(1) + '</b></td></tr>').join('') +
       '</tbody></table></div>' +
-      '<p class="note" style="margin-top:.6rem">수익은 최종 자산 순위로 1위 ' + mx('scoreRet', 30) + '점, 한 등수마다 −' + mx('scoreRetStep', 2) + '점. ' +
+      '<p class="note" style="margin-top:.6rem">팀끼리 순위를 매기지 않습니다(순위·우승을 가리면 대회 성격이 되어 창체 특기사항에 쓸 수 없습니다). ' +
+      '수익은 다른 팀과 견주지 않고 우리 팀 수익률로 — ' + Math.round(mx('retFull', 0.15) * 100) + '% 이상 ' + mx('scoreRet', 30) + '점, ' +
+      Math.round(mx('retZero', -0.15) * 100) + '% 이하 0점, 그 사이는 비례. ' +
       '안정성은 최고점 대비 최대 낙폭으로, 작게 잃으면 조금·크게 잃으면 많이 깎입니다(' + Math.round(mx('stabilityZeroAt', 0.3) * 100) + '% 이상 0점). ' +
       '판단 근거는 메인 화면의 [판단 근거 채점]에서 라운드마다 상·중·하로 매긴 평균이고, 사유를 냈는데 안 매긴 칸은 중으로 셉니다. ' +
-      '규칙은 위반 1회마다 −' + mx('rulePenalty', 4) + '점. 동점이면 안정성 점수 → 최종 자산 순입니다.</p>');
+      '규칙은 위반 1회마다 −' + mx('rulePenalty', 4) + '점.</p>');
+
+    /* 팀별 결과지 — 팀마다 한 쪽. 라운드별 사고판 것·매매 사유·채점·총자산과 최종 점수 (생활기록부 정리용) */
+    card(b, '팀별 결과지 (인쇄)',
+      '<p>팀마다 한 쪽씩 — 라운드별로 사고판 것, 매매 사유, 판단 근거 등급, 총자산, 그리고 최종 점수가 들어갑니다. ' +
+      '참가 신청 명단에 같은 팀 이름이 있으면 팀원 이름·학번도 넣습니다. 새 창에서 열리면 인쇄(또는 PDF로 저장)하세요.</p>' +
+      '<div class="row"><button class="btn primary" id="btnSheets">팀별 결과지 열기</button><span class="note" id="sheetsNote"></span></div>');
+    el('btnSheets').onclick = function () {
+      const html = resultSheets(S, E, FR);
+      const w = window.open('', '_blank');
+      if (!w) { el('sheetsNote').className = 'note warn'; el('sheetsNote').textContent = '팝업이 막혔습니다. 주소창 오른쪽에서 팝업을 허용하세요.'; return; }
+      w.document.open(); w.document.write(html); w.document.close();
+      el('sheetsNote').className = 'note ok'; el('sheetsNote').textContent = '새 창에 열었습니다.';
+    };
 
     let tsv = ['팀\t라운드\t총자산\t수익률\t현금\t이자\t경고\t매매 사유'];
     S.teams.forEach((t, ti) => {
@@ -2681,8 +3207,292 @@ body.board-mode .board{
         }).join('') + '</div>').join(''));
   }
 
-  A.onRender(function () { if (!el('drawer').hidden) drawTab(); });
-  A.onSignups(function () { if (!el('drawer').hidden && tab === 'signup') drawTab(); });
+  /* ═══════════════════ 탭: 학생 기록 · 창체 특기사항 초안 ═══════════════════
+     근거의 무게: 교사 관찰(태그·메모) > 라운드 역할·팀 기록 > 학생 성찰지(보조).
+     초안은 담임 선생님께 드리는 참고 자료다 — 그대로 옮기지 말고 학생을 아는 만큼 고쳐 쓰시게 한다. */
+  let recClass = '', recOpen = '';
+  function parseSid(sid) {
+    const s = String(sid || '').replace(/\D/g, '');
+    if (s.length === 5) return { g: s[0], c: String(+s.slice(1, 3)), n: String(+s.slice(3)) };
+    if (s.length === 4) return { g: s[0], c: s[1], n: String(+s.slice(2)) };
+    return { g: '', c: '?', n: s };
+  }
+  function students() {
+    const S = A.S(), all = A.signups(), out = [];
+    Object.keys(all || {}).forEach((id) => {
+      const r = all[id] || {}, team = String(r.team || '').trim();
+      (r.members || []).forEach((m, mi) => {
+        if (!m || !String(m.sid || '').trim()) return;
+        const p = parseSid(m.sid);
+        out.push({ sid: String(m.sid).trim(), name: String(m.name || '').trim(), team: team, mi: mi, ti: S.teams.indexOf(team), g: p.g, c: p.c, n: p.n });
+      });
+    });
+    return out.sort((a, b) => (+a.sid || 0) - (+b.sid || 0) || a.name.localeCompare(b.name));
+  }
+  /* 학생 한 명의 근거를 모은다 */
+  function evidence(st) {
+    const S = A.S(), E = A.engine(), RN = A.ROLE_NAMES, NR = S.prices.length - 1;
+    const roleCounts = {}, roleRounds = {}, mine = [], all = [];
+    let rounds = 0, mdd = null, viol = null;
+    if (st.ti >= 0) {
+      const path = E.map((row) => row[st.ti]);
+      path.forEach((p, r) => {
+        if (!p || !p.submitted) return;
+        rounds++;
+        const rs = String(p.reason || '').trim();
+        if (rs) all.push(rs);
+        (p.roles || []).forEach((m, ri) => {
+          if (m !== st.mi || !RN[ri]) return;
+          roleCounts[RN[ri]] = (roleCounts[RN[ri]] || 0) + 1;
+          (roleRounds[RN[ri]] = roleRounds[RN[ri]] || []).push(r);
+          if ((ri === 0 || ri === 2) && rs) mine.push(rs);
+        });
+      });
+      mdd = MIENGINE.stability([S.rules.initialCash].concat(path.map((p) => p.totR)), S.rules).mdd;
+      const fr = MIENGINE.finalScores(E, S, S.grades).find((x) => x.t === st.ti);
+      viol = fr ? fr.viol + (+((S.penalty || {})[st.ti] || 0)) : null;
+    }
+    const o = (S.obs || {})[st.sid] || { tags: {}, memo: '' };
+    const tags = Object.keys(o.tags || {}).filter((t) => A.OBS_NEG.indexOf(t) < 0);
+    return {
+      roleCounts: roleCounts, roleRounds: roleRounds, tags: tags, memo: o.memo || '', need: !!(o.tags || {})['도움이 필요함'],
+      reflect: (S.reflect || {})[st.sid] || null, career: (S.career || {})[st.sid] || {},
+      team: { mdd: mdd, viol: viol, rounds: rounds || NR, keywords: MIRECORD.keywords(mine.length ? mine : all) }
+    };
+  }
+  function makeDraft(st, ev) {
+    const S = A.S(), C = window.MI_CONFIG || {}, P = Object.assign({}, C.program || {}), M = C.record || {};
+    if ((S.recMeta || {}).when) P.when = S.recMeta.when;
+    if (/○/.test(P.when || '')) P.when = '';
+    return MIRECORD.build({
+      sid: st.sid, name: st.name, program: P, roleCounts: ev.roleCounts, roleRounds: ev.roleRounds,
+      tags: ev.tags, memo: ev.memo, reflect: ev.reflect || {}, career: ev.career, team: ev.team,
+      max: { auto: M.autoMax || 500, career: M.careerMax || 700 }
+    });
+  }
+  /* 초안을 맞춘다 — 선생님이 고친 칸은 건드리지 않는다 */
+  function syncDrafts(list) {
+    const S = A.S(); S.drafts = S.drafts || {};
+    let ch = false;
+    list.forEach((st) => {
+      const ev = evidence(st), d = makeDraft(st, ev), cur = S.drafts[st.sid] || {};
+      const nx = Object.assign({}, cur);
+      if (!cur.autoEdited) nx.auto = d.auto;
+      if (!cur.careerEdited) nx.career = d.career;
+      nx.intro = d.intro;
+      if (JSON.stringify(nx) !== JSON.stringify(cur)) { S.drafts[st.sid] = nx; ch = true; }
+      st.ev = ev; st.d = S.drafts[st.sid];
+    });
+    if (ch) A.save();
+  }
+  function simWarn(list, st, k) {
+    const strip = (x) => String(x.d[k] || '').replace(x.d.intro || '', '');
+    let best = null;
+    list.forEach((o) => {
+      if (o === st || !o.d) return;
+      const v = MIRECORD.similarity(strip(st), strip(o));
+      if (!best || v > best.v) best = { v: v, name: o.name };
+    });
+    return best && best.v >= 0.45 ? best : null;
+  }
+  function countHtml(text, max) {
+    const n = MIRECORD.chars(text), by = MIRECORD.bytes(text), bad = MIRECORD.banned(text);
+    return '<span class="' + (n > max ? 'over' : '') + '">' + n + ' / ' + max + '자</span> · ' + by + '바이트' +
+      (bad.length ? ' · <b class="over">쓰면 안 되는 말: ' + esc(bad.join(', ')) + '</b>' : '');
+  }
+  function classPage(list, cls) {
+    const S = A.S(), C = window.MI_CONFIG || {}, P = C.program || {}, M = C.record || {};
+    const when = (S.recMeta || {}).when || '';
+    const byClass = {};
+    list.forEach((st) => { (byClass[st.c] = byClass[st.c] || []).push(st); });
+    const keys = Object.keys(byClass).filter((c) => !cls || c === cls).sort((a, b) => (+a || 99) - (+b || 99));
+    const page = (c) => {
+      const xs = byClass[c], g = xs[0].g;
+      return '<section class="pg"><h1>' + (g ? esc(g) + '학년 ' : '') + esc(c) + '반 · 창의적 체험활동 특기사항 초안</h1>' +
+        '<p class="meta">' + esc(P.name || '모의투자 프로젝트') + (when ? ' · ' + esc(when) : '') + (P.hours ? ' · ' + P.hours + '시간' : '') +
+        ' · ' + xs.length + '명 · 작성: 활동 담당 교사</p>' +
+        '<div class="box"><b>담임 선생님께</b><ul>' +
+        '<li>활동 담당 교사가 수업 중 <b>직접 관찰한 내용</b>(역할 수행·발언·계산 등)을 중심으로, 팀 활동 기록과 학생 성찰지(보조 자료)를 더해 만든 <b>초안</b>입니다.</li>' +
+        '<li>학생을 가장 잘 아시는 선생님께서 다른 활동과 겹치지 않게 다듬어 주세요. 두 칸 중 한 곳에만 쓰셔도 됩니다.</li>' +
+        '<li>시상이 없는 교육 활동이며, 순위·수상·기관명·실제 회사명은 넣지 않았습니다. <b>‘대회’라는 말은 쓰지 말아 주세요.</b></li>' +
+        '<li>글자 수는 나이스 기준(자율·자치 ' + (M.autoMax || 500) + '자, 진로 ' + (M.careerMax || 700) + '자 이내)으로 맞췄습니다. 입력 전 나이스에서 한 번 더 확인해 주세요.</li></ul></div>' +
+        '<table><colgroup><col style="width:5%"><col style="width:9%"><col style="width:43%"><col style="width:43%"></colgroup>' +
+        '<thead><tr><th>번호</th><th>이름</th><th>자율·자치활동</th><th>진로활동</th></tr></thead><tbody>' +
+        xs.map((st) => '<tr><td class="c">' + esc(st.n) + '</td><td class="c">' + esc(st.name) + '</td><td>' + esc(st.d.auto || '') +
+          '<div class="n">' + MIRECORD.chars(st.d.auto) + '자</div></td><td>' + esc(st.d.career || '') +
+          '<div class="n">' + MIRECORD.chars(st.d.career) + '자</div></td></tr>').join('') +
+        '</tbody></table></section>';
+    };
+    return '<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>창체 특기사항 초안' + (cls ? ' · ' + esc(cls) + '반' : '') + '</title><style>' +
+      '@page{size:A4 landscape;margin:12mm}@media screen{body{padding:16px}}body{font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#191F28;font-size:10.5pt;margin:0}' +
+      '.pg{page-break-after:always;padding:4mm 0}.pg:last-child{page-break-after:auto}h1{font-size:15pt;margin:0 0 2mm}.meta{color:#6B7684;margin:0 0 3mm}' +
+      '.box{background:#F2F4F6;border-radius:8px;padding:3mm 4mm;margin-bottom:4mm;font-size:9.5pt}.box ul{margin:1mm 0 0;padding-left:5mm}.box li{margin:.6mm 0}' +
+      'table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border:1px solid #D1D6DB;padding:2mm;vertical-align:top;line-height:1.55;word-break:keep-all;overflow-wrap:anywhere}' +
+      'th{background:#F9FAFB;font-size:9.5pt}td.c{text-align:center}tr{page-break-inside:avoid}.n{color:#8B95A1;font-size:8pt;margin-top:1mm;text-align:right}' +
+      '</style></head><body>' + keys.map(page).join('') + '</body></html>';
+  }
+
+  function tabRecords(b) {
+    const S = A.S(), C = window.MI_CONFIG || {}, M = C.record || {};
+    const MAXA = M.autoMax || 500, MAXC = M.careerMax || 700;
+    const list = students();
+    syncDrafts(list);
+    const classes = Array.from(new Set(list.map((s) => s.c))).sort((a, b) => (+a || 99) - (+b || 99));
+    if (recClass && classes.indexOf(recClass) < 0) recClass = '';
+    const shown = list.filter((s) => !recClass || s.c === recClass);
+    const nRef = list.filter((s) => (S.reflect || {})[s.sid]).length;
+    const nObs = list.filter((s) => s.ev.tags.length || String(s.ev.memo).trim()).length;
+    const nEd = list.filter((s) => s.d.autoEdited || s.d.careerEdited).length;
+
+    /* 1. 성찰지 */
+    const rq = S.qrKind === 'reflect' && S.qrOn;
+    card(b, '1. 개인 성찰지 받기',
+      '<p>활동이 끝난 뒤(실제 시점 공개 다음) 학생 각자 휴대폰으로 냅니다. 이름과 학번이 참가 신청 명단과 맞아야 받습니다. ' +
+      '<b>성찰지는 보조 자료</b>입니다 — 초안의 중심은 선생님이 본 것입니다.</p>' +
+      '<div class="row"><button class="btn ' + (rq ? '' : 'primary') + '" id="btnRefQr">' + (rq ? '공지 화면 QR을 주문용으로 되돌리기' : '공지 화면에 성찰지 QR 띄우기') + '</button>' +
+      '<button class="btn" id="btnRefCopy">성찰지 주소 복사</button>' +
+      '<span class="note ok">' + nRef + ' / ' + list.length + '명 제출</span></div>' +
+      '<p class="note" style="margin-top:.5rem">받은 성찰지는 이 콘솔(과 백업 파일)에 옮겨 담깁니다. 다 받으면 ' +
+      '<button class="btn ghost sm" id="btnRefClear">파이어베이스에서 성찰지 지우기</button> — 콘솔에 담긴 사본은 남습니다.</p>' +
+      '<span class="note" id="refNote"></span>');
+    el('btnRefQr').onclick = () => { A.setQr(rq ? 'order' : 'reflect', rq ? null : true); drawTab(); };
+    el('btnRefCopy').onclick = () => A.copyText(A.reflectUrl()).then((ok) => { el('refNote').className = 'note ' + (ok ? 'ok' : 'warn'); el('refNote').textContent = ok ? '복사했습니다: ' + A.reflectUrl() : A.reflectUrl(); });
+    el('btnRefClear').onclick = function () {
+      if (this.dataset.armed !== '1') { this.dataset.armed = '1'; this.textContent = '한 번 더 누르면 지웁니다'; return; }
+      A.clearReflectDb(); el('refNote').className = 'note ok'; el('refNote').textContent = '파이어베이스의 성찰지를 지웠습니다. 콘솔 사본 ' + nRef + '명분은 남아 있습니다.';
+    };
+
+    /* 2. 학생별 초안 */
+    const when = (S.recMeta || {}).when || '';
+    const head = card(b, '2. 학생별 기록과 특기사항 초안',
+      (list.length ? '' : '<p class="note warn">참가 신청 명단이 비어 있습니다. 학생 이름·학번은 [참가 신청]에서 받은 명단을 씁니다.</p>') +
+      '<p>관찰 ' + nObs + '명 · 성찰지 ' + nRef + '명 · 직접 고친 초안 ' + nEd + '명. 칸을 고치면 그 칸은 다시 만들지 않습니다. ' +
+      '같은 틀이 반복되지 않도록 <b>관찰 메모 한 줄</b>을 넣어 주시는 것이 가장 효과가 큽니다.</p>' +
+      '<div class="row"><label class="note">활동 일시</label><input class="txt" id="recWhen" style="max-width:11rem" placeholder="2026.12.22." value="' + esc(when) + '">' +
+      '<label class="note" style="margin-left:.6rem">반</label><select id="recClass"><option value="">전체 ' + list.length + '명</option>' +
+      classes.map((c) => '<option value="' + esc(c) + '"' + (c === recClass ? ' selected' : '') + '>' + esc(c) + '반 ' + list.filter((s) => s.c === c).length + '명</option>').join('') + '</select>' +
+      '<button class="btn" id="btnRecRegen">고치지 않은 초안 모두 다시 만들기</button></div>');
+    el('recWhen').onchange = function () { S.recMeta = Object.assign({}, S.recMeta, { when: this.value.trim() }); A.save(); drawTab(); };
+    el('recClass').onchange = function () { recClass = this.value; drawTab(); };
+    el('btnRecRegen').onclick = () => { drawTab(); };
+
+    shown.forEach((st) => {
+      const ev = st.ev, d = st.d, rf = ev.reflect, cr = ev.career || {};
+      const roles = Object.keys(ev.roleCounts).map((k) => k + ' ' + ev.roleCounts[k] + '회').join(' · ') || (st.ti < 0 ? '팀 이름이 콘솔 팀과 다릅니다' : '역할 기록 없음');
+      const sA = simWarn(list, st, 'auto'), sC = simWarn(list, st, 'career');
+      const noObs = !ev.tags.length && !String(ev.memo).trim();
+      const o = A.obsOf(st.sid);
+      const open = recOpen === st.sid;
+      const d1 = document.createElement('div');
+      d1.className = 'card rec' + (open ? ' open' : '');
+      d1.innerHTML =
+        '<div class="rec-h" data-sid="' + esc(st.sid) + '"><b>' + esc(st.sid) + ' ' + esc(st.name) + '</b><span class="note">' + esc(st.team || '팀 없음') + ' · ' + esc(roles) + '</span>' +
+        '<span class="rec-flags">' + (noObs ? '<i class="w">관찰 없음</i>' : '<i>관찰</i>') + (rf ? '<i>성찰지</i>' : '<i class="g">성찰지 없음</i>') +
+        (cr.title ? '<i>후속 탐구</i>' : '') + (d.autoEdited || d.careerEdited ? '<i>고침</i>' : '') +
+        (MIRECORD.banned(d.auto + d.career).length ? '<i class="w">금지어</i>' : '') + (sA || sC ? '<i class="w">비슷함</i>' : '') +
+        (MIRECORD.chars(d.auto) > MAXA || MIRECORD.chars(d.career) > MAXC ? '<i class="w">글자 수</i>' : '') + '</span></div>' +
+        (!open ? '' :
+        '<div class="rec-b">' +
+          '<div class="rec-sec"><div class="lbl">교사 관찰 (주 근거)</div><div class="gr-obs"><span class="tags">' +
+            A.OBS_TAGS.concat(A.OBS_NEG).map((tg) => '<button data-tag="' + esc(tg) + '" class="' + (o.tags[tg] ? 'on' : '') + (A.OBS_NEG.indexOf(tg) >= 0 ? ' neg' : '') + '">' + esc(tg) + '</button>').join('') +
+            '</span><input class="txt" data-k="memo" placeholder="직접 본 것 한 줄 — 예: 회사채 위험을 먼저 짚고 국채로 옮기자고 제안함" value="' + esc(o.memo || '') + '"></div>' +
+            (ev.need ? '<p class="note warn">‘도움이 필요함’은 초안에 넣지 않습니다 — 피드백용입니다.</p>' : '') + '</div>' +
+          '<div class="rec-sec"><div class="lbl">학생 성찰지 (보조)</div>' + (rf ?
+            '<div class="rf">' + [['희망 진로', rf.qCareer], ['기억에 남는 판단', rf.qMoment], ['의견이 갈린 순간', rf.qConflict],
+              ['배운 개념', (rf.concepts || []).join(', ') + (rf.qConceptText ? ' — ' + rf.qConceptText : '')], ['진로와 연결', rf.qLink], ['다음에 고칠 점', rf.qNext]]
+              .filter((x) => String(x[1] || '').trim()).map((x) => '<div><span>' + x[0] + '</span>' + esc(x[1]) + '</div>').join('') + '</div>'
+            : '<p class="note">아직 내지 않았습니다.</p>') + '</div>' +
+          '<div class="rec-sec"><div class="lbl">진로 후속 탐구 (선택 · 교사가 확인한 것만)</div><div class="grid2">' +
+            '<input class="txt" data-k="ctitle" placeholder="탐구 주제 — 예: 금리 인상이 반도체 기업 투자에 미치는 영향" value="' + esc(cr.title || '') + '">' +
+            '<input class="txt" data-k="cobs" placeholder="확인한 내용 한 줄 — 예: 보고서에서 설비투자 자료를 비교함" value="' + esc(cr.obs || '') + '"></div></div>' +
+          '<div class="rec-sec"><div class="lbl">자율·자치활동 초안 <span class="cnt">' + countHtml(d.auto, MAXA) + '</span>' +
+            (d.autoEdited ? ' <button class="btn ghost sm" data-re="auto">다시 만들기</button>' : '') + '</div>' +
+            '<textarea data-k="auto" rows="5">' + esc(d.auto || '') + '</textarea>' +
+            (sA ? '<p class="note warn">' + esc(sA.name) + ' 학생 초안과 ' + Math.round(sA.v * 100) + '% 겹칩니다 — 관찰 메모를 더해 주세요.</p>' : '') + '</div>' +
+          '<div class="rec-sec"><div class="lbl">진로활동 초안 <span class="cnt">' + countHtml(d.career, MAXC) + '</span>' +
+            (d.careerEdited ? ' <button class="btn ghost sm" data-re="career">다시 만들기</button>' : '') + '</div>' +
+            '<textarea data-k="career" rows="5">' + esc(d.career || '') + '</textarea>' +
+            (sC ? '<p class="note warn">' + esc(sC.name) + ' 학생 초안과 ' + Math.round(sC.v * 100) + '% 겹칩니다 — 희망 진로나 후속 탐구를 확인해 주세요.</p>' : '') + '</div>' +
+          (noObs ? '<p class="note warn">교사 관찰이 없어 역할·팀 기록만으로 만든 초안입니다. 직접 본 내용을 한 줄이라도 더해 주세요.</p>' : '') +
+        '</div>');
+      b.appendChild(d1);
+      d1.querySelector('.rec-h').onclick = () => { recOpen = open ? '' : st.sid; drawTab(); };
+      if (!open) return;
+      d1.querySelectorAll('.tags button').forEach((x) => {
+        x.onclick = () => { const t = x.dataset.tag; if (o.tags[t]) delete o.tags[t]; else o.tags[t] = true; A.save(); drawTab(); };
+      });
+      const q = (k) => d1.querySelector('[data-k="' + k + '"]');
+      /* 입력 칸에서 나올 때는 통째로 다시 그리지 않는다 (바로 누른 버튼이 사라지지 않게) — 초안 칸만 새로 맞춘다 */
+      const refresh = () => {
+        A.save(); syncDrafts([st]);
+        ['auto', 'career'].forEach((k) => {
+          const ta = q(k); if (document.activeElement !== ta) ta.value = st.d[k] || '';
+          ta.parentNode.querySelector('.cnt').innerHTML = countHtml(ta.value, k === 'auto' ? MAXA : MAXC);
+        });
+      };
+      q('memo').onchange = function () { o.memo = this.value; refresh(); };
+      const setCareer = () => { S.career = S.career || {}; S.career[st.sid] = { title: q('ctitle').value.trim(), obs: q('cobs').value.trim() }; refresh(); };
+      q('ctitle').onchange = setCareer; q('cobs').onchange = setCareer;
+      ['auto', 'career'].forEach((k) => {
+        const ta = q(k);
+        ta.oninput = function () {
+          const cur = S.drafts[st.sid]; cur[k] = this.value; cur[k + 'Edited'] = true;
+          this.parentNode.querySelector('.cnt').innerHTML = countHtml(this.value, k === 'auto' ? MAXA : MAXC);
+        };
+        ta.onchange = () => { A.save(); };
+        const fitH = () => { ta.style.height = 'auto'; ta.style.height = (ta.scrollHeight + 4) + 'px'; };
+        requestAnimationFrame(fitH); ta.addEventListener('input', fitH);
+      });
+      d1.querySelectorAll('[data-re]').forEach((x) => {
+        x.onclick = () => { const cur = S.drafts[st.sid]; delete cur[x.dataset.re + 'Edited']; A.save(); drawTab(); };
+      });
+    });
+
+    /* 3. 담임 선생님께 */
+    const bad = list.filter((s) => MIRECORD.banned(s.d.auto + s.d.career).length).length;
+    const over = list.filter((s) => MIRECORD.chars(s.d.auto) > MAXA || MIRECORD.chars(s.d.career) > MAXC).length;
+    const noObsN = list.length - nObs;
+    card(b, '3. 담임 선생님께 반별로 드리기',
+      '<p>반마다 한 쪽(가로 A4) — 번호·이름·자율·자치활동 초안·진로활동 초안. 맨 위에 담임 선생님께 드리는 안내(관찰 기반 초안, ‘대회’ 표현 금지, 글자 수)가 들어갑니다.</p>' +
+      (bad || over || noObsN ? '<p class="note warn">' + [bad ? '금지어 ' + bad + '명' : '', over ? '글자 수 넘침 ' + over + '명' : '', noObsN ? '관찰 없음 ' + noObsN + '명' : ''].filter(Boolean).join(' · ') + ' — 위 목록에서 표시된 학생을 먼저 확인하세요.</p>' : '<p class="note ok">금지어·글자 수 모두 통과했습니다.</p>') +
+      '<div class="row"><button class="btn primary" id="btnRecPrint"' + (list.length ? '' : ' disabled') + '>' + (recClass ? recClass + '반' : '반별 전체') + ' 인쇄용 열기</button>' +
+      '<button class="btn" id="btnRecTsv"' + (list.length ? '' : ' disabled') + '>' + (recClass ? recClass + '반' : '전체') + ' 표로 복사 (엑셀)</button>' +
+      '<span class="note" id="recNote"></span></div>');
+    el('btnRecPrint').onclick = () => {
+      const w = window.open('', '_blank');
+      if (!w) { el('recNote').className = 'note warn'; el('recNote').textContent = '팝업이 막혔습니다. 주소창 오른쪽에서 팝업을 허용하세요.'; return; }
+      w.document.open(); w.document.write(classPage(list, recClass)); w.document.close();
+      el('recNote').className = 'note ok'; el('recNote').textContent = '새 창에 열었습니다. 반마다 따로 인쇄(또는 PDF 저장)하세요.';
+    };
+    el('btnRecTsv').onclick = () => {
+      const t = ['학년\t반\t번호\t이름\t자율·자치활동\t진로활동'].concat(shown.map((s) =>
+        [s.g, s.c, s.n, s.name, String(s.d.auto || '').replace(/[\t\n]/g, ' '), String(s.d.career || '').replace(/[\t\n]/g, ' ')].join('\t'))).join('\n');
+      A.copyText(t).then((ok) => { el('recNote').className = 'note ' + (ok ? 'ok' : 'warn'); el('recNote').textContent = ok ? shown.length + '명을 복사했습니다.' : '복사가 막혔습니다.'; });
+    };
+
+    /* 4. 지우기 */
+    card(b, '4. 명단과 개인 기록 지우기',
+      '<p>담임 선생님께 드리고 나면 지우세요. <b>참가 신청 명단(이름·학번)</b>, <b>파이어베이스의 성찰지</b>, 이 콘솔의 <b>관찰·성찰지·후속 탐구·초안</b>을 모두 지웁니다. ' +
+      '팀 이름과 매매 기록·점수는 남습니다.</p>' +
+      '<p class="note">함께 지울 것: 내려받은 백업 파일(이름·학번이 들어 있습니다), 인쇄해 둔 결과지·초안, 복사해 둔 엑셀 표.</p>' +
+      '<div class="row"><button class="btn danger" id="btnRecWipe">명단 · 개인 기록 모두 지우기</button><span class="note" id="wipeRecNote"></span></div>');
+    el('btnRecWipe').onclick = function () {
+      const n = el('wipeRecNote');
+      if (this.dataset.armed !== '1') {
+        this.dataset.armed = '1'; this.textContent = '정말 지우려면 한 번 더 (' + list.length + '명)';
+        n.className = 'note warn'; n.textContent = '되돌릴 수 없습니다. 담임 선생님께 드렸는지 확인하세요.'; return;
+      }
+      A.wipePersonal(); recOpen = '';
+      n.className = 'note ok'; n.textContent = '지웠습니다.';
+      setTimeout(drawTab, 400);
+    };
+  }
+
+  /* 서랍 안에서 글을 쓰는 중이면 다시 그리지 않는다 — 쓰던 글이 날아간다 */
+  const typing = () => { const a = document.activeElement; return a && el('drawer').contains(a) && /^(TEXTAREA|INPUT|SELECT)$/.test(a.tagName); };
+  A.onRender(function () { if (!el('drawer').hidden && !(tab === 'records' && typing())) drawTab(); });
+  A.onSignups(function () { if (!el('drawer').hidden && (tab === 'signup' || tab === 'records') && !typing()) drawTab(); });
+  A.onReflect(function () { if (!el('drawer').hidden && tab === 'records' && !typing()) drawTab(); });
 })();
 </script>
 
