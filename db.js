@@ -119,6 +119,10 @@
   function fbDo(f) { if (fdb) f(); else pending.push(f); }
   if (USE_FB) initFb();
 
+  /* 파이어베이스는 undefined·NaN이 한 칸이라도 섞이면 쓰기 전체를 거부한다(예외를 던진다).
+     보내기 전에 JSON으로 한 번 걸러 그런 칸을 없앤다 — 연습 모드와 똑같은 모양이 된다 */
+  function clean(v) { return v === undefined ? null : JSON.parse(JSON.stringify(v)); }
+
   /* ───────────────────── 공개 사용법 ───────────────────── */
   function teamKey(i) { return 't' + i; }
 
@@ -134,19 +138,20 @@
     onSignups: on('signup'),
 
     setState: function (st) {
-      st = Object.assign({}, st, { at: Date.now() });
+      st = clean(Object.assign({}, st, { at: Date.now() }));
       if (USE_FB) fbDo(function () { fdb.ref('rooms/' + ROOM + '/state').set(st); });
       else lwrite({ state: st });
     },
 
     setPublic: function (p) {
+      p = clean(p);
       if (USE_FB) fbDo(function () { fdb.ref('rooms/' + ROOM + '/pub').set(p); });
       else lwrite({ pub: p });
     },
 
     /* 학생이 주문을 낸다 */
     submitOrder: function (round, teamIdx, payload) {
-      var rec = Object.assign({}, payload, { at: Date.now() });
+      var rec = clean(Object.assign({}, payload, { at: Date.now() }));
       var path = 'r' + round + '/' + teamKey(teamIdx);
       if (USE_FB) {
         return new Promise(function (res, rej) {
@@ -175,7 +180,7 @@
     /* ── 참가 신청 ──────────────────────────────────────────
        활동 진행 데이터와 따로 보관한다. 진행을 초기화해도 명단은 남는다. */
     addSignup: function (rec) {
-      var r = Object.assign({}, rec, { at: Date.now() });
+      var r = clean(Object.assign({}, rec, { at: Date.now() }));
       if (USE_FB) {
         return new Promise(function (res, rej) {
           fbDo(function () {
@@ -210,7 +215,7 @@
     onReflect: on('reflect'),
     submitReflect: function (sid, rec) {
       var key = 's' + String(sid).replace(/[^0-9A-Za-z]/g, '');
-      var r = Object.assign({}, rec, { at: Date.now() });
+      var r = clean(Object.assign({}, rec, { at: Date.now() }));
       if (USE_FB) {
         return new Promise(function (res, rej) {
           fbDo(function () { fdb.ref('rooms/' + ROOM + '/reflect/' + key).set(r).then(function () { res(true); }, rej); });
@@ -228,6 +233,7 @@
     /* 교사 화면 사본 — 진행 단계·채점·직접 넣은 주문 (시세·뉴스·해설은 넣지 않는다)
        교사 노트북이 꺼져도 다른 컴퓨터에서 시세표만 다시 불러오면 이어 할 수 있게 */
     saveTeacher: function (obj) {
+      obj = clean(obj);
       if (USE_FB) fbDo(function () { fdb.ref('rooms/' + ROOM + '/teacher').set(obj); });
       else { try { localStorage.setItem(lkey('teacher'), JSON.stringify(obj)); } catch (e) {} }
     },

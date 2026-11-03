@@ -135,11 +135,15 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--surface);
 .dot.on{background:var(--brand-bright);box-shadow:0 0 0 3px var(--brand-soft);}
 .dot.err{background:var(--up);box-shadow:0 0 0 3px var(--up-soft);}
 .statusbar .btn.ghost{background:var(--surface);}
-.statusbar #btnQrToggle.on{background:var(--brand-soft);color:var(--brand-ink);font-weight:700;}
-.statusbar #btnNoteToggle.off{background:var(--warn-soft);color:var(--warn);font-weight:700;}
-.qrkind{display:inline-flex;background:var(--fill);border-radius:999px;padding:2px;gap:2px;}
-.qrkind button{border:0;background:transparent;color:var(--t3);font-size:.78rem;font-weight:600;height:26px;padding:0 .7rem;border-radius:999px;}
-.qrkind button.on{background:var(--surface);color:var(--brand-ink);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.08);}
+/* 상태 스위치 — 이름표 + 선택지. 지금 상태가 칠해진 칸이고, 다른 칸을 누르면 그 상태로 바뀐다 */
+.seg{display:inline-flex;align-items:center;gap:.4rem;}
+.seg-lbl{font-size:.76rem;font-weight:700;color:var(--t2);white-space:nowrap;}
+.seg-opts{display:inline-flex;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line-2);border-radius:999px;padding:2px;gap:2px;}
+.seg-opts button{border:0;background:transparent;color:var(--t3);font-size:.78rem;font-weight:600;height:26px;padding:0 .75rem;border-radius:999px;white-space:nowrap;}
+.seg-opts button:hover{color:var(--t1);}
+.seg-opts button.on{background:var(--brand);color:#fff;font-weight:700;}
+.seg-opts button.on.off{background:var(--t2);}
+.seg-opts button.on.hide{background:var(--warn);}
 /* 단계 표시·진행 버튼은 글자가 바뀌어도 폭이 같게 — 옆 버튼이 움직이지 않는다 */
 #phaseLabel{min-width:10.6rem;justify-content:center;}
 #rdLabel{min-width:5.4rem;font-variant-numeric:tabular-nums;}
@@ -700,9 +704,12 @@ body.board-mode .board{
     <button class="btn ghost sm" id="btnT6">6분</button>
     <button class="btn ghost sm" id="btnT0">멈춤</button>
     <span class="spacer"></span>
-    <button class="btn ghost sm" id="btnNoteToggle" title="결과를 공개할 때 공지 화면과 학생 휴대폰의 해설(왜 올랐나·내렸나)을 잠시 가립니다. 학생에게 먼저 ‘왜 그랬을까?’를 물어본 뒤 다시 보이세요. 콘솔에는 늘 보입니다.">해설 잠시 가리기</button>
-    <button class="btn ghost sm" id="btnQrToggle">공지 화면 QR 켜기</button>
-    <span class="qrkind" role="group" aria-label="공지 화면 QR이 가리키는 곳"><button id="btnQrOrder" title="공지 화면 QR을 주문 작성기로">주문</button><button id="btnQrReflect" title="공지 화면 QR을 개인 성찰지로">성찰지</button></span>
+    <span class="seg" title="결과를 공개할 때 공지 화면과 학생 휴대폰에 해설(왜 올랐나·내렸나)을 보일지. 학생에게 먼저 ‘왜 그랬을까?’를 묻고 싶으면 [가림]. 콘솔에는 늘 보입니다.">
+      <span class="seg-lbl">해설</span>
+      <span class="seg-opts" role="group" aria-label="해설 보이기"><button id="btnNoteShow">보임</button><button id="btnNoteHide" class="hide">가림</button></span></span>
+    <span class="seg" title="공지 화면에 띄울 QR. 칠해진 칸이 지금 공지 화면에 떠 있는 것입니다.">
+      <span class="seg-lbl">공지 QR</span>
+      <span class="seg-opts" role="group" aria-label="공지 화면 QR"><button id="btnQrOff" class="off">끔</button><button id="btnQrOrder">주문</button><button id="btnQrReflect">성찰지</button></span></span>
   </div>
 
   <main>
@@ -1222,8 +1229,11 @@ body.board-mode .board{
         s.rules = Object.assign({}, CFG.rules || {}, s.rules || {});
         s.assets = (s.assets || []).map((a) => {
           const d = (CFG.assets || []).find((x) => x.name === a.name);
-          return d ? Object.assign({}, d, a, { lock: a.lock != null ? a.lock : d.lock,
-                                              early: a.early != null ? a.early : d.early }) : a;
+          if (!d) return a;
+          /* 값이 없는 칸은 아예 만들지 않는다 — undefined가 섞이면 파이어베이스가 통째로 쓰기를 거부한다 */
+          const m = Object.assign({}, d, a);
+          ['lock', 'early'].forEach((k) => { const v = a[k] != null ? a[k] : d[k]; if (v == null) delete m[k]; else m[k] = v; });
+          return m;
         });
         s.edited = p.edited || {};
       }
@@ -1434,18 +1444,15 @@ body.board-mode .board{
     else if (!S.datesShown) { bn.textContent = '실제 시점 공개'; bn.disabled = false; }
     else { bn.textContent = '활동 종료 · 실제 시점까지 공개됨'; bn.disabled = true; }
     el('btnPrev').disabled = !S.sheetLoaded || (S.round === 0 && S.phase === 'order');
-    if (el('btnNoteToggle')) {
-      el('btnNoteToggle').textContent = S.noteOff ? '해설 다시 보이기 · 지금 가려짐' : '해설 잠시 가리기';
-      el('btnNoteToggle').classList.toggle('off', !!S.noteOff);
+    if (el('btnNoteShow')) {
+      el('btnNoteShow').classList.toggle('on', !S.noteOff);
+      el('btnNoteHide').classList.toggle('on', !!S.noteOff);
     }
-    if (el('btnQrToggle')) {
-      const q = qrWanted();
-      el('btnQrToggle').textContent = q ? '공지 화면 QR 끄기' : '공지 화면 QR 켜기';
-      el('btnQrToggle').classList.toggle('on', q);
-      if (el('btnQrOrder')) {
-        el('btnQrOrder').classList.toggle('on', S.qrKind !== 'reflect');
-        el('btnQrReflect').classList.toggle('on', S.qrKind === 'reflect');
-      }
+    if (el('btnQrOff')) {
+      const q = qrWanted(), k = S.qrKind === 'reflect' ? 'reflect' : 'order';
+      el('btnQrOff').classList.toggle('on', !q);
+      el('btnQrOrder').classList.toggle('on', q && k === 'order');
+      el('btnQrReflect').classList.toggle('on', q && k === 'reflect');
     }
 
     renderPrices();
@@ -1760,6 +1767,10 @@ body.board-mode .board{
 
   /* 교사 화면이 내보내는 것 — 진행 상태와, 공개된 라운드까지의 시세만 */
   function publish() {
+    try { publishNow(); }
+    catch (e) { setStatus('error', '학생 화면으로 보내지 못했습니다: ' + (e && e.message ? e.message : e), 0); try { console.error(e); } catch (x) {} }
+  }
+  function publishNow() {
     if (MODE !== 'teacher' || !window.MIDB) return;
     if (!S.sheetLoaded) return;              /* 시세표 전이면 학생 쪽으로 아무것도 보내지 않는다 */
     const sh = shownRound();
@@ -2171,10 +2182,10 @@ body.board-mode .board{
   if (el('btnLoadSheet')) el('btnLoadSheet').onclick = function () {
     window.__MI_OPEN__ && window.__MI_OPEN__('prices');
   };
-  if (el('btnNoteToggle')) el('btnNoteToggle').onclick = function () { S.noteOff = !S.noteOff; saveState(); render(); };
-  if (el('btnQrToggle')) el('btnQrToggle').onclick = function () {
-    S.qrOn = !qrWanted(); saveState(); render();
-  };
+  const setNote = (off) => () => { S.noteOff = off; saveState(); render(); };
+  if (el('btnNoteShow')) el('btnNoteShow').onclick = setNote(false);
+  if (el('btnNoteHide')) el('btnNoteHide').onclick = setNote(true);
+  if (el('btnQrOff')) el('btnQrOff').onclick = function () { S.qrOn = false; saveState(); render(); renderCbs.forEach((f) => { try { f(); } catch (e) {} }); };
   /* QR 종류를 고르면 그 QR을 바로 띄운다 — 라운드와 상관없이 */
   const pickQr = (k) => () => { S.qrKind = k; S.qrOn = true; saveState(); render(); renderCbs.forEach((f) => { try { f(); } catch (e) {} }); };
   if (el('btnQrOrder')) el('btnQrOrder').onclick = pickQr('order');
@@ -2506,7 +2517,7 @@ body.board-mode .board{
       '<span class="note" id="suNote"></span></div>' +
       '<div id="qrPrev" class="qrprev"></div>' +
       '<p class="note" style="margin-top:.6rem">공지 화면에도 같은 QR이 뜹니다. ' +
-      '라운드 0에는 저절로 뜨고, 그 뒤에는 위쪽 [공지 화면 QR 켜기]로 언제든 다시 띄울 수 있습니다(결과 공개 중에도).</p>');
+      '라운드 0에는 저절로 뜨고, 그 뒤에는 위쪽 <b>공지 QR [주문]</b>으로 언제든 다시 띄울 수 있습니다(결과 공개 중에도).</p>');
 
     (function () {
       const host = el('qrPrev'), svgTxt = A.qrSvg(surl);
@@ -3477,7 +3488,7 @@ body.board-mode .board{
     const rq = S.qrKind === 'reflect' && S.qrOn;
     card(b, '1. 개인 성찰지 받기',
       '<p>활동이 끝난 뒤(실제 시점 공개 다음) 학생 각자 휴대폰으로 냅니다. 이름과 학번이 참가 신청 명단과 맞아야 받습니다. ' +
-      '<b>성찰지는 보조 자료</b>입니다 — 초안의 중심은 선생님이 본 것입니다. 콘솔 위쪽 <b>[주문 | 성찰지]</b>로도 언제든 바꿀 수 있습니다.</p>' +
+      '<b>성찰지는 보조 자료</b>입니다 — 초안의 중심은 선생님이 본 것입니다. 콘솔 위쪽 <b>공지 QR [끔 | 주문 | 성찰지]</b>로도 언제든 바꿀 수 있습니다.</p>' +
       '<div class="row"><button class="btn ' + (rq ? '' : 'primary') + '" id="btnRefQr">' + (rq ? '공지 화면 QR을 주문용으로 되돌리기' : '공지 화면에 성찰지 QR 띄우기') + '</button>' +
       '<button class="btn" id="btnRefCopy">성찰지 주소 복사</button>' +
       '<span class="note ok">' + nRef + ' / ' + list.length + '명 제출</span></div>' +
