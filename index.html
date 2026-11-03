@@ -137,6 +137,13 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--surface);
 .statusbar .btn.ghost{background:var(--surface);}
 .statusbar #btnQrToggle.on{background:var(--brand-soft);color:var(--brand-ink);font-weight:700;}
 .statusbar #btnNoteToggle.off{background:var(--warn-soft);color:var(--warn);font-weight:700;}
+.qrkind{display:inline-flex;background:var(--fill);border-radius:999px;padding:2px;gap:2px;}
+.qrkind button{border:0;background:transparent;color:var(--t3);font-size:.78rem;font-weight:600;height:26px;padding:0 .7rem;border-radius:999px;}
+.qrkind button.on{background:var(--surface);color:var(--brand-ink);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.08);}
+/* 단계 표시·진행 버튼은 글자가 바뀌어도 폭이 같게 — 옆 버튼이 움직이지 않는다 */
+#phaseLabel{min-width:10.6rem;justify-content:center;}
+#rdLabel{min-width:5.4rem;font-variant-numeric:tabular-nums;}
+#btnNext{min-width:17.5rem;}
 .newsbar .nl.note{color:var(--warn);font-weight:600;}
 .statusbar .btn.ghost:hover{background:var(--fill-2);}
 
@@ -693,8 +700,9 @@ body.board-mode .board{
     <button class="btn ghost sm" id="btnT6">6분</button>
     <button class="btn ghost sm" id="btnT0">멈춤</button>
     <span class="spacer"></span>
-    <button class="btn ghost sm" id="btnNoteToggle">공지 화면 해설 숨기기</button>
+    <button class="btn ghost sm" id="btnNoteToggle" title="결과를 공개할 때 공지 화면과 학생 휴대폰의 해설(왜 올랐나·내렸나)을 잠시 가립니다. 학생에게 먼저 ‘왜 그랬을까?’를 물어본 뒤 다시 보이세요. 콘솔에는 늘 보입니다.">해설 잠시 가리기</button>
     <button class="btn ghost sm" id="btnQrToggle">공지 화면 QR 켜기</button>
+    <span class="qrkind" role="group" aria-label="공지 화면 QR이 가리키는 곳"><button id="btnQrOrder" title="공지 화면 QR을 주문 작성기로">주문</button><button id="btnQrReflect" title="공지 화면 QR을 개인 성찰지로">성찰지</button></span>
   </div>
 
   <main>
@@ -1411,7 +1419,7 @@ body.board-mode .board{
     const nl = newsList(S.news[S.round]);
     const cn = S.phase === 'result' ? noteOf(S.round) : null;     /* 결과 공개 중에는 해설도 같이 보인다 (선생님용) */
     el('newsText').innerHTML = (nl.length ? nl.map((t) => '<span class="nl">' + esc(t) + '</span>').join('') : '—') +
-      (cn ? '<span class="nl note">해설 · ' + esc(cn.sum || '') + (S.noteOff ? ' (공지 화면에는 숨김)' : '') + '</span>' : '');
+      (cn ? '<span class="nl note">해설 · ' + esc(cn.sum || '') + (S.noteOff ? ' (공지 화면·학생 휴대폰에는 가림)' : '') + '</span>' : '');
 
     if (el('setupBar')) el('setupBar').hidden = !!S.sheetLoaded;
     const bn = el('btnNext');
@@ -1427,13 +1435,17 @@ body.board-mode .board{
     else { bn.textContent = '활동 종료 · 실제 시점까지 공개됨'; bn.disabled = true; }
     el('btnPrev').disabled = !S.sheetLoaded || (S.round === 0 && S.phase === 'order');
     if (el('btnNoteToggle')) {
-      el('btnNoteToggle').textContent = S.noteOff ? '공지 화면 해설 보이기' : '공지 화면 해설 숨기기';
+      el('btnNoteToggle').textContent = S.noteOff ? '해설 다시 보이기 · 지금 가려짐' : '해설 잠시 가리기';
       el('btnNoteToggle').classList.toggle('off', !!S.noteOff);
     }
     if (el('btnQrToggle')) {
       const q = qrWanted();
       el('btnQrToggle').textContent = q ? '공지 화면 QR 끄기' : '공지 화면 QR 켜기';
       el('btnQrToggle').classList.toggle('on', q);
+      if (el('btnQrOrder')) {
+        el('btnQrOrder').classList.toggle('on', S.qrKind !== 'reflect');
+        el('btnQrReflect').classList.toggle('on', S.qrKind === 'reflect');
+      }
     }
 
     renderPrices();
@@ -2163,6 +2175,10 @@ body.board-mode .board{
   if (el('btnQrToggle')) el('btnQrToggle').onclick = function () {
     S.qrOn = !qrWanted(); saveState(); render();
   };
+  /* QR 종류를 고르면 그 QR을 바로 띄운다 — 라운드와 상관없이 */
+  const pickQr = (k) => () => { S.qrKind = k; S.qrOn = true; saveState(); render(); renderCbs.forEach((f) => { try { f(); } catch (e) {} }); };
+  if (el('btnQrOrder')) el('btnQrOrder').onclick = pickQr('order');
+  if (el('btnQrReflect')) el('btnQrReflect').onclick = pickQr('reflect');
   /* 공지 화면 밝기 — 어두운 무대가 기본, 프로젝터처럼 흐린 화면이면 밝게 */
   function applyBoardTheme(light) {
     document.body.classList.toggle('board-light', !!light);
@@ -3332,6 +3348,119 @@ body.board-mode .board{
       '</style></head><body>' + keys.map(page).join('') + '</body></html>';
   }
 
+  /* ── 학생별 원본 — 초안을 직접(또는 Claude에게 맡겨) 쓸 때 쓰는 근거 전부 ──
+     틀로 만든 초안과 별개로, 관찰·역할·팀 기록·성찰지를 가공 없이 내려받는다 */
+  function rawOf(st) {
+    const S = A.S(), E = A.engine(), RN = A.ROLE_NAMES, O = A.orders(), NR = S.prices.length - 1;
+    const C = window.MI_CONFIG || {}, P = C.program || {}, M = C.record || {};
+    const news = (x) => (window.MI_NEWSLIST ? window.MI_NEWSLIST(x) : [].concat(x || []));
+    const mates = A.teamMembers(st.team);
+    const o = (S.obs || {})[st.sid] || {}, rf = (S.reflect || {})[st.sid] || null, cr = (S.career || {})[st.sid] || null, d = (S.drafts || {})[st.sid] || {};
+    const rounds = [];
+    let fin = null;
+    if (st.ti >= 0) {
+      for (let r = 0; r <= NR; r++) {
+        const p = (E[r] || [])[st.ti]; if (!p) continue;
+        const rec = O[A.okey(st.team, r)] || {};
+        const roles = Array.isArray(p.roles) ? p.roles : null;
+        rounds.push({
+          round: r, date: (S.dates || [])[r] || '', news: news(S.news[r]),
+          note: ((S.notes || [])[r] || {}).sum || '',
+          submitted: !!p.submitted,
+          myRoles: roles ? roles.map((m, ri) => m === st.mi ? RN[ri] : '').filter(Boolean) : [],
+          teamRoles: roles ? RN.map((rn, ri) => rn + ': ' + ((mates[roles[ri]] || {}).name || '?')) : [],
+          orders: (rec.items || []).filter((x) => x.qty > 0).map((x) => x.asset + ' ' + x.side + ' ' + x.qty),
+          reason: String(p.reason || '').trim(),
+          grade: ((S.grades || {})[r] || {})[st.ti] || '',
+          total: Math.round(p.totR), ret: +(p.totR / S.rules.initialCash - 1).toFixed(4)
+        });
+      }
+      const fr = MIENGINE.finalScores(E, S, S.grades).find((x) => x.t === st.ti);
+      if (fr) fin = { final: Math.round(fr.fin), ret: +fr.ret.toFixed(4), mdd: +fr.stab.mdd.toFixed(4), violations: fr.viol,
+        scores: { 수익: +fr.sRet.toFixed(1), 안정성: +fr.sStab.toFixed(1), 판단근거: +fr.sJudge.toFixed(1), 규칙: +fr.sRules.toFixed(1), 합계: +fr.total.toFixed(1) } };
+    }
+    return {
+      student: { sid: st.sid, name: st.name, grade: st.g, class: st.c, no: st.n, team: st.team, teammates: mates.map((m) => m.name) },
+      program: { name: P.name || '', when: (S.recMeta || {}).when || '', hours: P.hours || '' },
+      limits: { 자율자치: M.autoMax || 500, 진로: M.careerMax || 700 },
+      teacherObs: { tags: Object.keys(o.tags || {}), memo: o.memo || '' },
+      reflection: rf ? { 희망진로: rf.qCareer || '', 기억에남는판단: rf.qMoment || '', 의견이갈린순간: rf.qConflict || '',
+        배운개념: (rf.concepts || []), 개념설명: rf.qConceptText || '', 진로와연결: rf.qLink || '', 다음에고칠점: rf.qNext || '' } : null,
+      careerFollowup: cr && (cr.title || cr.obs) ? { 주제: cr.title || '', 확인한내용: cr.obs || '' } : null,
+      rounds: rounds, teamResult: fin,
+      templateDraft: { 자율자치: d.auto || '', 진로: d.career || '', 교사가고침: !!(d.autoEdited || d.careerEdited) }
+    };
+  }
+  const RF_LBL = { 희망진로: '희망 진로', 기억에남는판단: '기억에 남는 판단', 의견이갈린순간: '의견이 갈린 순간', 배운개념: '배운 개념', 개념설명: '개념 설명', 진로와연결: '진로와 연결', 다음에고칠점: '다음에 고칠 점' };
+  const RAW_RULES = [
+    '근거의 무게: 교사 관찰(태그·메모) > 라운드 역할·팀 기록 > 학생 성찰지. 성찰지·자기평가만으로 문장을 만들지 않는다.',
+    '원본에 없는 행동·발언·성과를 지어내지 않는다. 근거가 모자라면 짧게 쓰고 무엇이 모자란지 따로 적는다.',
+    '‘대회’·순위·우승·수상·등수, 기관명(KDI 등), 실제 회사 이름(A사~F사의 실제 이름)은 쓰지 않는다. 팀 점수·수익률 숫자도 쓰지 않는다.',
+    '문체는 ‘~함’, ‘~보임’. 학생 이름은 넣지 않는다. 자율·자치활동과 진로활동은 내용이 겹치지 않게 나눈다.',
+    '글자 수는 나이스 기준 이내(아래 limits). ‘도움이 필요함’ 태그는 피드백용이므로 초안에 넣지 않는다.'
+  ];
+  function rawMd(list) {
+    const S = A.S(), C = window.MI_CONFIG || {}, P = C.program || {}, M = C.record || {};
+    const pct = (v) => (v > 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
+    const one = (st) => {
+      const x = rawOf(st), u = x.student, L = [];
+      L.push('## ' + u.sid + ' ' + u.name + ' (' + (u.grade ? u.grade + '학년 ' : '') + u.class + '반 ' + u.no + '번)');
+      L.push('- 팀: ' + (u.team || '없음') + (u.teammates.length ? ' — ' + u.teammates.join(', ') : ''));
+      L.push('', '### 교사 관찰 (주 근거)');
+      L.push('- 태그: ' + (x.teacherObs.tags.join(', ') || '없음'));
+      L.push('- 메모: ' + (x.teacherObs.memo || '없음'));
+      L.push('', '### 라운드별 기록');
+      if (!x.rounds.length) L.push('- (팀 기록 없음 — 신청 팀 이름이 콘솔 팀 이름과 다릅니다)');
+      x.rounds.forEach((r) => {
+        L.push('- **R' + r.round + '**' + (r.date ? ' (' + r.date + ')' : '') + ' — 이 학생의 역할: ' + (r.myRoles.join(', ') || (r.teamRoles.length ? '없음' : '기록 없음')) +
+          (r.submitted ? '' : ' · 미제출'));
+        if (r.news.length) L.push('    - 뉴스: ' + r.news.join(' / '));
+        if (r.teamRoles.length) L.push('    - 팀 역할: ' + r.teamRoles.join(', '));
+        L.push('    - 주문: ' + (r.orders.join(', ') || '없음'));
+        L.push('    - 팀 매매 사유: ' + (r.reason || '없음') + (r.grade ? ' (판단 근거 ' + r.grade + ')' : ''));
+        L.push('    - 결과: 총자산 ' + r.total.toLocaleString('ko-KR') + '원 (' + pct(r.ret) + ')' + (r.note ? ' · 해설: ' + r.note : ''));
+      });
+      if (x.teamResult) {
+        const t = x.teamResult;
+        L.push('', '### 팀 최종 결과 (참고 — 숫자는 초안에 쓰지 않음)',
+          '- 최종 자산 ' + t.final.toLocaleString('ko-KR') + '원 (' + pct(t.ret) + ') · 최대 낙폭 ' + pct(t.mdd) + ' · 규칙 위반 ' + t.violations + '회',
+          '- 활동 점수: ' + Object.keys(t.scores).map((k) => k + ' ' + t.scores[k]).join(' · '));
+      }
+      L.push('', '### 개인 성찰지 (보조)');
+      if (x.reflection) Object.keys(x.reflection).forEach((k) => {
+        const v = Array.isArray(x.reflection[k]) ? x.reflection[k].join(', ') : x.reflection[k];
+        if (String(v).trim()) L.push('- ' + (RF_LBL[k] || k) + ': ' + v);
+      }); else L.push('- 내지 않음');
+      L.push('', '### 진로 후속 탐구 (교사 확인)');
+      L.push(x.careerFollowup ? '- 주제: ' + x.careerFollowup.주제 + (x.careerFollowup.확인한내용 ? '\n- 확인한 내용: ' + x.careerFollowup.확인한내용 : '') : '- 없음');
+      L.push('', '### 틀로 만든 초안 (참고' + (x.templateDraft.교사가고침 ? ' · 교사가 고친 내용 포함' : '') + ')');
+      L.push('- 자율·자치활동: ' + (x.templateDraft.자율자치 || '—'));
+      L.push('- 진로활동: ' + (x.templateDraft.진로 || '—'));
+      return L.join('\n');
+    };
+    const head = ['# 모의투자 프로젝트 · 학생별 원본 기록', '',
+      '- 활동: ' + (P.name || '모의투자 프로젝트') + ((S.recMeta || {}).when ? ' · ' + S.recMeta.when : '') + (P.hours ? ' · ' + P.hours + '시간' : ''),
+      '- 활동 내용: 팀(4명)마다 1,000만 원으로 실제 시장 데이터(시점은 가림)의 6라운드를 사고팔며, 라운드마다 뉴스 4개를 읽고 매매 사유를 씀. 역할(뉴스 분석가·위험 관리자·기록자·주문 담당)은 라운드마다 돌아가며 맡음. 순위·시상 없음.',
+      '- 글자 수: 자율·자치활동 ' + (M.autoMax || 500) + '자 · 진로활동 ' + (M.careerMax || 700) + '자 이내',
+      '- 학생 수: ' + list.length + '명 · 내려받은 때: ' + new Date().toLocaleString('ko-KR'),
+      '', '**초안 작성 시 지킬 것**', ''].concat(RAW_RULES.map((t, i) => (i + 1) + '. ' + t)).concat(['',
+      '> 이름·학번이 들어 있는 개인 기록입니다. 초안 정리가 끝나면 이 파일을 지우세요.', '']);
+    return head.join('\n') + '\n' + list.map(one).join('\n\n---\n\n') + '\n';
+  }
+  function rawJson(list) {
+    const C = window.MI_CONFIG || {}, M = C.record || {};
+    return JSON.stringify({ kind: 'mockinvest-student-raw', at: new Date().toISOString(), rules: RAW_RULES,
+      limits: { 자율자치: M.autoMax || 500, 진로: M.careerMax || 700 }, students: list.map(rawOf) }, null, 1);
+  }
+  function saveFile(name, text, type) {
+    const blob = new Blob([text], { type: type + ';charset=utf-8' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+  const safe = (t) => String(t || '').replace(/[\\/:*?"<>|\s]+/g, '_');
+  window.__MI_RAW__ = { md: (sids) => rawMd(students().filter((s) => !sids || sids.indexOf(s.sid) >= 0)), json: () => rawJson(students()) };
+
   function tabRecords(b) {
     const S = A.S(), C = window.MI_CONFIG || {}, M = C.record || {};
     const MAXA = M.autoMax || 500, MAXC = M.careerMax || 700;
@@ -3348,14 +3477,14 @@ body.board-mode .board{
     const rq = S.qrKind === 'reflect' && S.qrOn;
     card(b, '1. 개인 성찰지 받기',
       '<p>활동이 끝난 뒤(실제 시점 공개 다음) 학생 각자 휴대폰으로 냅니다. 이름과 학번이 참가 신청 명단과 맞아야 받습니다. ' +
-      '<b>성찰지는 보조 자료</b>입니다 — 초안의 중심은 선생님이 본 것입니다.</p>' +
+      '<b>성찰지는 보조 자료</b>입니다 — 초안의 중심은 선생님이 본 것입니다. 콘솔 위쪽 <b>[주문 | 성찰지]</b>로도 언제든 바꿀 수 있습니다.</p>' +
       '<div class="row"><button class="btn ' + (rq ? '' : 'primary') + '" id="btnRefQr">' + (rq ? '공지 화면 QR을 주문용으로 되돌리기' : '공지 화면에 성찰지 QR 띄우기') + '</button>' +
       '<button class="btn" id="btnRefCopy">성찰지 주소 복사</button>' +
       '<span class="note ok">' + nRef + ' / ' + list.length + '명 제출</span></div>' +
       '<p class="note" style="margin-top:.5rem">받은 성찰지는 이 콘솔(과 백업 파일)에 옮겨 담깁니다. 다 받으면 ' +
       '<button class="btn ghost sm" id="btnRefClear">파이어베이스에서 성찰지 지우기</button> — 콘솔에 담긴 사본은 남습니다.</p>' +
       '<span class="note" id="refNote"></span>');
-    el('btnRefQr').onclick = () => { A.setQr(rq ? 'order' : 'reflect', rq ? null : true); drawTab(); };
+    el('btnRefQr').onclick = () => { A.setQr(rq ? 'order' : 'reflect', true); drawTab(); };
     el('btnRefCopy').onclick = () => A.copyText(A.reflectUrl()).then((ok) => { el('refNote').className = 'note ' + (ok ? 'ok' : 'warn'); el('refNote').textContent = ok ? '복사했습니다: ' + A.reflectUrl() : A.reflectUrl(); });
     el('btnRefClear').onclick = function () {
       if (this.dataset.armed !== '1') { this.dataset.armed = '1'; this.textContent = '한 번 더 누르면 지웁니다'; return; }
@@ -3414,6 +3543,7 @@ body.board-mode .board{
             '<textarea data-k="career" rows="5">' + esc(d.career || '') + '</textarea>' +
             (sC ? '<p class="note warn">' + esc(sC.name) + ' 학생 초안과 ' + Math.round(sC.v * 100) + '% 겹칩니다 — 희망 진로나 후속 탐구를 확인해 주세요.</p>' : '') + '</div>' +
           (noObs ? '<p class="note warn">교사 관찰이 없어 역할·팀 기록만으로 만든 초안입니다. 직접 본 내용을 한 줄이라도 더해 주세요.</p>' : '') +
+          '<div class="row"><button class="btn sm" data-raw="1">이 학생 원본 내려받기 (.md)</button><span class="note">관찰·라운드별 역할과 팀 기록·성찰지 전문 — 틀을 거치지 않은 그대로</span></div>' +
         '</div>');
       b.appendChild(d1);
       d1.querySelector('.rec-h').onclick = () => { recOpen = open ? '' : st.sid; drawTab(); };
@@ -3443,6 +3573,7 @@ body.board-mode .board{
         const fitH = () => { ta.style.height = 'auto'; ta.style.height = (ta.scrollHeight + 4) + 'px'; };
         requestAnimationFrame(fitH); ta.addEventListener('input', fitH);
       });
+      d1.querySelector('[data-raw]').onclick = () => saveFile('원본_' + safe(st.sid) + '_' + safe(st.name) + '.md', rawMd([st]), 'text/markdown');
       d1.querySelectorAll('[data-re]').forEach((x) => {
         x.onclick = () => { const cur = S.drafts[st.sid]; delete cur[x.dataset.re + 'Edited']; A.save(); drawTab(); };
       });
@@ -3457,7 +3588,14 @@ body.board-mode .board{
       (bad || over || noObsN ? '<p class="note warn">' + [bad ? '금지어 ' + bad + '명' : '', over ? '글자 수 넘침 ' + over + '명' : '', noObsN ? '관찰 없음 ' + noObsN + '명' : ''].filter(Boolean).join(' · ') + ' — 위 목록에서 표시된 학생을 먼저 확인하세요.</p>' : '<p class="note ok">금지어·글자 수 모두 통과했습니다.</p>') +
       '<div class="row"><button class="btn primary" id="btnRecPrint"' + (list.length ? '' : ' disabled') + '>' + (recClass ? recClass + '반' : '반별 전체') + ' 인쇄용 열기</button>' +
       '<button class="btn" id="btnRecTsv"' + (list.length ? '' : ' disabled') + '>' + (recClass ? recClass + '반' : '전체') + ' 표로 복사 (엑셀)</button>' +
-      '<span class="note" id="recNote"></span></div>');
+      '<span class="note" id="recNote"></span></div>' +
+      '<p style="margin-top:.9rem"><b>원본 내려받기</b> — 틀로 만든 초안과 따로, 학생마다 교사 관찰·라운드별 역할·팀 주문과 매매 사유·뉴스·성찰지 전문을 그대로 담습니다. ' +
+      '맨 위에 기재 원칙(관찰 우선, 지어내지 않기, 금지어, 글자 수)이 들어 있어 직접 쓰시거나 Claude에게 초안을 맡길 때 그대로 넘기시면 됩니다.</p>' +
+      '<div class="row"><button class="btn" id="btnRawMd"' + (list.length ? '' : ' disabled') + '>' + (recClass ? recClass + '반' : '전체') + ' 원본 (.md)</button>' +
+      '<button class="btn" id="btnRawJson"' + (list.length ? '' : ' disabled') + '>전체 원본 (.json)</button>' +
+      '<span class="note warn">이름·학번이 들어 있습니다 — 다 쓰면 지우세요.</span></div>');
+    el('btnRawMd').onclick = () => saveFile('원본_' + (recClass ? recClass + '반' : '전체') + '.md', rawMd(shown), 'text/markdown');
+    el('btnRawJson').onclick = () => saveFile('원본_전체.json', rawJson(list), 'application/json');
     el('btnRecPrint').onclick = () => {
       const w = window.open('', '_blank');
       if (!w) { el('recNote').className = 'note warn'; el('recNote').textContent = '팝업이 막혔습니다. 주소창 오른쪽에서 팝업을 허용하세요.'; return; }
@@ -3474,7 +3612,7 @@ body.board-mode .board{
     card(b, '4. 명단과 개인 기록 지우기',
       '<p>담임 선생님께 드리고 나면 지우세요. <b>참가 신청 명단(이름·학번)</b>, <b>파이어베이스의 성찰지</b>, 이 콘솔의 <b>관찰·성찰지·후속 탐구·초안</b>을 모두 지웁니다. ' +
       '팀 이름과 매매 기록·점수는 남습니다.</p>' +
-      '<p class="note">함께 지울 것: 내려받은 백업 파일(이름·학번이 들어 있습니다), 인쇄해 둔 결과지·초안, 복사해 둔 엑셀 표.</p>' +
+      '<p class="note">함께 지울 것: 내려받은 백업 파일과 <b>원본 파일(.md · .json)</b> — 이름·학번이 들어 있습니다 — 인쇄해 둔 결과지·초안, 복사해 둔 엑셀 표.</p>' +
       '<div class="row"><button class="btn danger" id="btnRecWipe">명단 · 개인 기록 모두 지우기</button><span class="note" id="wipeRecNote"></span></div>');
     el('btnRecWipe').onclick = function () {
       const n = el('wipeRecNote');
