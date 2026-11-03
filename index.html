@@ -350,7 +350,7 @@ body.board-mode{
 }
 body.board-mode.board-light{
   --b-bg:#F2F4F6; --b-card:#FFFFFF; --b-card-2:#F9FAFB; --b-line:#EEF0F2;
-  --b-t1:#191F28; --b-t2:#3D4754; --b-t3:#6B7684; --b-gold:#B86E00;
+  --b-t1:#191F28; --b-t2:#3D4754; --b-t3:#6B7684; --b-gold:#9A5800;
   --b-up:#F04452; --b-down:#3182F6;
   --b-up-soft:rgba(240,68,82,.12); --b-down-soft:rgba(49,130,246,.12); --b-bar:rgba(25,31,40,.06);
   --b-brand:#107C41; --b-brand-soft:#E7F5EC; --b-warn:#B25E00;
@@ -394,7 +394,7 @@ body.board-mode .board{
   background:var(--b-card);border-radius:clamp(14px,2vh,24px);
   padding:clamp(.8rem,2vh,1.5rem) clamp(1rem,1.8vw,1.8rem);
   font-size:clamp(1rem,2.7vh,2rem);line-height:1.45;font-weight:600;letter-spacing:-.02em;
-  display:flex;gap:.8em;align-items:baseline;
+  display:flex;gap:.8em;align-items:baseline;color:var(--b-t1);
 }
 .b-news::before{content:"뉴스";flex:none;font-size:.62em;font-weight:800;color:var(--b-brand);
   letter-spacing:0;}
@@ -403,8 +403,8 @@ body.board-mode .board{
 .b-news{min-height:calc(3em + 2 * clamp(.6rem,1.5vh,1.2rem));align-items:center;}   /* 두 줄(1.35em×2) + 줄 사이 .3em */
 .b-news::before{align-self:center;}
 .b-news.note::before{content:"해설";color:var(--b-gold);}
-.b-news.note{font-weight:600;}
-.b-name .b-why{font-size:max(.78rem,.62em);font-weight:700;color:var(--b-gold);margin-left:.5em;letter-spacing:-.01em;}
+.b-news.note{font-weight:700;color:var(--b-t1);}   /* 콘솔의 .note(회색 작은 글씨)를 물려받지 않게 */
+.b-name .b-why{font-size:max(.9rem,.74em);font-weight:700;color:var(--b-gold);margin-left:.55em;letter-spacing:-.02em;}
 .b-ncard{cursor:pointer;transition:transform .12s ease;}
 .b-ncard:hover{transform:translateY(-2px);}
 .b-dcard .more{margin-top:auto;font-size:clamp(.7rem,1.5vh,1rem);font-weight:700;color:var(--b-brand);}
