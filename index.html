@@ -103,6 +103,9 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--surface);
 .phase::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;}
 .phase.result{background:var(--t1);color:#fff;}
 .spacer{flex:1 1 auto;}
+.practice-btn{background:var(--warn-soft);color:var(--warn);font-weight:700;}
+body.practice:not(.board-mode) .topbar{box-shadow:inset 0 -3px 0 var(--warn);}
+body.board-mode.practice .b-phase{background:var(--b-gold);color:#191F28;}
 
 /* 시세표 안내 */
 .setupbar{
@@ -668,6 +671,7 @@ body.board-mode .board{
       </div>
       <button class="btn" id="btnPrev" title="한 단계 되돌리기">← 되돌리기</button>
       <button class="btn primary" id="btnNext">주문 마감 · 결과 공개</button>
+      <button class="btn practice-btn" id="btnPractice" hidden>연습 라운드 먼저 하기</button>
       <span class="spacer"></span>
       <button class="btn" id="btnBoard">공지 화면</button>
       <button class="btn" id="btnSettings">설정 · 주문</button>
@@ -1186,7 +1190,9 @@ body.board-mode .board{
     reflect: {},       // 학생 성찰지 (파이어베이스에서 옮겨 온 것) { 학번: {...} }
     career: {},        // 진로 후속 과제 (교사 입력) { 학번: { title, obs } }
     drafts: {},        // 특기사항 초안 { 학번: { auto, career, autoEdited, careerEdited } }
-    recMeta: {}        // 초안에 들어갈 활동 정보 { when: '2026.12.22.' }
+    recMeta: {},       // 초안에 들어갈 활동 정보 { when: '2026.12.22.' }
+    practice: false,   // 연습 라운드 중인가 — 진짜 시세표는 real에 잠시 넣어 둔다
+    real: null
   };
   const CFG = JSON.parse(JSON.stringify(window.MI_CONFIG || {}));
   const NA0 = (CFG.assets || []).length || 1;
@@ -1213,7 +1219,7 @@ body.board-mode .board{
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
         const p = JSON.parse(raw);
-        ['round', 'phase', 'timerEnd', 'manual', 'grades', 'finalShown', 'datesShown', 'newsIntro', 'qrOn', 'noteOff', 'penalty', 'qrKind', 'obs', 'reflect', 'career', 'drafts', 'recMeta'].forEach((k) => {
+        ['round', 'phase', 'timerEnd', 'manual', 'grades', 'finalShown', 'datesShown', 'newsIntro', 'qrOn', 'noteOff', 'penalty', 'qrKind', 'obs', 'reflect', 'career', 'drafts', 'recMeta', 'practice', 'real'].forEach((k) => {
           if (p[k] !== undefined) s[k] = p[k];
         });
         // 한 번 불러온 시세표는 이 브라우저에 남는다
@@ -1246,6 +1252,7 @@ body.board-mode .board{
       manual: S.manual, grades: S.grades || {}, finalShown: !!S.finalShown,
       datesShown: !!S.datesShown, newsIntro: !!S.newsIntro, qrOn: S.qrOn == null ? null : !!S.qrOn, noteOff: !!S.noteOff, penalty: S.penalty || {}, qrKind: S.qrKind || 'order',
       obs: S.obs || {}, reflect: S.reflect || {}, career: S.career || {}, drafts: S.drafts || {}, recMeta: S.recMeta || {},
+      practice: !!S.practice, real: S.practice ? S.real : null,
       edited: S.edited || {}, sheetLoaded: !!S.sheetLoaded,
       teams: S.teams, assets: S.assets, prices: S.prices, news: S.news,
       dates: S.dates, notes: S.notes || [], bench: S.bench || null, reveal: S.reveal || null, rules: S.rules
@@ -1421,11 +1428,16 @@ body.board-mode .board{
   function render() {
     recompute();
     const NR = S.prices.length - 1;
-    el('rdLabel').innerHTML = '<span class="rd-lbl">라운드</span>' + S.round;
+    el('rdLabel').innerHTML = S.practice ? '연습' : '<span class="rd-lbl">라운드</span>' + S.round;
+    document.body.classList.toggle('practice', !!S.practice);
+    if (el('btnPractice')) {
+      el('btnPractice').hidden = !(S.practice || practiceAllowed());
+      el('btnPractice').textContent = S.practice ? '연습 그만두기' : '연습 라운드 먼저 하기';
+    }
     const ph = el('phaseLabel');
     ph.textContent = S.phase === 'result' ? '결과공개' : S.newsIntro ? '뉴스 공개 · 주문접수' : '주문접수';
     ph.className = 'phase ' + (S.phase === 'result' ? 'result' : 'order');
-    el('newsTag').textContent = 'R' + S.round;
+    el('newsTag').textContent = S.practice ? '연습' : 'R' + S.round;
     const nl = newsList(S.news[S.round]);
     const cn = S.phase === 'result' ? noteOf(S.round) : null;     /* 결과 공개 중에는 해설도 같이 보인다 (선생님용) */
     el('newsText').innerHTML = (nl.length ? nl.map((t) => '<span class="nl">' + esc(t) + '</span>').join('') : '—') +
@@ -1434,6 +1446,9 @@ body.board-mode .board{
     if (el('setupBar')) el('setupBar').hidden = !!S.sheetLoaded;
     const bn = el('btnNext');
     if (!S.sheetLoaded) { bn.textContent = '시세표를 먼저 불러오세요'; bn.disabled = true; }
+    else if (S.practice && S.phase === 'order' && S.newsIntro) { bn.textContent = '뉴스 닫고 시세표 보기'; bn.disabled = false; }
+    else if (S.practice && S.phase === 'order') { bn.textContent = '연습 결과 공개'; bn.disabled = false; }
+    else if (S.practice) { bn.textContent = '연습 끝내고 본 활동 시작'; bn.disabled = false; }
     else if (S.phase === 'order' && S.newsIntro) { bn.textContent = '뉴스 닫고 시세표 보기'; bn.disabled = false; }
     else if (S.phase === 'order') { bn.textContent = '주문 마감 · 결과 공개'; bn.disabled = false; }
     else if (S.round < NR) { bn.textContent = '다음 라운드 R' + (S.round + 1) + ' 시작'; bn.disabled = false; }
@@ -1443,7 +1458,7 @@ body.board-mode .board{
     }
     else if (!S.datesShown) { bn.textContent = '실제 시점 공개'; bn.disabled = false; }
     else { bn.textContent = '활동 종료 · 실제 시점까지 공개됨'; bn.disabled = true; }
-    el('btnPrev').disabled = !S.sheetLoaded || (S.round === 0 && S.phase === 'order');
+    el('btnPrev').disabled = !S.sheetLoaded || (S.round === 0 && S.phase === 'order') || (S.practice && S.phase === 'order' && S.newsIntro);
     if (el('btnNoteShow')) {
       el('btnNoteShow').classList.toggle('on', !S.noteOff);
       el('btnNoteHide').classList.toggle('on', !!S.noteOff);
@@ -1497,6 +1512,11 @@ body.board-mode .board{
 
   function renderGrades() {
     if (MODE !== 'teacher' || !el('gradeList')) return;
+    if (S.practice) {
+      el('gradeRounds').innerHTML = ''; el('gradeHint').textContent = '';
+      el('gradeList').innerHTML = '<p class="gr-none" style="padding:1rem">연습 라운드는 채점하지 않습니다 — 점수·관찰·역할 기록에 남지 않고, [연습 끝내고 본 활동 시작]을 누르면 모두 지워집니다.</p>';
+      return;
+    }
     const NR = S.prices.length - 1, cur = Math.min(S.round, NR);
     const gr = gradeRound == null ? cur : Math.min(gradeRound, cur);
     const R = S.rules, maxJ = R.scoreJudge == null ? 30 : R.scoreJudge;
@@ -1708,9 +1728,71 @@ body.board-mode .board{
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   }
 
+  /* ═══════════════════ 연습 라운드 ═══════════════════
+     본 활동 전에 계산기(학생 화면)와 공지 화면에 익숙해지는 한 판. 점수·채점·기록에 남지 않는다.
+     안쪽에서는 '라운드 1'로 돌린다 — 시작가(P0)에 사고, 결과 가격(P1)으로 평가되어야 값이 움직이므로.
+     화면에는 라운드 번호 대신 '연습'이라고 쓴다. */
+  const PRACTICE = {
+    prices: [[10000, 20000, 10000, 50000, 20000, 10000, 10000, 10000, 10000],
+             [12000, 18000, 10500, 40000, 21000, 13000, 10100, 10050, 10000]],
+    news: ['', ['[연습] 이웃 나라가 우리나라 자동차·기계를 더 많이 사기로 했다',
+                '[연습] 원자재 값이 크게 올라 화학 회사들의 비용 부담이 커졌다',
+                '[연습] 정부, 태양광·풍력 발전소를 두 배로 늘리겠다고 발표',
+                '[연습] 학교 앞 분식집 떡볶이 값 500원 인상']],
+    notes: [null, { sum: '[연습] 수출이 늘어난 A사(+20%)와 친환경 정책 덕을 본 F사(+30%)가 오르고, 원자재 값 부담이 커진 D사(−20%)가 떨어졌습니다. 떡볶이 값 소식은 투자와 상관없었습니다. 진짜 라운드에서도 결과를 공개하면 이렇게 해설이 나옵니다.',
+      items: {
+        'A사': ['수출 증가', '이웃 나라가 자동차·기계를 더 사기로 해 수출 회사의 매출이 늘 거라는 기대가 커졌습니다.'],
+        'B사': ['뉴스 없이 쉬어 감', '이번 뉴스와 직접 관계는 없었지만, 주가는 뉴스가 없어도 조금씩 오르내립니다.'],
+        'C사': ['조용한 상승', '큰 소식은 없었지만 내수 소비가 꾸준해 조금 올랐습니다.'],
+        'D사': ['원자재 값 부담', '재료를 사 오는 값이 올라 이익이 줄 거라는 걱정에 크게 떨어졌습니다.'],
+        'E사': ['배당 기대', '흔들림이 적은 금융 회사로, 배당을 기대한 사람들이 조금씩 샀습니다.'],
+        'F사': ['친환경 정책', '정부가 태양광·풍력 발전소를 늘리겠다고 해 친환경 회사가 가장 많이 올랐습니다.'],
+        '국채': ['채권값 소폭 상승', '금리가 조금 내려 이미 가진 채권의 값이 올랐습니다(이자 따로).'],
+        '회사채': ['채권값 소폭 상승', '국채처럼 금리가 내려 값이 조금 올랐습니다.'],
+        '정기예금': ['변동 없음', '예금은 값이 변하지 않고 이자만 붙습니다.'] } }]
+  };
+  function practiceAllowed() {
+    return !!S.sheetLoaded && !S.practice && S.round === 0 && S.phase === 'order' && !S.finalShown &&
+      !Object.keys(effOrders()).length;
+  }
+  function clearRun() {
+    S.synced = {}; S.manual = {}; S.grades = {}; S.penalty = {};
+    S.finalShown = false; S.datesShown = false; S.timerEnd = 0;
+    if (window.MIDB) MIDB.clearAll();                 /* 주문·공개 자료를 비운다 — 신청 명단은 남는다 */
+  }
+  function startPractice() {
+    if (!practiceAllowed()) return;
+    S.real = { prices: S.prices, news: S.news, dates: S.dates, notes: S.notes, bench: S.bench, reveal: S.reveal };
+    const NA = S.assets.length;
+    S.prices = PRACTICE.prices.map((r) => r.slice(0, NA).concat(new Array(Math.max(0, NA - r.length)).fill(10000)));
+    S.news = clone(PRACTICE.news); S.dates = ['', '']; S.notes = clone(PRACTICE.notes); S.bench = null; S.reveal = null;
+    S.practice = true;
+    clearRun();
+    S.round = 1; S.phase = 'order'; S.newsIntro = true;   /* 진짜 라운드처럼 뉴스 화면부터 */
+    S.qrOn = null; S.qrKind = 'order';                    /* 연습 동안 QR은 저절로 켜진다 */
+    render();
+  }
+  function endPractice() {
+    if (!S.practice) return;
+    const R = S.real || {};
+    S.prices = R.prices || S.prices; S.news = R.news || []; S.dates = R.dates || []; S.notes = R.notes || [];
+    S.bench = R.bench || null; S.reveal = R.reveal || null;
+    S.practice = false; S.real = null;
+    clearRun();
+    S.round = 0; S.phase = 'order'; S.newsIntro = false; S.qrOn = null; S.qrKind = 'order';
+    render();
+  }
+  if (el('btnPractice')) el('btnPractice').onclick = function () { S.practice ? endPractice() : startPractice(); };
+
   /* ═══════════════════ 진행 제어 ═══════════════════ */
   el('btnNext').onclick = function () {
     const NR = S.prices.length - 1;
+    if (S.practice) {                                     /* 연습: 뉴스 → 시세표 → 결과 공개 → 본 활동 시작 */
+      if (S.phase === 'order' && S.newsIntro) S.newsIntro = false;
+      else if (S.phase === 'order') { S.phase = 'result'; S.timerEnd = 0; }
+      else { endPractice(); return; }
+      render(); return;
+    }
     if (S.phase === 'order' && S.newsIntro) { S.newsIntro = false; }  /* 뉴스 화면 → 평소 화면 (주문은 그동안에도 받는다) */
     else if (S.phase === 'order') { S.phase = 'result'; S.timerEnd = 0; }   /* 주문 타이머는 마감과 함께 멈춘다 */
     else if (S.round < NR) { S.round++; S.phase = 'order'; S.timerEnd = 0; S.newsIntro = true; }
@@ -1719,6 +1801,11 @@ body.board-mode .board{
     render();
   };
   el('btnPrev').onclick = function () {
+    if (S.practice) {                                     /* 연습 안에서만 한 단계씩 */
+      if (S.phase === 'result') S.phase = 'order';
+      else if (!S.newsIntro) S.newsIntro = true;
+      render(); return;
+    }
     if (S.datesShown) S.datesShown = false;
     else if (S.finalShown) S.finalShown = false;
     else if (S.phase === 'result') S.phase = 'order';
@@ -1776,7 +1863,7 @@ body.board-mode .board{
     const sh = shownRound();
     const fin = finalOn();
     MIDB.setState({ round: S.round, phase: S.phase, timerEnd: S.timerEnd || 0, final: fin,
-      dates: datesRevealed(), intro: S.phase === 'order' && !!S.newsIntro, qr: qrWanted(), note: !S.noteOff, qrKind: S.qrKind || 'order' });
+      dates: datesRevealed(), intro: S.phase === 'order' && !!S.newsIntro, qr: qrWanted(), note: !S.noteOff, qrKind: S.qrKind || 'order', practice: !!S.practice });
     MIDB.setPublic({
       teams: S.teams, assets: S.assets, rules: S.rules,
       rounds: S.prices.length,                 /* 라운드 수만 (앞으로의 가격은 보내지 않는다) */
@@ -1852,6 +1939,7 @@ body.board-mode .board{
         S.qrBoard = !!st.qr;
         S.noteOff = st.note === false;
         S.qrKind = st.qrKind === 'reflect' ? 'reflect' : 'order';
+        S.practice = !!st.practice;
         render();
       }
     });
@@ -1885,9 +1973,10 @@ body.board-mode .board{
   /* 공지 화면 렌더 — 왼쪽은 주식 · 채권·예금 두 표, 오른쪽은 팀 */
   function renderBoard() {
     const sh = shownRound(), res = S.phase === 'result';
-    el('bRound').innerHTML = '<span class="b-round-lbl">라운드</span>' + S.round;
+    el('bRound').innerHTML = S.practice ? '연습' : '<span class="b-round-lbl">라운드</span>' + S.round;
     const bp = el('bPhase');
-    bp.textContent = res ? '결과 공개' : '주문 접수 중';
+    bp.textContent = (S.practice ? '연습 · ' : '') + (res ? '결과 공개' : '주문 접수 중');
+    document.body.classList.toggle('practice', !!S.practice);
     bp.className = 'b-phase ' + (res ? 'res' : 'ord');
     const bn = newsList(S.news[S.round]);
     const note = res && noteOn() ? noteOf(sh) : null;      /* 결과 공개 때는 뉴스 자리에 그 라운드 해설 */
@@ -1902,7 +1991,7 @@ body.board-mode .board{
     const prev = S.round > 0 ? (ENGINE[S.round - 1] || []) : null;
 
     const reveal = datesRevealed() && (S.dates || []).some(Boolean);
-    const dl = (i) => (reveal && S.dates[i]) ? S.dates[i] : '라운드 ' + i;
+    const dl = (i) => S.practice ? (i === 0 ? '시작가' : '연습') : (reveal && S.dates[i]) ? S.dates[i] : '라운드 ' + i;
     const cur = S.prices[sh], was = sh > 0 ? S.prices[sh - 1] : null;
     const vsLbl = was ? dl(sh - 1) + '보다' : '지난 라운드보다';
     const dash = '<span class="b-dash">—</span>';
@@ -2008,17 +2097,17 @@ body.board-mode .board{
   let introHiddenAt = '';
   function renderBoardIntro() {
     const box = el('bIntro'); if (!box) return;
-    const key = 'R' + S.round;
+    const key = (S.practice ? 'P' : 'R') + S.round;
     const on = MODE === 'board' && S.phase === 'order' && !!S.newsIntro && S.round > 0;
     if (!on) introHiddenAt = '';
     box.hidden = !on || introHiddenAt === key;
     if (box.hidden) return;
-    el('bIntroRound').innerHTML = '<span class="b-round-lbl">라운드</span>' + S.round;
+    el('bIntroRound').innerHTML = S.practice ? '연습' : '<span class="b-round-lbl">라운드</span>' + S.round;
     const nl = newsList(S.news[S.round]);
     el('bIntroList').innerHTML = nl.map((t, i) => '<li><b>' + (i + 1) + '</b><span>' + esc(t) + '</span></li>').join('') ||
       '<li><span>이번 라운드 뉴스가 없습니다</span></li>';
   }
-  if (el('bIntroHide')) el('bIntroHide').onclick = function () { introHiddenAt = 'R' + S.round; renderBoardIntro(); };
+  if (el('bIntroHide')) el('bIntroHide').onclick = function () { introHiddenAt = (S.practice ? 'P' : 'R') + S.round; renderBoardIntro(); };
 
   /* 실제 시점 공개 — 최종 결과 다음, 활동의 맨 마지막 화면 */
   let datesHidden = false;
@@ -2152,7 +2241,7 @@ body.board-mode .board{
   /* QR은 주문접수 중에만. 기본은 R0에서 켜져 있고, 이후에는 교사가 켜야 나온다. */
   function qrWanted() {
     if (MODE === 'board' && S.qrBoard !== undefined) return !!S.qrBoard;    /* 공지 화면은 콘솔이 보낸 값을 따른다 */
-    return S.qrOn == null ? (S.round === 0) : !!S.qrOn;
+    return S.qrOn == null ? (S.round === 0 || !!S.practice) : !!S.qrOn;
   }
   function renderBoardQr() {
     const panel = el('bQrPanel'), grid = el('bGrid');
@@ -2327,6 +2416,7 @@ body.board-mode .board{
     sheetLoaded: () => !!S.sheetLoaded,
     applySheet: (o) => {
       const NA = S.assets.length;
+      if (S.practice) { S.practice = false; S.real = null; S.round = 0; S.phase = 'order'; S.newsIntro = false; }
       if (!o || !Array.isArray(o.prices) || !o.prices.length)
         throw new Error('prices 가 없습니다.');
       o.prices.forEach((row, r) => {
@@ -2414,6 +2504,7 @@ body.board-mode .board{
     stopTimer: () => { S.timerEnd = 0; touch(); },
     resetAll: () => {
       /* 진행만 처음으로 되돌린다 — 불러온 시세표와 팀·자산 설정은 그대로 둔다 */
+      if (S.practice && S.real) { Object.assign(S, S.real); S.practice = false; S.real = null; }
       const keep = {
         sheetLoaded: S.sheetLoaded, prices: S.prices, news: S.news, dates: S.dates, notes: S.notes, bench: S.bench, reveal: S.reveal,
         teams: S.teams, assets: S.assets, rules: S.rules, edited: S.edited,

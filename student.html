@@ -272,15 +272,61 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
 .note.warn{color:var(--warn);font-weight:600;}
 .note.ok{color:var(--brand);font-weight:600;}
 
-/* ── 아래쪽 고정: 제출 ── */
-.actionbar{position:fixed;left:0;right:0;bottom:0;z-index:30;
-  background:linear-gradient(to top,var(--bg) 70%,rgba(242,244,246,0));
-  padding:1.2rem .75rem calc(.75rem + env(safe-area-inset-bottom));}
-.actionbar-in{max-width:30rem;margin:0 auto;display:flex;flex-direction:column;gap:.5rem;}
-.actionbar .note{text-align:center;min-height:1.2rem;}
-.actionbar .btn{width:100%;height:3.5rem;border-radius:16px;font-size:1.06rem;
-  box-shadow:0 6px 20px rgba(16,124,65,.25);}
-.actionbar .btn:disabled{box-shadow:none;background:var(--fill-2);color:var(--t3);opacity:1;}
+/* ── 연습 라운드 띠 ── */
+.practicebar{background:var(--warn-soft);color:var(--warn);font-size:.82rem;font-weight:700;text-align:center;padding:.45rem .75rem;}
+.practicebar[hidden]{display:none;}
+/* ── 위쪽: 거래 후 현금 + 제출 (주문 탭에서만) ── */
+.cashstrip{align-items:center;}
+.cs-txt{display:flex;flex-direction:column;flex:1;min-width:0;}
+.cs-txt .v{margin-left:0;font-size:1.3rem;}
+.topsubmit{height:2.75rem;min-width:6.6rem;padding:0 1.1rem;border-radius:14px;font-size:.98rem;font-weight:800;
+  box-shadow:0 4px 14px rgba(16,124,65,.25);white-space:nowrap;}
+.topsubmit:disabled,.inline-submit:disabled{box-shadow:none;background:var(--fill-2);color:var(--t3);opacity:1;}
+body:not([data-cur="order"]) .topsubmit{display:none;}
+.statusline{max-width:30rem;margin:0 auto;padding:0 1.1rem;font-size:.8rem;line-height:1.4;text-align:right;}
+.statusline .note{display:block;padding-bottom:.5rem;}
+.statusline .note:empty{display:none;}
+body:not([data-cur="order"]) .statusline{display:none;}
+.inline-submit{width:100%;height:3.2rem;border-radius:14px;margin-top:1.1rem;font-size:1.02rem;}
+
+/* ── 하단 탭 ── */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;background:rgba(255,255,255,.96);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);backdrop-filter:saturate(180%) blur(14px);
+  border-top:1px solid var(--line);padding:0 .25rem env(safe-area-inset-bottom);}
+.tabbar button{flex:1;border:0;background:none;height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;color:var(--t3);font-size:.72rem;font-weight:600;position:relative;letter-spacing:-.02em;}
+.tabbar svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.tabbar button[aria-selected="true"]{color:var(--brand);font-weight:800;}
+.tabbar button[aria-selected="true"] svg{stroke-width:2.2;}
+.tabbar .dot{position:absolute;top:8px;left:calc(50% + 9px);width:9px;height:9px;border-radius:50%;background:var(--up);box-shadow:0 0 0 2px #fff;}
+.wrap > [data-tab]{display:none;}
+body[data-cur="news"]  .wrap > [data-tab="news"]:not([hidden]),
+body[data-cur="order"] .wrap > [data-tab="order"]:not([hidden]),
+body[data-cur="team"]  .wrap > [data-tab="team"]:not([hidden]),
+body[data-cur="info"]  .wrap > [data-tab="info"]:not([hidden]){display:block;}
+.wrap{padding-bottom:calc(5.5rem + env(safe-area-inset-bottom));}
+.nudge{background:var(--brand);color:#fff;border-radius:14px;padding:.75rem .9rem;margin-bottom:.75rem;
+  align-items:center;gap:.6rem;font-size:.86rem;line-height:1.4;cursor:pointer;}
+body[data-cur="order"] .wrap > .nudge:not([hidden]){display:flex;}
+.nudge b{margin-left:auto;white-space:nowrap;font-size:.84rem;}
+.newsmini{padding-top:.8rem;padding-bottom:.8rem;}
+.newsmini > summary{list-style:none;display:flex;align-items:center;gap:.5rem;cursor:pointer;}
+.newsmini > summary::-webkit-details-marker{display:none;}
+.nm-lbl{font-weight:800;font-size:.95rem;letter-spacing:-.02em;}
+.nm-cnt{font-size:.8rem;color:var(--t3);font-weight:600;}
+.newsmini .g-arrow{margin-left:auto;}
+.newsmini[open] > summary{margin-bottom:.6rem;}
+
+/* ── 사유 확인 팝업 ── */
+.modal{position:fixed;inset:0;z-index:60;background:rgba(25,31,40,.45);display:flex;align-items:flex-end;justify-content:center;
+  padding:1rem .75rem calc(1rem + env(safe-area-inset-bottom));}
+.modal[hidden]{display:none;}
+.modal-in{background:var(--surface);border-radius:22px;width:100%;max-width:28rem;padding:1.4rem 1.25rem 1rem;
+  box-shadow:0 18px 48px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:.55rem;}
+.modal-in h3{margin:0;font-size:1.12rem;font-weight:800;letter-spacing:-.03em;}
+.modal-in p{margin:0 0 .5rem;font-size:.92rem;color:var(--t2);line-height:1.55;}
+.modal-in .btn{width:100%;height:3.2rem;border-radius:14px;font-size:1rem;}
+.modal-in .linkbtn{align-self:center;padding:.6rem 1rem;color:var(--t3);font-size:.9rem;}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
 </style>
 </head>
@@ -295,34 +341,38 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
     <span class="pill phase" id="pPhase">대기</span>
   </div>
   <div class="cashstrip">
-    <span class="lb">거래 후 남는 현금</span>
-    <span class="v" id="hCash">—</span>
+    <span class="cs-txt"><span class="lb">거래 후 남는 현금</span><span class="v" id="hCash">—</span></span>
+    <button class="btn primary topsubmit" id="btnCommit">제출</button>
   </div>
+  <div class="statusline"><span class="note warn" id="warnNote"></span><span class="note" id="copyNote"></span></div>
+  <div class="practicebar" id="practiceBar" hidden>연습 라운드 — 점수에 들어가지 않습니다. 마음껏 눌러 보세요.</div>
 </header>
 
 <div class="wrap">
 
-  <section class="card" id="teamCard">
+  <section class="card" id="teamCard" data-tab="info">
     <h2>우리 팀</h2>
     <p class="sub">한 번만 고르면 이 기기에 저장됩니다.</p>
     <div class="field"><select id="selTeam" aria-label="팀"></select></div>
     <p class="note" id="linkNote" style="margin:.7rem 0 0"></p>
   </section>
 
-  <details class="card guide" id="guideCard" open>
+  <details class="card guide" id="guideCard" data-tab="info" open>
     <summary><span class="g-lbl">활동 안내</span><span class="g-ttl">처음이라면 꼭 읽어 주세요</span><span class="g-arrow" aria-hidden="true"></span></summary>
     <div id="guideBody"></div>
   </details>
 
-  <section class="card fin" id="finalCard" hidden></section>
+  <section class="card fin" id="finalCard" data-tab="team" hidden></section>
 
-  <section class="card">
+  <section class="card" data-tab="news">
     <h2 id="roundTitle">이번 라운드</h2>
     <p class="sub" id="roundSub">선생님 화면이 열리기를 기다리는 중입니다.</p>
     <div id="newsBox"></div>
   </section>
 
-  <section class="card" id="orderCard">
+  <div class="nudge" id="resNudge" data-tab="order" role="button" tabindex="0" hidden><span>결과가 공개됐습니다 — 왜 이렇게 움직였는지 해설을 읽어 보세요</span><b>해설 보기 →</b></div>
+  <details class="card newsmini" id="newsMini" data-tab="order"><summary><span class="nm-lbl">이번 라운드 뉴스</span><span class="nm-cnt" id="newsMiniCnt"></span><span class="g-arrow" aria-hidden="true"></span></summary><div id="newsMiniBody"></div></details>
+  <section class="card" id="orderCard" data-tab="order">
     <h2>사고팔기</h2>
     <p class="sub" id="posSub">라운드가 시작되면 채워집니다.</p>
     <div class="tot">
@@ -338,7 +388,7 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
     <dl class="sum" id="sumBox"></dl>
   </section>
 
-  <section class="card" id="reasonCard">
+  <section class="card" id="reasonCard" data-tab="order">
     <h2>매매 사유</h2>
     <p class="sub">판단 근거 30점이 걸린 칸입니다. 라운드마다 선생님이 상·중·하로 매기고, 비워 두면 0점입니다. 왜 그렇게 판단했는지 한두 문장으로.</p>
     <textarea id="reason" rows="3" placeholder="예) 금리가 올라 채권값이 떨어질 것 같아 국채를 팔고 예금으로 옮겼다"></textarea>
@@ -346,31 +396,34 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
       <h3>이번 라운드 역할 <small>라운드마다 한 칸씩 돌아갑니다 · 바꿔도 됩니다</small></h3>
       <div id="rolesList"></div>
     </div>
+    <button class="btn primary inline-submit" id="btnCommit2" type="button">제출</button>
   </section>
 
-  <section class="card">
+  <section class="card" data-tab="team">
     <h2>우리 팀 기록</h2>
     <p class="sub">제출한 라운드가 여기에 쌓입니다.</p>
     <div class="stab" id="stabBox"></div>
     <div id="histBox"></div>
   </section>
 
-  <section class="card">
+  <section class="card" data-tab="info">
     <h2>규칙</h2>
     <div id="rulesBox"></div>
   </section>
 
-  <div style="text-align:center"><button class="linkbtn" id="btnTheme">글자 크게</button></div>
+  <div style="text-align:center" data-tab="info"><button class="linkbtn" id="btnTheme">글자 크게</button></div>
 </div>
 
-<div class="actionbar">
-  <div class="actionbar-in">
-    <span class="note warn" id="warnNote"></span>
-    <span class="note" id="copyNote"></span>
-    <button class="btn primary" id="btnCommit">제출</button>
+
+<nav class="tabbar" role="tablist" aria-label="화면"><button role="tab" data-go="news"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M7.5 9h9M7.5 12.5h9M7.5 16h5"/></svg><span>뉴스·해설</span><i class="dot" hidden></i></button><button role="tab" data-go="order"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v15M7 19l-3-3M7 19l3-3M17 20V5M17 5l-3 3M17 5l3 3"/></svg><span>주문</span><i class="dot" hidden></i></button><button role="tab" data-go="team"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5h16M7 16v-4M12 16V8M17 16v-6"/></svg><span>우리 팀</span><i class="dot" hidden></i></button><button role="tab" data-go="info"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.6v.1"/></svg><span>안내</span><i class="dot" hidden></i></button></nav>
+<div class="modal" id="reasonModal" role="dialog" aria-modal="true" aria-labelledby="rmTitle" hidden>
+  <div class="modal-in">
+    <h3 id="rmTitle">매매 사유가 비어 있습니다</h3>
+    <p id="rmText">사유 없이 내면 이번 라운드 판단 근거는 0점입니다.</p>
+    <button class="btn primary" id="rmWrite" type="button">사유 쓰러 가기</button>
+    <button class="linkbtn" id="rmForce" type="button">그대로 제출</button>
   </div>
 </div>
-
 <script src="config.js"></script>
 <script src="engine.js"></script>
 <script src="db.js"></script>
@@ -400,7 +453,7 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
   function save() { try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {} }
 
   /* 선생님 화면에서 실시간으로 오는 것 */
-  let LIVE = { round: 0, phase: 'order', final: false, note: true, pub: null, orders: {}, link: { state: 'idle', msg: '' } };
+  let LIVE = { round: 0, phase: 'order', final: false, note: true, practice: false, pub: null, orders: {}, link: { state: 'idle', msg: '' } };
   let noteOpen = false;              /* '지난 라운드 해설'을 펼쳐 둔 채로 다시 그려도 접히지 않게 */
 
   const seed = window.MI_CONFIG || {};
@@ -503,12 +556,17 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
   const mySubmitted = () => (LIVE.orders['r' + LIVE.round] || {})['t' + S.teamIdx] || null;
   const canOrder = () => LIVE.phase === 'order' && !!pricesFor(LIVE.round) && S.teamIdx >= 0;
 
+  /* 연습 라운드는 안쪽에서 라운드 1로 돌지만 화면에는 '연습'이라고 쓴다 */
+  const rlabel = (r) => LIVE.practice ? '연습' : '라운드 ' + r;
+  const rshort = (r) => LIVE.practice ? '연습' : 'R' + r;
   /* ═══════════════ 렌더 ═══════════════ */
   function renderAll() {
     buildTeamSel();
     el('pTeam').textContent = teamName() || '팀 미선택';
     el('teamCard').classList.toggle('chosen', S.teamIdx >= 0);
-    el('pRound').textContent = '라운드 ' + LIVE.round;
+    el('pRound').textContent = rlabel(LIVE.round);
+    document.body.classList.toggle('practice', !!LIVE.practice);
+    el('practiceBar').hidden = !LIVE.practice;
     el('pPhase').textContent = LIVE.phase === 'order' ? '주문 접수' : '결과 공개';
     el('pPhase').classList.toggle('res', LIVE.phase !== 'order');
     renderLink();
@@ -534,7 +592,7 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
         '<li>위에서 <b>우리 팀</b>을 고릅니다. 한 번만 하면 됩니다.</li>' +
         '<li><b>뉴스</b> 여러 개를 읽고 무엇이 더 중요한지 팀에서 의논합니다. 모두 같은 방향은 아니고, 상관없는 소식도 섞여 있습니다. 가격은 교실 <b>공지 화면(TV)</b>에 있습니다.</li>' +
         '<li>아래 <b>사고팔기</b>에서 자산마다 [팔기]·[사기]를 누르고 수량을 적습니다.</li>' +
-        '<li><b>매매 사유</b>를 한두 문장으로 — <b>어떤 뉴스를 근거로 삼았는지</b> 꼭 적고 — 맨 아래 <b>[제출]</b>. 마감 전이면 다시 눌러 고칠 수 있습니다.</li>' +
+        '<li><b>매매 사유</b>를 한두 문장으로 — <b>어떤 뉴스를 근거로 삼았는지</b> 꼭 적고 — <b>[제출]</b>(사유 칸 아래나 맨 위). 마감 전이면 다시 눌러 고칠 수 있습니다.</li>' +
         '<li>선생님이 마감하면 결과가 공개되고 다음 라운드로 넘어갑니다.' + (NR > 0 ? ' 라운드 0부터 ' + NR + '까지 진행합니다.' : '') + '</li>' +
       '</ol></div>' +
       '<div class="g-sec"><h3>꼭 지켜야 할 규칙</h3><div class="g-rules">' +
@@ -610,12 +668,12 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
   function renderRound() {
     const v = view(), px = pricesFor(LIVE.round);
     const dl = v.dates[LIVE.round] || '';            /* 라운드 r의 실제 시점 (마지막 결과 공개 때만 옴) */
-    el('roundTitle').textContent = '라운드 ' + LIVE.round + (dl ? ' · ' + dl : '');
+    el('roundTitle').textContent = (LIVE.practice ? '연습 라운드' : '라운드 ' + LIVE.round) + (dl ? ' · ' + dl : '');
     el('roundSub').textContent = !px
       ? '선생님 화면이 열리기를 기다리는 중입니다.'
       : LIVE.phase === 'order'
         ? '가격은 공지 화면에서 확인하세요.'
-        : '결과가 공개됐습니다. 다음 라운드를 기다리세요.';
+        : LIVE.practice ? '연습 결과입니다. 곧 진짜 라운드 0이 시작됩니다.' : '결과가 공개됐습니다. 다음 라운드를 기다리세요.';
     const nl = (Array.isArray(v.news[LIVE.round]) ? v.news[LIVE.round] : [v.news[LIVE.round]])
       .map((t) => String(t == null ? '' : t).trim()).filter(Boolean);
     el('newsBox').innerHTML = !nl.length ? '' : nl.length === 1
@@ -829,7 +887,7 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
       const items = rec.items.length
         ? rec.items.map((i) => esc(i.asset) + ' ' + esc(i.side) + ' ' + won(i.qty)).join(' · ')
         : '거래 없음';
-      return '<div class="hist"><b>R' + r + '</b><span class="num">' + items + '</span>' +
+      return '<div class="hist"><b>' + rshort(r) + '</b><span class="num">' + items + '</span>' +
         (rec.reason ? '<p>' + esc(rec.reason) + '</p>' : '') + '</div>';
     }).join('');
   }
@@ -865,13 +923,18 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
   }
 
   function renderAction() {
+    renderActionMain();
+    const a = el('btnCommit'), b = el('btnCommit2');
+    b.textContent = a.textContent; b.disabled = a.disabled;
+  }
+  function renderActionMain() {
     const btn = el('btnCommit'), note = el('copyNote'), sub = mySubmitted();
     if (S.teamIdx < 0) { btn.disabled = true; btn.textContent = '팀을 고르세요'; return; }
     if (!canOrder()) {
       btn.disabled = true;
       btn.textContent = LIVE.phase === 'result' ? '결과 공개 중' : '대기 중';
       if (sub && !note.textContent) {
-        note.className = 'note ok'; note.textContent = 'R' + LIVE.round + ' 제출 완료.';
+        note.className = 'note ok'; note.textContent = rshort(LIVE.round) + ' 제출 완료.';
       }
       return;
     }
@@ -879,7 +942,7 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
     btn.textContent = sub ? '다시 제출' : '제출';
     if (sub && !note.textContent) {
       note.className = 'note ok';
-      note.textContent = 'R' + LIVE.round + ' 제출됨 · ' +
+      note.textContent = rshort(LIVE.round) + ' 제출됨 · ' +
         new Date(sub.at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) +
         ' — 다시 누르면 덮어씁니다.';
     }
@@ -940,32 +1003,67 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
   }
   if (MIDB.onSignups) MIDB.onSignups(function (m) { SIGNUPS = m || {}; renderRoles(); });
 
-  el('btnCommit').onclick = function () {
-    const v = view(), C = compute(), note = el('copyNote'), btn = this;
+  /* 매매 사유 확인 — 비었거나 너무 짧으면 보내기 전에 한 번 묻는다 (판단 근거 30점이 걸린 칸) */
+  const REASON_MIN = 5;
+  function reasonProblem() {
+    const r = String(S.reason || '').replace(/\s+/g, '');
+    if (!r) return 'empty';
+    if ([...r].length < REASON_MIN) return 'short';
+    return '';
+  }
+  function openReasonModal(kind) {
+    el('rmTitle').textContent = kind === 'empty' ? '매매 사유가 비어 있습니다' : '매매 사유가 너무 짧습니다';
+    el('rmText').textContent = kind === 'empty'
+      ? '사유 없이 내면 이번 라운드 판단 근거는 0점입니다.'
+      : '‘어떤 뉴스를 근거로 → 어떻게 될 거라 예상해서 → 이렇게 했다’를 한두 문장으로 적어야 판단 근거 점수를 받습니다.';
+    el('reasonModal').hidden = false;
+    el('rmWrite').focus();
+  }
+  function closeReasonModal() { el('reasonModal').hidden = true; }
+  el('rmWrite').onclick = function () {
+    closeReasonModal();
+    if (window.__TABS__) window.__TABS__.go('order', true);
+    const t = el('reason');
+    t.scrollIntoView({ block: 'center' });
+    setTimeout(function () { try { t.focus(); } catch (e) {} }, 250);
+  };
+  el('rmForce').onclick = function () { closeReasonModal(); commit(true); };
+  el('reasonModal').addEventListener('click', function (e) { if (e.target === this) closeReasonModal(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !el('reasonModal').hidden) closeReasonModal(); });
+
+  el('btnCommit').onclick = function () { commit(false); };
+  el('btnCommit2').onclick = function () { commit(false); };
+  function commit(force) {
+    const v = view(), C = compute(), note = el('copyNote'), btn = el('btnCommit');
+    if (btn.disabled) return;
     if (C.ready && C.cash < 0) {
       note.className = 'note warn'; note.textContent = '현금이 모자랍니다. 고치고 다시 누르세요.'; return;
     }
     if (C.excess > 0) {
       note.className = 'note warn'; note.textContent = '가진 것보다 많이 팔 수 없습니다.'; return;
     }
+    const rp = reasonProblem();
+    if (rp && !force) { openReasonModal(rp); return; }
     const items = S.lines.filter((l) => l.a >= 0 && l.a < v.assets.length && l.q > 0)
       .map((l) => ({ asset: v.assets[l.a].name, side: l.side, qty: l.q }));
     btn.disabled = true; btn.textContent = '보내는 중…';
+    el('btnCommit2').disabled = true; el('btnCommit2').textContent = '보내는 중…';
     note.className = 'note'; note.textContent = '';
     const ms = members();
     MIDB.submitOrder(LIVE.round, S.teamIdx, { items: items, reason: S.reason || '',
       roles: ms.length && Array.isArray(S.roles) ? S.roles.slice() : null })
       .then(function () {
         note.className = 'note ok';
-        note.textContent = 'R' + LIVE.round + ' 제출 완료. 선생님 화면에 떴습니다.';
+        note.textContent = rshort(LIVE.round) + ' 제출 완료. 선생님 화면에 떴습니다.';
         renderAll();
       })
       .catch(function () {
         btn.disabled = false; btn.textContent = '다시 제출';
+        el('btnCommit2').disabled = false; el('btnCommit2').textContent = '다시 제출';
         note.className = 'note warn';
         note.textContent = '보내지 못했습니다. 인터넷을 확인하고 다시 누르세요.';
       });
-  };
+  }
 
   /* ═══════════════ 실시간 연결 ═══════════════ */
   MIDB.onStatus(function (st) { LIVE.link = st; renderLink(); });
@@ -977,6 +1075,9 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
     LIVE.phase = st.phase === 'result' ? 'result' : 'order';
     LIVE.final = !!st.final;
     LIVE.note = st.note !== false;
+    const wasPractice = LIVE.practice;
+    LIVE.practice = !!st.practice;
+    if (wasPractice !== LIVE.practice) S.forRound = -99;   /* 연습 ↔ 본 활동이 바뀌면 작성판을 비운다 */
     if (S.forRound !== LIVE.round) {         /* 라운드가 바뀌면 작성판을 비운다 */
       S.lines = []; S.reason = ''; S.forRound = LIVE.round; S.roles = null;
       el('reason').value = ''; el('copyNote').textContent = '';
@@ -1000,6 +1101,57 @@ details.guide[open] .g-arrow{transform:rotate(-135deg);margin-top:.2rem;}
   renderAll();
 
   window.__STU__ = { compute: compute, state: () => S, live: () => LIVE, view: view, render: renderAll };
+})();
+</script>
+
+<script>
+/* ── 하단 탭 — 화면 영역만 나눈다 (계산·제출은 위 스크립트 그대로) ──
+   뉴스·해설 / 주문 / 우리 팀 / 안내. 결과가 공개돼도 화면을 저절로 넘기지 않고 점(●)과 띠로만 알린다. */
+(function () {
+  'use strict';
+  const el = (id) => document.getElementById(id);
+  const LS = 'mockinvest.student.tab';
+  const tabs = [...document.querySelectorAll('.tabbar button')];
+  const seen = { note: '', fin: false };
+  const dot = (k, on) => { const b = tabs.find((x) => x.dataset.go === k); if (b) b.querySelector('.dot').hidden = !on; };
+  /* 결과 공개 때 펼쳐진 해설(접힌 '지난 라운드'는 빼고)이 있으면 그 라운드 이름 */
+  function noteKey() {
+    return document.querySelector('#newsBox .notebox:not(details)') ? (el('roundTitle').textContent || 'x') : '';
+  }
+  function go(k, keep) {
+    document.body.dataset.cur = k;
+    tabs.forEach((b) => b.setAttribute('aria-selected', String(b.dataset.go === k)));
+    if (k === 'news') { dot('news', false); seen.note = noteKey(); }
+    if (k === 'team') { dot('team', false); seen.fin = !el('finalCard').hidden; }
+    try { localStorage.setItem(LS, k); } catch (e) {}
+    if (!keep) window.scrollTo(0, 0);
+    paint();
+  }
+  function paint() {
+    const k = noteKey(), cur = document.body.dataset.cur;
+    if (k && k !== seen.note && cur !== 'news') dot('news', true);
+    el('resNudge').hidden = !(k && k !== seen.note);
+    if (!el('finalCard').hidden && !seen.fin && cur !== 'team') dot('team', true);
+    /* 주문 탭 위쪽 — 이번 라운드 뉴스만 접어서 (해설·안내 문구는 빼고) */
+    const src = el('newsBox').querySelector('.newsline');
+    el('newsMiniCnt').textContent = src ? (src.querySelectorAll('li').length || 1) + '개' : '';
+    el('newsMiniBody').innerHTML = src ? src.outerHTML : '<p class="note">라운드가 시작되면 뜹니다.</p>';
+    const tip = el('newsMiniBody').querySelector('.nl-tip'); if (tip) tip.remove();
+  }
+  tabs.forEach((b) => { b.onclick = () => { touched = true; go(b.dataset.go); }; });
+  el('resNudge').onclick = () => go('news');
+  el('resNudge').onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go('news'); } };
+  new MutationObserver(paint).observe(el('newsBox'), { childList: true, subtree: true });
+  new MutationObserver(paint).observe(el('finalCard'), { attributes: true, attributeFilter: ['hidden'] });
+  const hasTeam = () => { const v = el('selTeam').value; return v !== '' && v !== '-1'; };
+  el('selTeam').addEventListener('change', () => { touched = true; go(hasTeam() ? 'order' : 'info'); });
+  let first = '', touched = false;
+  try { first = localStorage.getItem(LS) || ''; } catch (e) {}
+  const start = () => go(hasTeam() ? (first || 'order') : 'info', true);
+  start();
+  /* 팀 목록은 선생님 화면이 열린 뒤에 채워진다 — 이 기기에 저장된 팀이 있으면 그때 주문 탭으로 */
+  new MutationObserver(() => { if (!touched) start(); }).observe(el('selTeam'), { childList: true });
+  window.__TABS__ = { go: go };
 })();
 </script>
 </body>
